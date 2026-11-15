@@ -22,9 +22,39 @@ curl -X POST "$SUPABASE_URL/functions/v1/agent-runner" -H "x-cron-secret: $CRON_
 
 `200 {"status":"ok","supabaseConfigured":true,"time":"…"}` — sem dados sensíveis; público.
 
-### Webhook do WhatsApp — **Fase 2 (não implementado)**
+### Webhook do WhatsApp — `/api/webhooks/whatsapp` (Fase 2)
 
-Planejado: `GET /api/webhooks/whatsapp` (verificação `hub.mode/hub.verify_token/hub.challenge` com `WHATSAPP_WEBHOOK_VERIFY_TOKEN`) e `POST /api/webhooks/whatsapp` com validação HMAC-SHA256 de `X-Hub-Signature-256` usando `WHATSAPP_APP_SECRET` sobre o corpo bruto, deduplicação em `processed_events (source='whatsapp', event_id=wamid)` e `messages.wa_message_id` único, descadastro imediato por palavras-chave (PARAR/SAIR).
+Registre no app da Meta (WhatsApp → Configuration → Webhook) a URL `https://<dominio>/api/webhooks/whatsapp`, o *verify token* igual a `WHATSAPP_WEBHOOK_VERIFY_TOKEN` e assine o campo **messages**.
+
+**GET** (verificação): `hub.mode=subscribe`, `hub.verify_token`, `hub.challenge` → `200 <challenge>` · `403` token incorreto · `503` token não configurado.
+
+**POST** (eventos):
+
+1. Corpo limitado a 1 MB.
+2. `X-Hub-Signature-256` validado com HMAC-SHA256(`WHATSAPP_APP_SECRET`, corpo bruto), comparação em tempo constante → `401` se inválido. **Nada é gravado antes desta validação.**
+3. Eventos de outro `phone_number_id` (≠ `WHATSAPP_PHONE_NUMBER_ID`) são ignorados.
+4. Mensagens → `ingest_whatsapp_message()` (idempotente por `wamid` via `processed_events` + `messages.wa_message_id` único). Mídia não é baixada; só o tipo e a legenda são registrados.
+5. Status (`sent`, `delivered`, `read`, `failed`) → `apply_whatsapp_status()`; o status nunca regride.
+6. Resposta `200 {ok, received, duplicates, opt_outs, human_requests, statuses, skipped}`. Erro de banco → `500` (a Meta reenvia; o reprocessamento é seguro).
+
+Regras aplicadas no recebimento:
+
+* Janela de atendimento: `service_window_expires_at = última mensagem do cliente + 24h`.
+* Descadastro: mensagem igual a uma palavra-chave (padrão: parar, sair, stop, cancelar, descadastrar…) ou frase-chave em mensagem curta → número entra na `suppression_list`, autorizações são revogadas, agente pausado.
+* Pedido de humano ("atendente", "falar com alguém"…) → conversa passa a atendimento humano e o agente é pausado.
+* Receber mensagem **não** cria autorização para mensagens futuras iniciadas pela empresa.
+* Telefone existente em `companies` vincula a conversa à empresa/lead (lead vai para "em conversa").
+
+### Envio (Graph API)
+
+`POST https://graph.facebook.com/{WHATSAPP_GRAPH_API_VERSION}/{WHATSAPP_PHONE_NUMBER_ID}/messages` com `type: "text"`. Usado **apenas** pelo envio manual da equipe, na ordem:
+
+1. Papel ≥ operador; credenciais configuradas.
+2. `whatsapp_send_check(conversa, 'humano', 'free_text')` — bloqueia se: WhatsApp desabilitado, conversa encerrada, número descadastrado/bloqueado, dado demonstrativo, **modo de teste** com número fora da lista, janela de 24h fechada, limite diário atingido.
+3. `register_outbound_message()` com chave de idempotência gerada no navegador (duplo clique não duplica).
+4. Chamada à API → `complete_outbound_message()` grava `wamid` ou o erro.
+
+Templates (mensagens iniciadas pela empresa) **não** estão implementados; `whatsapp_send_check(..., 'template')` já exige autorização válida e retorna bloqueado.
 
 ## Integrações externas
 
@@ -49,6 +79,10 @@ Planejado: `GET /api/webhooks/whatsapp` (verificação `hub.mode/hub.verify_toke
 | `compute_whatsapp_eligibility(company_id)` | staff | Avalia elegibilidade (fonte única de verdade) |
 | `refresh_lead_eligibility(lead_id)` / `refresh_all_lead_eligibility()` | operator | Atualiza `leads.contact_status` |
 | `classify_leads()` | operator | Novos alta/média → qualificado; fechadas → descartado |
+| `ingest_whatsapp_message(...)` | service_role | Recebimento idempotente |
+| `apply_whatsapp_status(wamid, status, ts, error)` | service_role | Status de entrega |
+| `whatsapp_send_check(conversa, sender, kind)` | operator / service_role | Verificação de envio |
+| `register_outbound_message / complete_outbound_message` | service_role | Registro de envio |
 | `purge_expired_data()` | admin / cron | Retenção (mensagens, conteúdo do Places, eventos) |
 | `companies_pending_scoring(limit)` | service_role | Empresas sem pontuação ou desatualizadas |
 | `claim_jobs / complete_job / fail_job / defer_job` | service_role | Fila de tarefas |

@@ -3,8 +3,9 @@
 Plataforma de prospecção, qualificação e negociação comercial para uma agência que vende criação de sites para empresas locais.
 Começa por Sant'Ana do Livramento (RS) e permite outras cidades pelo painel.
 
-> **Estado atual: Fase 1 concluída** (descoberta e classificação de empresas, banco de dados, autenticação e painel).
-> WhatsApp, IA, agenda e vendas ainda **não** estão implementados. Nada é simulado. Veja [docs/STATUS.md](docs/STATUS.md).
+> **Estado atual: Fases 1 e 2 concluídas** — descoberta/classificação de empresas e canal WhatsApp (webhook, histórico em tempo real,
+> descadastro, envio manual pela equipe na janela de 24h). IA (respostas automáticas), templates, agenda e vendas ainda **não** estão implementados.
+> Nada é simulado. Veja [docs/STATUS.md](docs/STATUS.md), inclusive o roteiro de validação com a Meta.
 
 ## Stack
 
@@ -95,7 +96,7 @@ Sem a chave ou sem habilitação, o Scout não faz nenhuma chamada e informa o m
 | `GOOGLE_PLACES_API_KEY` | Vercel + `supabase secrets` | 1 | Para descoberta real |
 | `CRON_SECRET` | `supabase secrets` + Vault | 5 | Ao ativar as rotinas |
 | `ANTHROPIC_API_KEY` | Vercel + `supabase secrets` | 3 | Não |
-| `WHATSAPP_*` | Vercel + `supabase secrets` | 2 | Não |
+| `WHATSAPP_ACCESS_TOKEN`, `WHATSAPP_PHONE_NUMBER_ID`, `WHATSAPP_BUSINESS_ACCOUNT_ID`, `WHATSAPP_APP_SECRET`, `WHATSAPP_WEBHOOK_VERIFY_TOKEN`, `WHATSAPP_GRAPH_API_VERSION` | Vercel (servidor) | 2 | Para o canal WhatsApp |
 
 Regras: chaves privadas **nunca** usam prefixo `NEXT_PUBLIC_`; projetos e chaves separados para desenvolvimento e produção (`APP_ENV` é exibido no painel e há alerta de mistura).
 
@@ -103,8 +104,10 @@ Regras: chaves privadas **nunca** usam prefixo `NEXT_PUBLIC_`; projetos e chaves
 
 ```bash
 npm run typecheck   # TypeScript (app + núcleo compartilhado)
-npm test            # Vitest — 46 testes unitários/integração do pipeline
+npm test            # Vitest — testes unitários (pipeline, Places, WhatsApp, webhook)
 npm run test:db     # Migrations + testes SQL em PostgreSQL local descartável
+TEST_DATABASE_URL=postgres://postgres:postgres@localhost:5432/agency_sdr_test \
+  npm run test:integration   # webhook assinado → funções reais do banco (após test:db)
 npm run build       # Build de produção
 ```
 
@@ -136,4 +139,4 @@ O banco força `contact_status = 'demo'` e recusa autorizações para elas — *
 
 - LGPD: minimização, retenção configurável (`purge_expired_data()`), descadastro imediato, política em `/privacidade` (modelo — revisar com assessoria jurídica).
 - Google Maps Platform: `place_id` é mantido; demais conteúdos do Places expiram após o prazo configurado para empresas sem relacionamento. Revise os termos vigentes da Google.
-- WhatsApp: somente Cloud API oficial (Fase 2). Sem WhatsApp Web, QR Code ou bibliotecas não oficiais. Mensagens iniciadas pela empresa apenas para contatos com autorização registrada (com origem, data e evidência).
+- WhatsApp: somente Cloud API oficial. Sem WhatsApp Web, QR Code ou bibliotecas não oficiais. Mensagens iniciadas pela empresa apenas para contatos com autorização registrada (com origem, data e evidência).

@@ -3,12 +3,13 @@ import { resumeAutomation } from "@/actions/automation";
 import { deleteDemoData } from "@/actions/companies";
 import { removeSuppression, suppressPhone } from "@/actions/consents";
 import {
-  addHoliday, addSearchArea, deleteHoliday, saveAutomationFlags, saveLimits, saveOffer, saveScoring, setUserRole, updateSearchArea,
+  addHoliday, addSearchArea, deleteHoliday, saveAutomationFlags, saveLimits, saveOffer, saveScoring, saveWhatsAppSettings, setUserRole, updateSearchArea,
 } from "@/actions/settings";
 import { ActionForm } from "@/components/action-form";
 import { Badge, Card, Field, Notice, PageHeader, Table, Td, Th } from "@/components/ui";
 import { hasRole, requirePageRole } from "@/lib/auth";
-import { integrationStatuses } from "@/lib/env";
+import { headers } from "next/headers";
+import { integrationStatuses, serverEnv, whatsappSendConfigured, whatsappWebhookConfigured } from "@/lib/env";
 import { fmtDate, fmtDateTime, fmtUSD, ROLE_LABELS } from "@/lib/format";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import type { Profile, SettingsRow } from "@/lib/types";
@@ -33,6 +34,8 @@ export default async function SettingsPage() {
   const s = sData as SettingsRow;
   const integrations = integrationStatuses();
   const ro = !isAdmin;
+  const h = await headers();
+  const origin = `${h.get("x-forwarded-proto") ?? "https"}://${h.get("x-forwarded-host") ?? h.get("host") ?? "seu-dominio"}`;
 
   return (
     <>
@@ -85,10 +88,43 @@ export default async function SettingsPage() {
               <Check name="run_on_weekends" checked={s.run_on_weekends} label="Executar também aos fins de semana" />
               <Check name="run_on_holidays" checked={s.run_on_holidays} label="Executar também em feriados" />
               <Check name="ai_enabled" checked={s.ai_enabled} label="Modelo de IA (bloqueado até a Fase 3)" disabled />
-              <Check name="whatsapp_enabled" checked={s.whatsapp_enabled} label="WhatsApp (bloqueado até a Fase 2)" disabled />
             </fieldset>
           </ActionForm>
           <p className="mt-3 text-xs text-muted">O piloto automático só executa depois que o agendamento for ativado (supabase/sql/activate_cron.sql).</p>
+        </Card>
+
+        <Card title="WhatsApp (Cloud API oficial)" className="xl:col-span-2">
+          <div className="mb-4 grid gap-2 text-sm sm:grid-cols-2">
+            <div><span className="text-muted">URL do webhook: </span><code className="break-all">{origin}/api/webhooks/whatsapp</code></div>
+            <div><span className="text-muted">Campo assinado: </span><code>messages</code> · <span className="text-muted">Graph API: </span><code>{serverEnv.whatsappGraphVersion}</code></div>
+            <div><span className="text-muted">Recebimento: </span>{whatsappWebhookConfigured() ? <Badge tone="ok">credenciais presentes</Badge> : <Badge tone="warn">falta WHATSAPP_APP_SECRET / VERIFY_TOKEN</Badge>}</div>
+            <div><span className="text-muted">Envio: </span>{whatsappSendConfigured() ? <Badge tone="ok">credenciais presentes</Badge> : <Badge tone="warn">falta ACCESS_TOKEN / PHONE_NUMBER_ID</Badge>}</div>
+          </div>
+          <ActionForm action={saveWhatsAppSettings} submitLabel="Salvar WhatsApp" variant="secondary">
+            <fieldset disabled={ro} className="grid gap-4 md:grid-cols-2">
+              <div className="space-y-3">
+                <Check name="whatsapp_enabled" checked={s.whatsapp_enabled} label="Habilitar WhatsApp (envio manual pela equipe)" />
+                <label className="ml-6 flex items-start gap-2 text-xs text-fg">
+                  <input type="checkbox" name="whatsapp_ack" defaultChecked={s.whatsapp_enabled} className="mt-0.5" />
+                  Conheço as políticas do WhatsApp Business: texto livre só dentro da janela de 24h; mensagens iniciadas pela empresa só com autorização registrada e template aprovado.
+                </label>
+                <Check name="whatsapp_test_mode" checked={s.whatsapp_test_mode} label="Modo de teste: enviar SOMENTE para os números abaixo" />
+                <Field label="Números de teste (um por linha)" hint="Ex.: o número pessoal usado para validar com o número de teste da Meta">
+                  <textarea name="whatsapp_test_numbers" rows={3} defaultValue={s.whatsapp_test_numbers.join("\n")} />
+                </Field>
+                <Field label='Para desligar o modo de teste, digite "PRODUCAO"'><input name="confirm_production" autoComplete="off" /></Field>
+              </div>
+              <div className="space-y-3">
+                <Field label="Palavras de descadastro (uma por linha)" hint="Mensagem igual à palavra, ou frase curta que a contenha → bloqueio imediato">
+                  <textarea name="opt_out_keywords" rows={6} defaultValue={s.opt_out_keywords.join("\n")} />
+                </Field>
+                <Field label="Pedido de atendimento humano (uma por linha)" hint="Pausa o agente e marca a conversa para a equipe">
+                  <textarea name="human_request_keywords" rows={4} defaultValue={s.human_request_keywords.join("\n")} />
+                </Field>
+              </div>
+            </fieldset>
+          </ActionForm>
+          <p className="mt-3 text-xs text-muted">Respostas automáticas do agente (IA) não existem nesta fase: toda mensagem enviada é escrita por uma pessoa da equipe.</p>
         </Card>
 
         <Card title="Limites diários e estimativas de custo">

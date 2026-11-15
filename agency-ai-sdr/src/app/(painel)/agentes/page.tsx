@@ -29,8 +29,8 @@ export default async function AgentsPage() {
     {
       name: "SDR",
       role: "Atende pelo WhatsApp Cloud API oficial, apresenta o serviço, descobre necessidades e responde dúvidas — somente com contatos autorizados.",
-      status: ["Não implementado", "neutral"],
-      detail: "Fases 2 (WhatsApp) e 3 (IA).",
+      status: ["Canal pronto, IA pendente", "warn"],
+      detail: "Fase 2 concluída: recebimento, histórico, descadastro e envio manual pela equipe. Respostas automáticas: Fase 3.",
       phase: 3,
     },
     {

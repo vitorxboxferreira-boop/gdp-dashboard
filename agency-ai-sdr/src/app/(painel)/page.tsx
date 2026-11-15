@@ -52,8 +52,8 @@ export default async function OverviewPage() {
         <StatCard label="Sem site identificado" value={n("without_site")} hint="Inclui “não identificado” (a verificar)" />
         <StatCard label="Leads qualificados" value={n("qualified_leads")} hint="Alta + média prioridade" tone="ok" />
         <StatCard label="Contatos autorizados" value={n("authorized_contacts")} hint="Autorização válida para WhatsApp" />
-        <StatCard label="Conversas recebidas hoje" value={n("conversations_received")} hint="Fase 2" />
-        <StatCard label="Conversas em andamento" value={n("conversations_open")} hint="Fase 2" />
+        <StatCard label="Conversas recebidas hoje" value={n("conversations_received")} hint="Primeira mensagem hoje" />
+        <StatCard label="Conversas em andamento" value={n("conversations_open")} hint="Não encerradas" />
         <StatCard label="Interessados" value={n("interested")} hint="Fase 3" />
         <StatCard label="Reuniões agendadas" value={n("meetings_upcoming")} hint="Fase 4" />
         <StatCard label="Vendas aprovadas" value={n("sales_approved")} hint="Fase 4" />

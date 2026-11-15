@@ -25,9 +25,31 @@
 5. Revisar a política de privacidade com assessoria jurídica e preencher os dados do controlador.
 6. Cadastrar feriados municipais.
 
+## Fase 2 — concluída (WhatsApp Cloud API)
+
+| Item | Situação | Como foi verificado |
+|---|---|---|
+| Webhook GET (verificação) e POST (HMAC `X-Hub-Signature-256`) | ✅ | Testes unitários + requisições reais ao servidor Next.js (200/403/401/500) |
+| Recebimento idempotente, janela de 24h, vínculo com empresa/lead | ✅ | Testes SQL + teste de integração webhook → PostgreSQL (como `service_role`) |
+| Status de entrega (não regride) | ✅ | Testes SQL e de integração |
+| Descadastro imediato e pedido de atendimento humano | ✅ | Testes unitários (sem falsos positivos comuns), SQL e integração |
+| Histórico e tempo real (Supabase Realtime + RLS) | ✅ código / ⚠️ | Build OK; tempo real não exercitado sem projeto Supabase |
+| Assumir conversa / devolver ao agente / encerrar / bloquear | ✅ | Proteções no banco testadas (operador não altera janela nem grava mensagem direto) |
+| Envio manual dentro da janela, com modo de teste e limites | ✅ código / ⚠️ API real | Requisição oficial testada com respostas simuladas; **não testado contra a Meta** |
+| Templates / mensagens iniciadas pela empresa | ❌ não implementado | Bloqueado no banco |
+
+### Validação com a Meta (antes de produção)
+
+1. Crie o app (tipo Business) no Meta for Developers e adicione o produto WhatsApp; use o **número de teste** fornecido.
+2. Gere um token de **System User** permanente com `whatsapp_business_messaging` e `whatsapp_business_management` (não use o token temporário de 24h em produção).
+3. Preencha `WHATSAPP_ACCESS_TOKEN`, `WHATSAPP_PHONE_NUMBER_ID`, `WHATSAPP_BUSINESS_ACCOUNT_ID`, `WHATSAPP_APP_SECRET`, `WHATSAPP_WEBHOOK_VERIFY_TOKEN` na Vercel.
+4. Registre o webhook (URL em Configurações → WhatsApp) e assine o campo `messages`.
+5. Em Configurações → WhatsApp: habilite, mantenha o **modo de teste** e cadastre seu número pessoal na lista.
+6. Envie uma mensagem do seu celular ao número de teste → confira a conversa no painel → responda pelo painel → confira status ✓/✓✓/lida → envie "PARAR" e confirme o bloqueio.
+7. Só então desligue o modo de teste (digitando PRODUCAO).
+
 ## Próximas fases
 
-* **Fase 2** — WhatsApp Cloud API: webhook (verificação + HMAC), recebimento idempotente, histórico de conversas em tempo real (Supabase Realtime), assumir conversa/pausar agente, descadastro por palavra-chave, gate de envio (autorização + janela 24 h/template + limites + qualidade). Envios reais somente após testes com número de teste da Meta.
 * **Fase 3** — IA (Anthropic): agentes SDR e Closer, base de conhecimento, negociação dentro dos limites da oferta, controle de tokens/custos, identificação como assistente virtual, transferência para humano.
 * **Fase 4** — Agenda, aprovação de vendas, relatórios completos, notificações.
 * **Fase 5** — Revisão de segurança, testes E2E com Supabase real, monitoramento, deploy e ativação das rotinas.

@@ -2,7 +2,10 @@
 
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
+import { normalizeBrPhone } from "@core/phone.ts";
+import { normalizeForMatch } from "@core/whatsapp.ts";
 import { requireActionRole } from "@/lib/auth";
+import { whatsappSendConfigured, whatsappWebhookConfigured } from "@/lib/env";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { bool, fail, lines, ok, parseBRLToCents, str, toResult } from "./helpers";
 import type { ActionResult } from "./types";
@@ -54,8 +57,8 @@ export async function saveAutomationFlags(_prev: ActionResult | null, fd: FormDa
     if (placesEnabled && !bool(fd, "places_cost_ack")) {
       return fail("Para habilitar o Google Places, confirme que está ciente do custo estimado por requisição e do limite diário.");
     }
-    if (bool(fd, "ai_enabled") || bool(fd, "whatsapp_enabled")) {
-      return fail("IA e WhatsApp só podem ser habilitados após a conclusão e validação das Fases 2 e 3.");
+    if (bool(fd, "ai_enabled")) {
+      return fail("A IA só pode ser habilitada após a conclusão e validação da Fase 3.");
     }
     await updateSettings(
       {
@@ -223,6 +226,43 @@ export async function setUserRole(_prev: ActionResult | null, fd: FormData): Pro
     if (error) throw error;
     revalidatePath("/configuracoes");
     return ok(`Papel de ${v.email} atualizado.`);
+  } catch (e) {
+    return toResult(e);
+  }
+}
+
+export async function saveWhatsAppSettings(_prev: ActionResult | null, fd: FormData): Promise<ActionResult> {
+  try {
+    const profile = await requireActionRole("admin");
+    const enabled = bool(fd, "whatsapp_enabled");
+    const testMode = bool(fd, "whatsapp_test_mode");
+    if (enabled && !(whatsappSendConfigured() && whatsappWebhookConfigured())) {
+      return fail("Configure todas as credenciais do WhatsApp no servidor antes de habilitar.");
+    }
+    if (enabled && !bool(fd, "whatsapp_ack")) {
+      return fail("Confirme que conhece as políticas do WhatsApp Business e que só serão contatados números autorizados.");
+    }
+    if (!testMode && str(fd, "confirm_production") !== "PRODUCAO") {
+      return fail('Para desligar o modo de teste digite PRODUCAO (somente após validar a integração com o número de teste).');
+    }
+    const rawNumbers = lines(str(fd, "whatsapp_test_numbers"));
+    const numbers = rawNumbers.map((n) => normalizeBrPhone(n));
+    const invalid = rawNumbers.filter((_, i) => !numbers[i]);
+    if (invalid.length) return fail(`Números de teste inválidos: ${invalid.join(", ")}`);
+    const kw = (name: string) => [...new Set(lines(str(fd, name)).map(normalizeForMatch).filter(Boolean))];
+    const optOut = kw("opt_out_keywords");
+    if (optOut.length < 3) return fail("Mantenha ao menos 3 palavras de descadastro (ex.: parar, sair, stop).");
+    await updateSettings(
+      {
+        whatsapp_enabled: enabled,
+        whatsapp_test_mode: testMode,
+        whatsapp_test_numbers: [...new Set(numbers as string[])],
+        opt_out_keywords: optOut,
+        human_request_keywords: kw("human_request_keywords"),
+      },
+      profile.id,
+    );
+    return ok("Configurações do WhatsApp salvas.");
   } catch (e) {
     return toResult(e);
   }
