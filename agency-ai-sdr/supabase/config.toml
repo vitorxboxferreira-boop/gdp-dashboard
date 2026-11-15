@@ -1,0 +1,21 @@
+# Configuração do Supabase CLI (supabase start / supabase functions deploy)
+project_id = "agency-ai-sdr"
+
+[db]
+major_version = 16
+
+[auth]
+# Cadastro público desativado: usuários são convidados pelo administrador.
+enable_signup = false
+site_url = "http://localhost:3000"
+additional_redirect_urls = ["http://localhost:3000/auth/callback"]
+
+[auth.email]
+enable_signup = false
+double_confirm_changes = true
+enable_confirmations = true
+
+[functions.agent-runner]
+# A função valida o cabeçalho x-cron-secret; o JWT do Supabase não é exigido
+# porque a chamada vem do próprio banco via pg_net.
+verify_jwt = false
