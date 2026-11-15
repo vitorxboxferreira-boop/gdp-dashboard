@@ -4,6 +4,8 @@
 // e processa a fila de tarefas. Protegida por segredo compartilhado (x-cron-secret).
 
 import { createClient } from "npm:@supabase/supabase-js@2.119.0";
+import Anthropic from "@anthropic-ai/sdk";
+import { createAnthropicLlm } from "../_shared/core/anthropic-llm.ts";
 import { orchestratorTick } from "../_shared/core/pipeline.ts";
 import { SupabaseRepo } from "../_shared/core/supabase-repo.ts";
 import { timingSafeEqualStr } from "../_shared/core/security.ts";
@@ -33,10 +35,19 @@ Deno.serve(async (req: Request) => {
   const worker = `edge-${crypto.randomUUID().slice(0, 8)}`;
 
   try {
+    const anthropicKey = Deno.env.get("ANTHROPIC_API_KEY");
+    const waToken = Deno.env.get("WHATSAPP_ACCESS_TOKEN");
+    const waPhone = Deno.env.get("WHATSAPP_PHONE_NUMBER_ID");
     const result = await orchestratorTick(
       {
         repo,
         placesApiKey: Deno.env.get("GOOGLE_PLACES_API_KEY") ?? null,
+        llm: anthropicKey
+          ? createAnthropicLlm({ client: new Anthropic({ apiKey: anthropicKey, maxRetries: 2, timeout: 60_000 }), model: Deno.env.get("ANTHROPIC_MODEL") ?? "claude-opus-5-5" })
+          : null,
+        whatsapp: waToken && waPhone
+          ? { accessToken: waToken, phoneNumberId: waPhone, graphVersion: Deno.env.get("WHATSAPP_GRAPH_API_VERSION") ?? "v23.0" }
+          : null,
         log: (msg, data) => console.log(JSON.stringify({ msg, ...data })),
       },
       { worker, maxJobs: 10, timeBudgetMs: 110_000 },

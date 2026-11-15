@@ -17,7 +17,7 @@ export function toResult(err: unknown): ActionResult {
   const msg = (err as { message?: string })?.message ?? "Erro inesperado";
   console.error("[action]", msg);
   // Mensagens de regras de negócio vindas do banco (RAISE EXCEPTION) são seguras para exibir.
-  if (/autoriza|bloqueio|demonstrativ|permission denied|administrador|duplicate key|imutáve|futuro/i.test(msg)) {
+  if (/autoriza|bloqueio|demonstrativ|permission denied|administrador|duplicate key|imutáve|futuro|Anthropic|IA indispon|API de IA/i.test(msg)) {
     if (/duplicate key/i.test(msg)) return fail("Registro duplicado: já existe um cadastro equivalente.");
     if (/permission denied/i.test(msg)) return fail("Você não tem permissão para esta ação.");
     return fail(msg);

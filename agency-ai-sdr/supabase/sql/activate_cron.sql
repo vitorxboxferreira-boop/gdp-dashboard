@@ -9,8 +9,8 @@
 --   4. Os mesmos valores de URL e CRON_SECRET salvos no Vault (abaixo), nunca em texto no job.
 --
 -- Horários: pg_cron usa UTC. America/Sao_Paulo = UTC−3 (sem horário de verão desde 2019).
---   Campanha às 08:00 local = 11:00 UTC. O runner roda a cada 5 min de 11:00 a 15:55 UTC
---   (08:00–12:55 local), seg–sex. O próprio runner também verifica dia útil/feriado no fuso local.
+--   Campanha às 08:00 local = 11:00 UTC. O runner roda a cada 2 min de 11:00 a 21:58 UTC
+--   (08:00–18:58 local), seg–sex. Cria a campanha às 08:00 e, durante o expediente, processa respostas do agente que não foram tratadas pelo webhook. O próprio runner também verifica dia útil/feriado no fuso local.
 -- =============================================================================
 
 -- 1) Segredos no Vault (substitua os valores; execute uma vez)
@@ -20,7 +20,7 @@
 -- 2) Agendamento
 select cron.schedule(
   'agency-sdr-agent-runner',
-  '*/5 11-15 * * 1-5',
+  '*/2 11-21 * * 1-5',
   $$
   select net.http_post(
     url     := (select decrypted_secret from vault.decrypted_secrets where name = 'agent_runner_url'),

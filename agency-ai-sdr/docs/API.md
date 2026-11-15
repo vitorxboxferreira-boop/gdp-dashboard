@@ -45,6 +45,10 @@ Regras aplicadas no recebimento:
 * Receber mensagem **não** cria autorização para mensagens futuras iniciadas pela empresa.
 * Telefone existente em `companies` vincula a conversa à empresa/lead (lead vai para "em conversa").
 
+### Respostas automáticas (Fase 3)
+
+Cada mensagem recebida em conversa atendida pelo agente (IA habilitada, sem pausa, sem descadastro) gera uma tarefa `sdr.reply` (uma por `wamid`, executada após 8 s para agrupar mensagens em sequência). O webhook processa a fila logo após responder à Meta (`after()`); o Cron/Edge Function processa o que ficar pendente. Detalhes em `docs/ARCHITECTURE.md`.
+
 ### Envio (Graph API)
 
 `POST https://graph.facebook.com/{WHATSAPP_GRAPH_API_VERSION}/{WHATSAPP_PHONE_NUMBER_ID}/messages` com `type: "text"`. Usado **apenas** pelo envio manual da equipe, na ordem:
@@ -83,6 +87,8 @@ Templates (mensagens iniciadas pela empresa) **não** estão implementados; `wha
 | `apply_whatsapp_status(wamid, status, ts, error)` | service_role | Status de entrega |
 | `whatsapp_send_check(conversa, sender, kind)` | operator / service_role | Verificação de envio |
 | `register_outbound_message / complete_outbound_message` | service_role | Registro de envio |
+| `apply_agent_decision(...)` | service_role | Estágio, papel, transferência e oportunidade após resposta da IA |
+| `agent_opt_out(conversa, motivo)` | service_role | Descadastro identificado pela IA |
 | `purge_expired_data()` | admin / cron | Retenção (mensagens, conteúdo do Places, eventos) |
 | `companies_pending_scoring(limit)` | service_role | Empresas sem pontuação ou desatualizadas |
 | `claim_jobs / complete_job / fail_job / defer_job` | service_role | Fila de tarefas |

@@ -48,8 +48,27 @@
 6. Envie uma mensagem do seu celular ao número de teste → confira a conversa no painel → responda pelo painel → confira status ✓/✓✓/lida → envie "PARAR" e confirme o bloqueio.
 7. Só então desligue o modo de teste (digitando PRODUCAO).
 
+## Fase 3 — concluída (agentes de IA)
+
+| Item | Situação | Como foi verificado |
+|---|---|---|
+| Agentes SDR e Closer (SDK oficial `@anthropic-ai/sdk`, saída estruturada, fallback de recusa, cache de prompt) | ✅ código / ⚠️ API real | Requisição montada pelo SDK verificada com `fetch` interceptado; **não testado contra a API da Anthropic** (sem chave / sem autorização de gasto) |
+| Travas no código (preço, desconto, promessas, confirmação de pagamento/contrato/reunião, fingir ser humano, identificação na 1ª mensagem, tamanho) | ✅ | Testes unitários |
+| Fluxo completo (agrupamento, já respondida, horário, verificação de envio antes da IA, limites de tokens e de respostas, transferência, oportunidade, descadastro, reenvio idempotente) | ✅ | Testes com IA e WhatsApp simulados |
+| Fila `sdr.reply`, decisões, oportunidades pendentes de aprovação, papel SDR→Closer | ✅ | Testes SQL |
+| Base de conhecimento editável (portfólio só com autorização registrada) | ✅ | Restrição no banco testada |
+| Simulador no painel (não envia nada; registra custo) | ✅ código / ⚠️ | Depende da chave da Anthropic |
+| Edge Function com IA (fallback pelo Cron) | ✅ código | `deno check` OK (SDK via import map) |
+
+### Validação recomendada (antes de ligar para clientes reais)
+
+1. Defina `ANTHROPIC_API_KEY` (Vercel e `supabase secrets`) e configure nome da agência, oferta, prazo e pagamento.
+2. Em **Agentes → Simulador**, teste: saudação, “quanto custa?”, “está caro”, “já tenho Instagram”, “quero ver exemplos”, “é robô?”, “quero contratar”, tentativas de pedir desconto e “domínio grátis?”.
+3. Com o WhatsApp em **modo de teste**, ligue a IA e converse pelo seu celular.
+4. Acompanhe custos em **Custos e limites**; ajuste o limite diário de tokens.
+5. Só depois desligue o modo de teste do WhatsApp.
+
 ## Próximas fases
 
-* **Fase 3** — IA (Anthropic): agentes SDR e Closer, base de conhecimento, negociação dentro dos limites da oferta, controle de tokens/custos, identificação como assistente virtual, transferência para humano.
 * **Fase 4** — Agenda, aprovação de vendas, relatórios completos, notificações.
 * **Fase 5** — Revisão de segurança, testes E2E com Supabase real, monitoramento, deploy e ativação das rotinas.

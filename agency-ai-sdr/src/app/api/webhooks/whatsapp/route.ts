@@ -3,11 +3,29 @@
 // POST → eventos (mensagens recebidas e status de entrega), com validação HMAC.
 import { handleVerification, handleWebhookEvent } from "@core/whatsapp-webhook.ts";
 import { DEFAULT_HUMAN_KEYWORDS, DEFAULT_OPT_OUT_KEYWORDS } from "@core/whatsapp.ts";
+import { after } from "next/server";
+import { processJobs } from "@core/pipeline.ts";
+import { buildAgentDeps } from "@/lib/agent-deps";
 import { serverEnv } from "@/lib/env";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
+export const maxDuration = 60;
+
+/** Respostas do agente: aguarda o agrupamento (8 s) e processa a fila logo após responder à Meta. */
+function scheduleAgentReplies() {
+  after(async () => {
+    try {
+      await new Promise((r) => setTimeout(r, 9_000));
+      const deps = buildAgentDeps();
+      if (!deps.llm || !deps.whatsapp) return; // o Cron (Edge Function) processa quando configurado lá
+      await processJobs(deps, { worker: `webhook-${crypto.randomUUID().slice(0, 8)}`, kinds: ["sdr.reply"], maxJobs: 5, timeBudgetMs: 40_000 });
+    } catch (err) {
+      console.error(JSON.stringify({ msg: "agent.after.error", error: (err as Error).message }));
+    }
+  });
+}
 
 const MAX_BODY_BYTES = 1_000_000;
 
@@ -71,6 +89,7 @@ export async function POST(req: Request) {
       },
       log: (msg, data) => console.log(JSON.stringify({ msg, ...data })),
     });
+    if (res.status === 200 && Number((res.body as { received?: number }).received ?? 0) > 0) scheduleAgentReplies();
     return reply(res.status, res.body);
   } catch (err) {
     // 500 faz a Meta reenviar; o processamento é idempotente (wamid).

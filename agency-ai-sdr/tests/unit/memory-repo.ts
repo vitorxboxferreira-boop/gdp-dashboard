@@ -112,9 +112,9 @@ export class MemoryRepo implements Repo {
       });
     }
   }
-  async claimJobs(_worker: string, limit: number) {
+  async claimJobs(_worker: string, limit: number, kinds?: JobKind[]) {
     const ready = this.jobs
-      .filter((j) => j.status === "queued" && j.run_after <= this.now().toISOString())
+      .filter((j) => j.status === "queued" && j.run_after <= this.now().toISOString() && (!kinds || kinds.includes(j.kind)))
       .sort((a, b) => a.run_after.localeCompare(b.run_after))
       .slice(0, limit);
     for (const j of ready) { j.status = "running"; j.attempts++; }

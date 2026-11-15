@@ -1,9 +1,12 @@
 // Orquestração dos agentes SCOUT e ANALYST + campanha diária.
 // Independente de runtime: recebe um Repo, fetch e o relógio por injeção.
 
-import { PausedError, PermanentError, RetryableError } from "./errors.ts";
+import { DeferError, PausedError, PermanentError, RetryableError } from "./errors.ts";
+import type { AgentLlm } from "./anthropic-llm.ts";
+import { runSdrReply } from "./sdr-runner.ts";
+import type { SendConfig } from "./whatsapp.ts";
 import { buildTextQuery, mapPlaceToCompany, PlacesApiError, searchTextPage, type FetchLike } from "./places.ts";
-import type { Job, JobInsert, JobKind, Repo } from "./repo.ts";
+import type { AgentRepo, Job, JobInsert, JobKind, Repo } from "./repo.ts";
 import {
   DAILY_PLAN,
   isOperatingDay,
@@ -17,6 +20,8 @@ import { scoreCompany, scoringConfigFromSettings } from "./scoring.ts";
 
 export interface PipelineDeps {
   repo: Repo;
+  llm?: AgentLlm | null;
+  whatsapp?: SendConfig | null;
   fetchImpl?: FetchLike;
   placesApiKey?: string | null;
   now?: () => Date;
@@ -342,7 +347,7 @@ export async function orchestratorTick(
 
 export async function processJobs(
   deps: PipelineDeps,
-  opts: { worker: string; maxJobs?: number; timeBudgetMs?: number },
+  opts: { worker: string; maxJobs?: number; timeBudgetMs?: number; kinds?: JobKind[] },
 ): Promise<TickResult["processed"]> {
   const { repo } = deps;
   const out: TickResult["processed"] = [];
@@ -351,7 +356,7 @@ export async function processJobs(
   const budget = opts.timeBudgetMs ?? 100_000;
 
   while (out.length < maxJobs && Date.now() - started < budget) {
-    const jobs = await repo.claimJobs(opts.worker, 1);
+    const jobs = await repo.claimJobs(opts.worker, 1, opts.kinds);
     if (jobs.length === 0) break;
     const job = jobs[0];
     out.push(await runJob(deps, job));
@@ -381,8 +386,20 @@ export async function runJob(deps: PipelineDeps, job: Job): Promise<TickResult["
     await repo.completeJob(job.id, res);
     return { id: job.id, kind: job.kind, outcome: "done" };
   } catch (err) {
+    if (err instanceof DeferError) {
+      await repo.deferJob(job.id, err.seconds, err.message);
+      return { id: job.id, kind: job.kind, outcome: "deferred", detail: err.message };
+    }
     const retry = !(err instanceof PermanentError);
     const status = await repo.failJob(job.id, (err as Error).message, retry);
+    if (status === "dead" && job.kind === "sdr.reply" && job.payload?.conversation_id) {
+      // Sem resposta automática possível: a equipe humana assume a conversa.
+      await (repo as Repo & AgentRepo).applyAgentDecision({
+        conversationId: String(job.payload.conversation_id), intent: "outro", nextStage: "sem_mudanca", handoff: true,
+        handoffReason: `Agente não conseguiu responder: ${(err as Error).message}`.slice(0, 400),
+        agentRole: "sdr", summary: "", opportunity: false, amountCents: null,
+      }).catch(() => undefined);
+    }
     if (status === "dead" && job.campaign_id && !(err instanceof PausedError)) {
       await repo.updateCampaign(job.campaign_id, { status: "falhou", error: `${job.kind}: ${(err as Error).message}` });
     }
@@ -446,6 +463,10 @@ async function executeStep(deps: PipelineDeps, job: Job): Promise<Record<string,
         }
       }
       return { published: true };
+    }
+    case "sdr.reply": {
+      const res = await runSdrReply({ repo: repo as Repo & AgentRepo, llm: deps.llm, whatsapp: deps.whatsapp, now: deps.now }, job);
+      return res as unknown as Record<string, unknown>;
     }
     default:
       throw new PermanentError(`Tipo de tarefa não suportado: ${job.kind}`);

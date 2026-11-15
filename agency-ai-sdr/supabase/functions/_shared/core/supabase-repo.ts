@@ -3,6 +3,9 @@
 
 import type { SearchArea } from "./places.ts";
 import type {
+  AgentContext,
+  AgentDecisionInput,
+  AgentRepo,
   AgentSettings,
   Campaign,
   CompanyForScoring,
@@ -16,6 +19,7 @@ import type {
   UsageProvider,
 } from "./repo.ts";
 import type { ScoreResult } from "./scoring.ts";
+import type { ChatMessage, KnowledgeEntry } from "./sdr-agent.ts";
 import type { WebsiteStatus } from "./website.ts";
 
 // Tipagem estrutural mínima: funciona com o cliente de Node e de Deno.
@@ -36,7 +40,7 @@ function check<T>(res: { data: T; error: PgError | null }, ctx: string): T {
   return res.data;
 }
 
-export class SupabaseRepo implements Repo {
+export class SupabaseRepo implements Repo, AgentRepo {
   constructor(private readonly db: SupabaseLike) {}
 
   async getSettings(): Promise<AgentSettings> {
@@ -44,6 +48,8 @@ export class SupabaseRepo implements Repo {
     return {
       ...data,
       places_cost_per_request_usd: Number(data.places_cost_per_request_usd),
+      ai_cost_per_mtok_input_usd: Number(data.ai_cost_per_mtok_input_usd),
+      ai_cost_per_mtok_output_usd: Number(data.ai_cost_per_mtok_output_usd),
     } as AgentSettings;
   }
 
@@ -199,9 +205,9 @@ export class SupabaseRepo implements Repo {
     );
   }
 
-  async claimJobs(worker: string, limit: number) {
+  async claimJobs(worker: string, limit: number, kinds?: JobKind[]) {
     return check(
-      await this.db.rpc("claim_jobs", { p_worker: worker, p_limit: limit, p_lock_timeout_seconds: 600 }),
+      await this.db.rpc("claim_jobs", { p_worker: worker, p_limit: limit, p_lock_timeout_seconds: 600, p_kinds: kinds ?? null }),
       "claim_jobs",
     ) as Job[];
   }
@@ -251,5 +257,95 @@ export class SupabaseRepo implements Repo {
     if (input.status === "preparando") row.generated_at = now;
     if (input.status === "disponivel") row.published_at = now;
     check(await this.db.from("daily_reports").upsert(row, { onConflict: "report_date" }), "daily report");
+  }
+
+  // ---------------------------------------------------------------------------
+  // Agentes de conversa (Fase 3)
+  // ---------------------------------------------------------------------------
+  async getAgentContext(conversationId: string): Promise<AgentContext | null> {
+    const conv = check(
+      await this.db
+        .from("conversations")
+        .select("id, phone_e164, wa_id, contact_name, status, handled_by, agent_paused, agent_role, customer_summary, company_id, lead_id")
+        .eq("id", conversationId)
+        .maybeSingle(),
+      "agent conversation",
+    ) as AgentContext["conversation"] | null;
+    if (!conv) return null;
+    const [msgs, company, lead, kb] = await Promise.all([
+      this.db
+        .from("messages")
+        .select("direction, sender, body, message_type, wa_message_id, created_at")
+        .eq("conversation_id", conversationId)
+        .order("created_at", { ascending: false })
+        .limit(40),
+      conv.company_id
+        ? this.db.from("companies").select("name, category_label, website_status").eq("id", conv.company_id).maybeSingle()
+        : Promise.resolve({ data: null, error: null }),
+      conv.lead_id ? this.db.from("leads").select("stage").eq("id", conv.lead_id).maybeSingle() : Promise.resolve({ data: null, error: null }),
+      this.db.from("knowledge_base").select("kind, title, content, url").eq("active", true).order("sort_order"),
+    ]);
+    return {
+      conversation: conv,
+      messages: (check(msgs, "agent messages") as ChatMessage[]).reverse(),
+      company: check(company, "agent company") as AgentContext["company"],
+      lead: check(lead, "agent lead") as AgentContext["lead"],
+      knowledge: check(kb, "knowledge") as KnowledgeEntry[],
+    };
+  }
+
+  async sendCheck(conversationId: string, sender: "humano" | "agente", kind: "free_text" | "template") {
+    return check(
+      await this.db.rpc("whatsapp_send_check", { p_conversation_id: conversationId, p_sender: sender, p_kind: kind }),
+      "send check",
+    ) as { allowed: boolean; reasons: string[] };
+  }
+
+  async sumAiTokens(usageDate: string) {
+    const data = check(
+      await this.db.from("usage_events").select("input_tokens, output_tokens").eq("provider", "anthropic").eq("usage_date", usageDate),
+      "ai tokens",
+    ) as Array<{ input_tokens: number; output_tokens: number }>;
+    return data.reduce((a, r) => a + r.input_tokens + r.output_tokens, 0);
+  }
+
+  async countAgentReplies(conversationId: string, sinceIso: string) {
+    const res = await this.db
+      .from("messages")
+      .select("id", { count: "exact", head: true })
+      .eq("conversation_id", conversationId)
+      .eq("sender", "agente")
+      .gte("created_at", sinceIso);
+    if (res.error) throw new Error(`agent replies: ${res.error.message}`);
+    return res.count ?? 0;
+  }
+
+  async registerOutbound(conversationId: string, body: string, sender: "humano" | "agente", idempotencyKey: string) {
+    return check(
+      await this.db.rpc("register_outbound_message", {
+        p_conversation_id: conversationId, p_body: body, p_sender: sender, p_sent_by: null, p_idempotency_key: idempotencyKey,
+      }),
+      "register outbound",
+    ) as { message_id: string; duplicate: boolean; status: string };
+  }
+
+  async completeOutbound(messageId: string, wamid: string | null, error: string | null, metadata?: Record<string, unknown>) {
+    check(await this.db.rpc("complete_outbound_message", { p_message_id: messageId, p_wamid: wamid, p_error: error }), "complete outbound");
+    if (metadata) check(await this.db.from("messages").update({ metadata }).eq("id", messageId), "message metadata");
+  }
+
+  async applyAgentDecision(d: AgentDecisionInput) {
+    check(
+      await this.db.rpc("apply_agent_decision", {
+        p_conversation_id: d.conversationId, p_intent: d.intent, p_next_stage: d.nextStage, p_handoff: d.handoff,
+        p_handoff_reason: d.handoffReason, p_agent_role: d.agentRole, p_summary: d.summary,
+        p_opportunity: d.opportunity, p_amount_cents: d.amountCents,
+      }),
+      "apply decision",
+    );
+  }
+
+  async agentOptOut(conversationId: string, reason: string) {
+    check(await this.db.rpc("agent_opt_out", { p_conversation_id: conversationId, p_reason: reason }), "agent opt-out");
   }
 }

@@ -3,8 +3,9 @@
 Plataforma de prospecção, qualificação e negociação comercial para uma agência que vende criação de sites para empresas locais.
 Começa por Sant'Ana do Livramento (RS) e permite outras cidades pelo painel.
 
-> **Estado atual: Fases 1 e 2 concluídas** — descoberta/classificação de empresas e canal WhatsApp (webhook, histórico em tempo real,
-> descadastro, envio manual pela equipe na janela de 24h). IA (respostas automáticas), templates, agenda e vendas ainda **não** estão implementados.
+> **Estado atual: Fases 1, 2 e 3 concluídas** — descoberta/classificação de empresas, canal WhatsApp (webhook, tempo real,
+> descadastro, envio manual) e agentes de IA SDR/Closer (respostas automáticas com travas no código, base de conhecimento,
+> simulador, limites de custo). Templates, agenda, aprovação de vendas e relatórios completos ainda **não** estão implementados.
 > Nada é simulado. Veja [docs/STATUS.md](docs/STATUS.md), inclusive o roteiro de validação com a Meta.
 
 ## Stack
@@ -95,7 +96,7 @@ Sem a chave ou sem habilitação, o Scout não faz nenhuma chamada e informa o m
 | `SUPABASE_SECRET_KEY` (service role) | Vercel / `.env.local` (servidor) | 1 | Sim, para executar agentes pelo painel |
 | `GOOGLE_PLACES_API_KEY` | Vercel + `supabase secrets` | 1 | Para descoberta real |
 | `CRON_SECRET` | `supabase secrets` + Vault | 5 | Ao ativar as rotinas |
-| `ANTHROPIC_API_KEY` | Vercel + `supabase secrets` | 3 | Não |
+| `ANTHROPIC_API_KEY`, `ANTHROPIC_MODEL` | Vercel + `supabase secrets` | 3 | Para os agentes SDR/Closer e o simulador |
 | `WHATSAPP_ACCESS_TOKEN`, `WHATSAPP_PHONE_NUMBER_ID`, `WHATSAPP_BUSINESS_ACCOUNT_ID`, `WHATSAPP_APP_SECRET`, `WHATSAPP_WEBHOOK_VERIFY_TOKEN`, `WHATSAPP_GRAPH_API_VERSION` | Vercel (servidor) | 2 | Para o canal WhatsApp |
 
 Regras: chaves privadas **nunca** usam prefixo `NEXT_PUBLIC_`; projetos e chaves separados para desenvolvimento e produção (`APP_ENV` é exibido no painel e há alerta de mistura).
@@ -121,7 +122,8 @@ npm run build       # Build de produção
 supabase link --project-ref <ref-prod>
 supabase db push
 supabase functions deploy agent-runner
-supabase secrets set GOOGLE_PLACES_API_KEY=... CRON_SECRET=$(openssl rand -hex 32)
+supabase secrets set GOOGLE_PLACES_API_KEY=... CRON_SECRET=$(openssl rand -hex 32) \
+  ANTHROPIC_API_KEY=... WHATSAPP_ACCESS_TOKEN=... WHATSAPP_PHONE_NUMBER_ID=...
 ```
 
 Em Authentication → Providers → Email, mantenha **signups desativados**. Configure Site URL com o domínio da Vercel.

@@ -25,6 +25,7 @@ interface MessageRow {
   error: string | null;
   created_at: string;
   wa_timestamp: string | null;
+  metadata: { intent?: string; role?: string; violations?: string[]; handoff?: boolean } | null;
 }
 
 const SENDER: Record<MessageRow["sender"], string> = { cliente: "Cliente", agente: "Assistente virtual", humano: "Equipe", sistema: "Sistema" };
@@ -39,16 +40,16 @@ export default async function ConversationPage({ params }: { params: Promise<{ i
 
   const { data: convData } = await supabase
     .from("conversations")
-    .select("id, phone_e164, contact_name, status, handled_by, agent_paused, unread_count, last_message_preview, last_inbound_at, service_window_expires_at, opted_out_at, human_requested_at, updated_at, lead_id, companies(id, name)")
+    .select("id, phone_e164, contact_name, status, handled_by, agent_paused, unread_count, last_message_preview, last_inbound_at, service_window_expires_at, opted_out_at, human_requested_at, updated_at, lead_id, agent_role, customer_summary, handoff_reason, companies(id, name)")
     .eq("id", id)
     .maybeSingle();
   if (!convData) notFound();
-  const c = convData as unknown as ConversationRow & { human_requested_at: string | null };
+  const c = convData as unknown as ConversationRow & { human_requested_at: string | null; agent_role: "sdr" | "closer"; customer_summary: string | null; handoff_reason: string | null };
 
   if (canOperate && c.unread_count > 0) await markConversationRead(id);
 
   const [{ data: msgs }, { data: check }] = await Promise.all([
-    supabase.from("messages").select("id, direction, sender, message_type, body, status, error, created_at, wa_timestamp").eq("conversation_id", id).order("created_at", { ascending: true }).limit(500),
+    supabase.from("messages").select("id, direction, sender, message_type, body, status, error, created_at, wa_timestamp, metadata").eq("conversation_id", id).order("created_at", { ascending: true }).limit(500),
     canOperate ? supabase.rpc("whatsapp_send_check", { p_conversation_id: id, p_sender: "humano", p_kind: "free_text" }) : Promise.resolve({ data: null }),
   ]);
   const messages = (msgs ?? []) as MessageRow[];
@@ -78,12 +79,18 @@ export default async function ConversationPage({ params }: { params: Promise<{ i
             {messages.length === 0 && <li className="text-sm text-muted">Sem mensagens.</li>}
             {messages.map((m) => (
               <li key={m.id} className={`max-w-[85%] rounded-xl px-3 py-2 text-sm ${m.direction === "inbound" ? "self-start bg-surface-2" : "self-end bg-info-bg"}`}>
-                <div className="mb-0.5 text-[11px] text-muted">{SENDER[m.sender]} · {fmtDateTime(m.wa_timestamp ?? m.created_at)}</div>
+                <div className="mb-0.5 text-[11px] text-muted">
+                  {SENDER[m.sender]}{m.sender === "agente" && m.metadata?.role ? ` (${m.metadata.role === "closer" ? "Closer" : "SDR"})` : ""} · {fmtDateTime(m.wa_timestamp ?? m.created_at)}
+                  {m.metadata?.intent ? ` · intenção: ${m.metadata.intent}` : ""}
+                </div>
                 <div className="whitespace-pre-wrap break-words">{m.body ?? `[${m.message_type}]`}</div>
                 {m.direction === "outbound" && (
                   <div className={`mt-0.5 text-right text-[11px] ${m.status === "falhou" ? "text-danger" : "text-muted"}`}>
                     {STATUS_ICON[m.status] ?? m.status}{m.error ? ` — ${m.error}` : ""}
                   </div>
+                )}
+                {m.metadata?.violations && m.metadata.violations.length > 0 && (
+                  <div className="mt-1 text-[11px] text-danger">Resposta da IA bloqueada: {m.metadata.violations.join("; ")}</div>
                 )}
               </li>
             ))}
@@ -101,7 +108,10 @@ export default async function ConversationPage({ params }: { params: Promise<{ i
               <Badge tone={CONV_STATUS[c.status][1]}>{CONV_STATUS[c.status][0]}</Badge>
               <Badge tone={c.handled_by === "humano" ? "warn" : "info"}>{c.handled_by === "humano" ? "Humano" : "Agente"}</Badge>
               {c.agent_paused && <Badge tone="warn">Agente pausado</Badge>}
+              <Badge>Papel: {c.agent_role === "closer" ? "Closer" : "SDR"}</Badge>
             </div>
+            {c.handoff_reason && c.handled_by === "humano" && <p className="mt-2 text-sm text-warn">Transferido: {c.handoff_reason}</p>}
+            {c.customer_summary && <p className="mt-2 text-sm"><span className="text-muted">Necessidade: </span>{c.customer_summary}</p>}
             <dl className="mt-3 space-y-1.5 text-sm">
               <div className="flex justify-between gap-2"><dt className="text-muted">Janela de 24h</dt><dd>{windowOpen ? `aberta até ${fmtDateTime(c.service_window_expires_at)}` : "fechada"}</dd></div>
               <div className="flex justify-between gap-2"><dt className="text-muted">Última mensagem do cliente</dt><dd>{fmtDateTime(c.last_inbound_at)}</dd></div>

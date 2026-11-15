@@ -103,5 +103,12 @@ export interface SettingsRow {
   whatsapp_test_numbers: string[];
   opt_out_keywords: string[];
   human_request_keywords: string[];
+  agency_name: string;
+  assistant_name: string;
+  ai_effort: "low" | "medium" | "high";
+  ai_max_replies_per_conversation_day: number;
+  agent_hours_start: string;
+  agent_hours_end: string;
+  agent_days: number[];
   updated_at: string;
 }

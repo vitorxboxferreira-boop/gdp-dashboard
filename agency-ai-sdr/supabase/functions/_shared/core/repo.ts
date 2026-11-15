@@ -5,6 +5,7 @@
 import type { CompanyDraft, SearchArea } from "./places.ts";
 import type { ScoreResult, ScoringInput } from "./scoring.ts";
 import type { PipelineStep } from "./schedule.ts";
+import type { ChatMessage, KnowledgeEntry, Offer } from "./sdr-agent.ts";
 import type { WebsiteStatus } from "./website.ts";
 
 export interface AgentSettings {
@@ -20,6 +21,19 @@ export interface AgentSettings {
   places_content_ttl_days: number;
   category_weights: Record<string, number>;
   scoring_thresholds: { alta: number; media: number };
+  // Fase 3 — IA
+  ai_enabled?: boolean;
+  ai_daily_token_limit?: number;
+  ai_effort?: "low" | "medium" | "high";
+  ai_max_replies_per_conversation_day?: number;
+  ai_cost_per_mtok_input_usd?: number;
+  ai_cost_per_mtok_output_usd?: number;
+  agent_hours_start?: string;
+  agent_hours_end?: string;
+  agent_days?: number[];
+  agency_name?: string;
+  assistant_name?: string;
+  offer?: Offer;
 }
 
 export type UsageProvider = "google_places" | "anthropic" | "whatsapp";
@@ -29,6 +43,8 @@ export interface UsageEventInput {
   operation: string;
   units: number;
   estimated_cost_usd: number;
+  input_tokens?: number;
+  output_tokens?: number;
   success: boolean;
   usage_date: string;
   campaign_id?: string | null;
@@ -54,7 +70,7 @@ export interface Campaign {
   stats: Record<string, unknown>;
 }
 
-export type JobKind = PipelineStep | "maintenance.retention";
+export type JobKind = PipelineStep | "maintenance.retention" | "sdr.reply";
 export type JobStatus = "queued" | "running" | "done" | "failed" | "dead" | "cancelled";
 
 export interface Job {
@@ -105,7 +121,7 @@ export interface Repo {
   getCampaign(id: string): Promise<Campaign | null>;
 
   enqueueJobs(jobs: JobInsert[]): Promise<void>;
-  claimJobs(worker: string, limit: number): Promise<Job[]>;
+  claimJobs(worker: string, limit: number, kinds?: JobKind[]): Promise<Job[]>;
   completeJob(id: string, result: Record<string, unknown>): Promise<void>;
   failJob(id: string, error: string, retry: boolean): Promise<string>;
   deferJob(id: string, seconds: number, note: string): Promise<void>;
@@ -120,4 +136,52 @@ export interface Repo {
     metrics?: Record<string, unknown>;
     summary?: string;
   }): Promise<void>;
+}
+
+// ---------------------------------------------------------------------------
+// Fase 3 — acesso a dados dos agentes de conversa
+// ---------------------------------------------------------------------------
+export interface AgentConversation {
+  id: string;
+  phone_e164: string;
+  wa_id: string | null;
+  contact_name: string | null;
+  status: string;
+  handled_by: "agente" | "humano";
+  agent_paused: boolean;
+  agent_role: "sdr" | "closer";
+  customer_summary: string | null;
+  company_id: string | null;
+  lead_id: string | null;
+}
+
+export interface AgentContext {
+  conversation: AgentConversation;
+  messages: ChatMessage[];
+  company: { name: string; category_label: string | null; website_status: string } | null;
+  lead: { stage: string } | null;
+  knowledge: KnowledgeEntry[];
+}
+
+export interface AgentDecisionInput {
+  conversationId: string;
+  intent: string;
+  nextStage: string;
+  handoff: boolean;
+  handoffReason: string;
+  agentRole: "sdr" | "closer";
+  summary: string;
+  opportunity: boolean;
+  amountCents: number | null;
+}
+
+export interface AgentRepo {
+  getAgentContext(conversationId: string): Promise<AgentContext | null>;
+  sendCheck(conversationId: string, sender: "humano" | "agente", kind: "free_text" | "template"): Promise<{ allowed: boolean; reasons: string[] }>;
+  sumAiTokens(usageDate: string): Promise<number>;
+  countAgentReplies(conversationId: string, sinceIso: string): Promise<number>;
+  registerOutbound(conversationId: string, body: string, sender: "humano" | "agente", idempotencyKey: string): Promise<{ message_id: string; duplicate: boolean; status: string }>;
+  completeOutbound(messageId: string, wamid: string | null, error: string | null, metadata?: Record<string, unknown>): Promise<void>;
+  applyAgentDecision(d: AgentDecisionInput): Promise<void>;
+  agentOptOut(conversationId: string, reason: string): Promise<void>;
 }

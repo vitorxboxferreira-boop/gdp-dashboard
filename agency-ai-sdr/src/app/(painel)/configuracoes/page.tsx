@@ -1,4 +1,5 @@
 import { formatBrPhone } from "@core/phone.ts";
+import { saveAiSettings } from "@/actions/ai";
 import { resumeAutomation } from "@/actions/automation";
 import { deleteDemoData } from "@/actions/companies";
 import { removeSuppression, suppressPhone } from "@/actions/consents";
@@ -87,7 +88,6 @@ export default async function SettingsPage() {
               <Check name="autopilot_enabled" checked={s.autopilot_enabled} label="Piloto automático (campanha diária às 08:00, seg–sex)" />
               <Check name="run_on_weekends" checked={s.run_on_weekends} label="Executar também aos fins de semana" />
               <Check name="run_on_holidays" checked={s.run_on_holidays} label="Executar também em feriados" />
-              <Check name="ai_enabled" checked={s.ai_enabled} label="Modelo de IA (bloqueado até a Fase 3)" disabled />
             </fieldset>
           </ActionForm>
           <p className="mt-3 text-xs text-muted">O piloto automático só executa depois que o agendamento for ativado (supabase/sql/activate_cron.sql).</p>
@@ -125,6 +125,44 @@ export default async function SettingsPage() {
             </fieldset>
           </ActionForm>
           <p className="mt-3 text-xs text-muted">Respostas automáticas do agente (IA) não existem nesta fase: toda mensagem enviada é escrita por uma pessoa da equipe.</p>
+        </Card>
+
+        <Card title="Agentes de IA (SDR e Closer)" className="xl:col-span-2">
+          <p className="mb-3 text-sm text-muted">
+            Modelo: <code>{serverEnv.anthropicModel}</code> · chave {serverEnv.anthropicApiKey ? <Badge tone="ok">presente</Badge> : <Badge tone="warn">ANTHROPIC_API_KEY ausente</Badge>}
+            {" "}· Teste antes no simulador (Agentes). Custos em “Custos e limites”.
+          </p>
+          <ActionForm action={saveAiSettings} submitLabel="Salvar IA" variant="secondary">
+            <fieldset disabled={ro} className="grid gap-4 md:grid-cols-2">
+              <div className="space-y-3">
+                <Check name="ai_enabled" checked={s.ai_enabled} label="Respostas automáticas pelo WhatsApp" />
+                <label className="ml-6 flex items-start gap-2 text-xs text-fg">
+                  <input type="checkbox" name="ai_ack" defaultChecked={s.ai_enabled} className="mt-0.5" />
+                  Testei no simulador e estou ciente do custo por resposta (limite diário: {s.ai_daily_token_limit.toLocaleString("pt-BR")} tokens).
+                </label>
+                <Field label="Nome da agência (aparece na apresentação do assistente)"><input name="agency_name" defaultValue={s.agency_name} maxLength={120} /></Field>
+                <Field label="Nome do assistente virtual"><input name="assistant_name" defaultValue={s.assistant_name} maxLength={60} /></Field>
+              </div>
+              <div className="space-y-3">
+                <div className="grid grid-cols-2 gap-3">
+                  <Field label="Atende das"><input name="agent_hours_start" type="time" defaultValue={s.agent_hours_start.slice(0, 5)} /></Field>
+                  <Field label="Até"><input name="agent_hours_end" type="time" defaultValue={s.agent_hours_end.slice(0, 5)} /></Field>
+                </div>
+                <fieldset className="flex flex-wrap gap-3 text-sm text-fg">
+                  {["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"].map((d, i) => (
+                    <label key={d} className="flex items-center gap-1"><input type="checkbox" name="agent_days" value={i} defaultChecked={s.agent_days.includes(i)} />{d}</label>
+                  ))}
+                </fieldset>
+                <div className="grid grid-cols-2 gap-3">
+                  <Field label="Profundidade de raciocínio" hint="Maior = mais caro e mais lento">
+                    <select name="ai_effort" defaultValue={s.ai_effort}><option value="low">Baixa</option><option value="medium">Média</option><option value="high">Alta</option></select>
+                  </Field>
+                  <Field label="Máx. respostas por conversa/dia"><input name="ai_max_replies_per_conversation_day" type="number" min={1} max={100} defaultValue={s.ai_max_replies_per_conversation_day} /></Field>
+                </div>
+                <p className="text-xs text-muted">Fora do horário, a resposta é adiada para a abertura (se a janela de 24h ainda estiver aberta).</p>
+              </div>
+            </fieldset>
+          </ActionForm>
         </Card>
 
         <Card title="Limites diários e estimativas de custo">

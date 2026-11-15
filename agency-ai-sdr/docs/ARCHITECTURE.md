@@ -31,8 +31,8 @@ flowchart LR
 |---|---|---|
 | Scout | 1 | `runScout()` — Places Text Search por área/categoria em rodízio, deduplicação (Place ID, telefone, nome normalizado + cidade + telefone), limites diários de empresas e requisições, registro de custo por chamada, respeita a parada de emergência entre requisições. |
 | Analyst | 1 | `scoreCompany()` — regras determinísticas 0–100 com justificativa por critério; prioridade alta/média/baixa/verificar. Sem IA, sem inventar dados. |
-| SDR | 2–3 | Não implementado. Tabelas `conversations`, `messages`, `consents`, `suppression_list`, `processed_events` já existem. |
-| Closer | 3–4 | Não implementado. Tabelas `sales` (aprovação humana obrigatória por constraint) e `appointments` (sem sobreposição de reuniões confirmadas) já existem. |
+| SDR | 3 | `runSdrReply()` — Claude (SDK oficial, saída estruturada) redige a resposta e classifica a intenção; o código aplica as travas e decide envio/transferência. |
+| Closer | 3 | Mesmo executor com instruções de Closer quando há interesse forte; registra oportunidade (`sales` pendente de aprovação humana) e transfere. Aprovação/pagamento: Fase 4. |
 
 ### Pontuação (analyst-v1)
 
@@ -76,3 +76,33 @@ Prioridade: sem telefone ou status não operacional (e sem site próprio) → **
 * Dados demonstrativos: constraint `leads_demo_never_contactable_ck` + trigger.
 * Edge Function protegida por segredo comparado em tempo constante (`x-cron-secret`, ≥ 32 caracteres).
 * Next.js: `server-only` em módulos com segredos, headers de segurança (HSTS, X-Frame-Options, nosniff…), sessão validada com `getClaims()` no proxy.
+
+## Agentes de conversa (Fase 3)
+
+```mermaid
+sequenceDiagram
+  participant C as Cliente (WhatsApp)
+  participant W as Webhook /api/webhooks/whatsapp
+  participant DB as PostgreSQL
+  participant Q as Fila (sdr.reply)
+  participant A as runSdrReply
+  participant L as Claude (Anthropic)
+  C->>W: mensagem (assinada pela Meta)
+  W->>DB: ingest_whatsapp_message (idempotente)
+  DB->>Q: trigger: tarefa sdr.reply (run_after +8 s, 1 por wamid)
+  W-->>C: 200 para a Meta
+  W->>A: after(): processa a fila (fallback: Cron/Edge Function)
+  A->>DB: contexto, whatsapp_send_check('agente') — bloqueado? para aqui, sem custo de IA
+  A->>L: prompt estável (cacheado) + contexto + histórico
+  L-->>A: JSON {reply, intent, next_stage, handoff, oportunidade, resumo}
+  A->>A: travas (preço, desconto, promessas, identificação, tamanho)
+  A->>C: envio (Cloud API) ou mensagem de transferência
+  A->>DB: apply_agent_decision (estágio, papel, oportunidade, humano assume)
+```
+
+* **Modelo**: `ANTHROPIC_MODEL` (padrão `claude-opus-5-5`), esforço configurável (padrão baixo), saída estruturada validada com zod, `fallbacks: "default"` (beta `server-side-fallback-2026-07-01`) para recusas de segurança. Recusa, JSON inválido ou corte → equipe assume.
+* **Cache**: regras + oferta + base de conhecimento vão em um bloco de sistema estável com `cache_control`; data/hora e dados da conversa ficam depois.
+* **Ordem de custo**: verificações baratas (mais recente? já respondida? horário? `whatsapp_send_check`? limites) antes de chamar a IA.
+* **Idempotência**: uma tarefa por `wamid`; envio com chave `agent:{wamid}` — em falha temporária, a mesma mensagem é reenviada, nunca duplicada.
+* **Falha definitiva** da tarefa → conversa passa para atendimento humano com o motivo.
+* **Descadastro** detectado pela IA (frases que as palavras-chave não pegam) → `agent_opt_out()`, sem resposta.

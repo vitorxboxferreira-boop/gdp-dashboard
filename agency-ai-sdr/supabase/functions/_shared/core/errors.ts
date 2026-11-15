@@ -21,3 +21,11 @@ export class PausedError extends PermanentError {
     this.name = "PausedError";
   }
 }
+
+/** Reagendar a tarefa sem consumir tentativa (ex.: fora do horário de atendimento). */
+export class DeferError extends Error {
+  constructor(readonly seconds: number, message: string) {
+    super(message);
+    this.name = "DeferError";
+  }
+}
