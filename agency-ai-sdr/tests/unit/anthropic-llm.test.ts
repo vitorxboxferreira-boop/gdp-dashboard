@@ -5,7 +5,7 @@ import { createAnthropicLlm, LlmError } from "@core/anthropic-llm.ts";
 
 const decision = {
   reply: "Olá! Sou o assistente virtual. Como posso ajudar?", intent: "saudacao", next_stage: "sem_mudanca",
-  handoff_to_human: false, handoff_reason: "", register_opportunity: false, customer_summary: "Quer saber sobre sites.",
+  handoff_to_human: false, handoff_reason: "", register_opportunity: false, customer_summary: "Quer saber sobre sites.", meeting_slot: "",
 };
 
 function apiResponse(over: Record<string, unknown> = {}, text = JSON.stringify(decision)) {

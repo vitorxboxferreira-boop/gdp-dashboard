@@ -8,7 +8,7 @@ import { getSupabaseBrowserClient } from "@/lib/supabase/client";
  * Assina mudanças (Supabase Realtime, respeitando RLS) e re-renderiza a página no servidor.
  * filter: ex. "conversation_id=eq.<uuid>"
  */
-export function RealtimeRefresh({ table, filter, channel }: { table: "messages" | "conversations"; filter?: string; channel: string }) {
+export function RealtimeRefresh({ table, filter, channel, silent }: { table: "messages" | "conversations" | "notifications"; filter?: string; channel: string; silent?: boolean }) {
   const router = useRouter();
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [state, setState] = useState<"conectando" | "ao vivo" | "offline">("conectando");
@@ -28,6 +28,7 @@ export function RealtimeRefresh({ table, filter, channel }: { table: "messages" 
     };
   }, [router, table, filter, channel]);
 
+  if (silent) return null;
   const color = state === "ao vivo" ? "bg-ok" : state === "offline" ? "bg-danger" : "bg-warn";
   return (
     <span className="inline-flex items-center gap-1.5 text-xs text-muted" aria-live="polite">

@@ -18,6 +18,10 @@ Teste manual:
 curl -X POST "$SUPABASE_URL/functions/v1/agent-runner" -H "x-cron-secret: $CRON_SECRET"
 ```
 
+### `GET /api/relatorios/csv?de=AAAA-MM-DD&ate=AAAA-MM-DD` (painel)
+
+Autenticado (papel ≥ leitura). CSV (`;`, UTF-8 com BOM) com uma linha por dia; máximo 92 dias. Células iniciadas por `= + - @` são prefixadas com `'`.
+
 ### `GET /api/health` (painel)
 
 `200 {"status":"ok","supabaseConfigured":true,"time":"…"}` — sem dados sensíveis; público.
@@ -58,7 +62,9 @@ Cada mensagem recebida em conversa atendida pelo agente (IA habilitada, sem paus
 3. `register_outbound_message()` com chave de idempotência gerada no navegador (duplo clique não duplica).
 4. Chamada à API → `complete_outbound_message()` grava `wamid` ou o erro.
 
-Templates (mensagens iniciadas pela empresa) **não** estão implementados; `whatsapp_send_check(..., 'template')` já exige autorização válida e retorna bloqueado.
+### Templates (mensagens iniciadas pela empresa)
+
+`type: "template"` com `name`, `language.code` e parâmetros do corpo. Somente pela equipe, a partir da página da empresa, quando: template ativo e marcado como aprovado; contato com autorização válida (`compute_whatsapp_eligibility = elegivel`); sem envio de template ao mesmo número nos últimos N dias (`template_min_days_between`); e demais verificações (modo de teste, bloqueio, limite diário). O agente de IA nunca inicia conversas.
 
 ## Integrações externas
 
@@ -89,6 +95,11 @@ Templates (mensagens iniciadas pela empresa) **não** estão implementados; `wha
 | `register_outbound_message / complete_outbound_message` | service_role | Registro de envio |
 | `apply_agent_decision(...)` | service_role | Estágio, papel, transferência e oportunidade após resposta da IA |
 | `agent_opt_out(conversa, motivo)` | service_role | Descadastro identificado pela IA |
+| `request_meeting(conversa, início, motivo)` | service_role | Pedido de reunião pelo agente (aguarda confirmação humana) |
+| `busy_meeting_ranges(de, até)` | staff / service_role | Horários ocupados |
+| `start_outbound_conversation(empresa)` | service_role | Conversa iniciada pela empresa (exige autorização válida) |
+| `report_metrics(de, até)` | staff / service_role | Métricas do período (datas de Brasília) |
+| `mark_notifications_read(ids)` | staff | Marca notificações como lidas |
 | `purge_expired_data()` | admin / cron | Retenção (mensagens, conteúdo do Places, eventos) |
 | `companies_pending_scoring(limit)` | service_role | Empresas sem pontuação ou desatualizadas |
 | `claim_jobs / complete_job / fail_job / defer_job` | service_role | Fila de tarefas |

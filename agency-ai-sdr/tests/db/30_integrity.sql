@@ -97,17 +97,19 @@ begin
   exception when unique_violation then null;
   end;
 
-  -- Reuniões confirmadas não se sobrepõem
+  -- Reuniões confirmadas não se sobrepõem (confirmação exige uma pessoa: simula usuário)
+  perform set_config('request.jwt.claim.sub', '00000000-0000-0000-0000-00000000000b', true);
   insert into public.appointments (contact_name, starts_at, ends_at, status)
-  values ('A', '2026-11-17 14:00-03', '2026-11-17 14:30-03', 'confirmada');
+  values ('A', date_trunc('hour', now()) + interval '2 days', date_trunc('hour', now()) + interval '2 days 30 minutes', 'confirmada');
   insert into public.appointments (contact_name, starts_at, ends_at, status)
-  values ('B', '2026-11-17 14:15-03', '2026-11-17 14:45-03', 'proposta');
+  values ('B', date_trunc('hour', now()) + interval '2 days 15 minutes', date_trunc('hour', now()) + interval '2 days 45 minutes', 'proposta');
   begin
     insert into public.appointments (contact_name, starts_at, ends_at, status)
-    values ('C', '2026-11-17 14:15-03', '2026-11-17 14:45-03', 'confirmada');
+    values ('C', date_trunc('hour', now()) + interval '2 days 15 minutes', date_trunc('hour', now()) + interval '2 days 45 minutes', 'confirmada');
     raise exception 'FALHA: reuniões sobrepostas confirmadas';
   exception when exclusion_violation then null;
   end;
+  perform set_config('request.jwt.claim.sub', '', true);
 
   -- Vendas exigem aprovação humana
   begin

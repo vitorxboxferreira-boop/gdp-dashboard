@@ -5,6 +5,7 @@
 import { LlmError, type AgentLlm, type LlmResult } from "./anthropic-llm.ts";
 import { DeferError, PermanentError, RetryableError } from "./errors.ts";
 import type { AgentRepo, Job, Repo } from "./repo.ts";
+import { computeAvailableSlots, formatSlotPtBr, meetingConfigFrom } from "./scheduling.ts";
 import { zonedParts, zonedTimeToUtc } from "./schedule.ts";
 import {
   allowedAmountsFrom,
@@ -103,6 +104,17 @@ export async function runSdrReply(deps: SdrDeps, job: Pick<Job, "id" | "payload"
   const turns = buildTurns(messages);
   if (!turns.length) return { outcome: "skipped", reason: "sem mensagens de texto do cliente" };
 
+  // Horários livres oferecidos ao agente (códigos H1..Hn; o agente nunca confirma).
+  const meetingCfg = meetingConfigFrom(s as unknown as Record<string, unknown>);
+  const horizonEnd = new Date(now.getTime() + (meetingCfg.horizonDays + 1) * 86_400_000);
+  const slots = computeAvailableSlots(
+    meetingCfg,
+    await repo.busyMeetingRanges(now.toISOString(), horizonEnd.toISOString()),
+    await repo.getHolidays(),
+    now,
+    5,
+  ).map((d, i) => ({ code: `H${i + 1}`, start: d, label: formatSlotPtBr(d, tz) }));
+
   let result: LlmResult;
   try {
     result = await deps.llm.decide({
@@ -116,6 +128,8 @@ export async function runSdrReply(deps: SdrDeps, job: Pick<Job, "id" | "payload"
       contactName: conv.contact_name,
       isFirstAgentMessage,
       previousSummary: conv.customer_summary,
+      meetingSlots: slots.map(({ code, label }) => ({ code, label })),
+      meetingLocation: s.meeting_location,
     }),
     turns,
     effort: s.ai_effort ?? "low",
@@ -157,15 +171,29 @@ export async function runSdrReply(deps: SdrDeps, job: Pick<Job, "id" | "payload"
   const newRole = roleAfterDecision(role, d);
   const metadata = { intent: d.intent, role, model: result.model, violations: guard.violations, blocked_reply: guard.ok ? undefined : d.reply };
 
-  if (text) await send(text, metadata);
+  // Pedido de reunião: só para um horário que oferecemos; fica aguardando confirmação humana.
+  const chosen = d.meeting_slot ? slots.find((x) => x.code === d.meeting_slot.trim().toUpperCase()) : undefined;
+  let meetingRequested: string | null = null;
+  if (chosen && guard.ok) {
+    try {
+      await repo.requestMeeting(conversationId, chosen.start.toISOString(), d.customer_summary || "Pedido de reunião pelo WhatsApp");
+      meetingRequested = chosen.label;
+    } catch {
+      meetingRequested = null; // horário ocupado entre o cálculo e o pedido: a equipe assume
+    }
+  }
+  const finalMetadata = { ...metadata, meeting_slot: d.meeting_slot || undefined, meeting_requested: meetingRequested ?? undefined };
+  const meetingFailed = Boolean(chosen && guard.ok && !meetingRequested);
+
+  if (text) await send(text, finalMetadata);
 
   const opportunity = d.register_opportunity && d.intent === "quer_contratar";
   await repo.applyAgentDecision({
     conversationId,
     intent: d.intent,
     nextStage: d.next_stage,
-    handoff: mustHandoff || opportunity,
-    handoffReason: !guard.ok
+    handoff: mustHandoff || opportunity || meetingFailed,
+    handoffReason: meetingFailed ? "Horário escolhido ficou indisponível: propor outro" : !guard.ok
       ? `Resposta bloqueada pelas travas: ${guard.violations.join("; ")}`
       : opportunity ? "Cliente quer contratar: aprovar oportunidade" : d.handoff_reason || (mustHandoff ? "Cliente precisa de atendimento humano" : ""),
     agentRole: newRole,

@@ -240,7 +240,43 @@ export interface SendConfig {
 }
 
 /** Mensagem de texto livre — permitida somente dentro da janela de 24h. */
-export async function sendTextMessage(cfg: SendConfig, to: string, body: string): Promise<{ wamid: string }> {
+export function sendTextMessage(cfg: SendConfig, to: string, body: string): Promise<{ wamid: string }> {
+  return postMessage(cfg, {
+    messaging_product: "whatsapp",
+    recipient_type: "individual",
+    to: to.replace(/^\+/, ""),
+    type: "text",
+    text: { preview_url: false, body },
+  });
+}
+
+/** Template aprovado pela Meta — necessário para iniciar conversa fora da janela de 24h. */
+export function sendTemplateMessage(
+  cfg: SendConfig,
+  to: string,
+  template: { name: string; language: string; bodyParams: string[] },
+): Promise<{ wamid: string }> {
+  return postMessage(cfg, {
+    messaging_product: "whatsapp",
+    recipient_type: "individual",
+    to: to.replace(/^\+/, ""),
+    type: "template",
+    template: {
+      name: template.name,
+      language: { code: template.language },
+      ...(template.bodyParams.length
+        ? { components: [{ type: "body", parameters: template.bodyParams.map((t) => ({ type: "text", text: t })) }] }
+        : {}),
+    },
+  });
+}
+
+/** Substitui {{1}}, {{2}}… no texto de pré-visualização (para o histórico do painel). */
+export function renderTemplatePreview(preview: string, params: string[]): string {
+  return preview.replace(/\{\{(\d+)\}\}/g, (_, n) => params[Number(n) - 1] ?? `{{${n}}}`);
+}
+
+async function postMessage(cfg: SendConfig, payload: Record<string, unknown>): Promise<{ wamid: string }> {
   if (!/^v\d+\.\d+$/.test(cfg.graphVersion)) throw new Error("Versão da Graph API inválida");
   const url = `https://graph.facebook.com/${cfg.graphVersion}/${encodeURIComponent(cfg.phoneNumberId)}/messages`;
   const controller = new AbortController();
@@ -250,13 +286,7 @@ export async function sendTextMessage(cfg: SendConfig, to: string, body: string)
     res = await (cfg.fetchImpl ?? fetch)(url, {
       method: "POST",
       headers: { Authorization: `Bearer ${cfg.accessToken}`, "Content-Type": "application/json" },
-      body: JSON.stringify({
-        messaging_product: "whatsapp",
-        recipient_type: "individual",
-        to: to.replace(/^\+/, ""),
-        type: "text",
-        text: { preview_url: false, body },
-      }),
+      body: JSON.stringify(payload),
       signal: controller.signal,
     });
   } catch (err) {

@@ -251,7 +251,8 @@ export class SupabaseRepo implements Repo, AgentRepo {
     summary?: string;
   }) {
     const now = new Date().toISOString();
-    const row: Record<string, unknown> = { report_date: input.report_date, campaign_id: input.campaign_id, status: input.status };
+    const row: Record<string, unknown> = { report_date: input.report_date, status: input.status };
+    if (input.campaign_id) row.campaign_id = input.campaign_id;
     if (input.metrics) row.metrics = input.metrics;
     if (input.summary) row.summary = input.summary;
     if (input.status === "preparando") row.generated_at = now;
@@ -347,5 +348,20 @@ export class SupabaseRepo implements Repo, AgentRepo {
 
   async agentOptOut(conversationId: string, reason: string) {
     check(await this.db.rpc("agent_opt_out", { p_conversation_id: conversationId, p_reason: reason }), "agent opt-out");
+  }
+
+  async busyMeetingRanges(fromIso: string, toIso: string) {
+    return check(await this.db.rpc("busy_meeting_ranges", { p_from: fromIso, p_to: toIso }), "busy ranges") as Array<{ starts_at: string; ends_at: string; status: string }>;
+  }
+
+  async requestMeeting(conversationId: string, startsAtIso: string, reason: string) {
+    return check(
+      await this.db.rpc("request_meeting", { p_conversation_id: conversationId, p_starts_at: startsAtIso, p_reason: reason }),
+      "request meeting",
+    ) as string;
+  }
+
+  async reportMetrics(from: string, to: string) {
+    return check(await this.db.rpc("report_metrics", { p_from: from, p_to: to }), "report metrics") as Record<string, unknown>;
   }
 }

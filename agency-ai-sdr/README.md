@@ -3,9 +3,9 @@
 Plataforma de prospecção, qualificação e negociação comercial para uma agência que vende criação de sites para empresas locais.
 Começa por Sant'Ana do Livramento (RS) e permite outras cidades pelo painel.
 
-> **Estado atual: Fases 1, 2 e 3 concluídas** — descoberta/classificação de empresas, canal WhatsApp (webhook, tempo real,
-> descadastro, envio manual) e agentes de IA SDR/Closer (respostas automáticas com travas no código, base de conhecimento,
-> simulador, limites de custo). Templates, agenda, aprovação de vendas e relatórios completos ainda **não** estão implementados.
+> **Estado atual: Fases 1 a 4 concluídas** — descoberta/classificação, canal WhatsApp, agentes de IA SDR/Closer com travas,
+> agenda (o agente oferece horários; a equipe confirma), aprovação de vendas, notificações, relatórios com CSV e templates
+> para iniciar conversa com contatos autorizados. Falta a Fase 5 (segurança, testes com serviços reais, monitoramento, deploy, ativação).
 > Nada é simulado. Veja [docs/STATUS.md](docs/STATUS.md), inclusive o roteiro de validação com a Meta.
 
 ## Stack

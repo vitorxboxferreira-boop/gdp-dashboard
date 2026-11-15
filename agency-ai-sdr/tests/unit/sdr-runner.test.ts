@@ -48,6 +48,15 @@ class MemoryAgentRepo extends MemoryRepo implements AgentRepo {
   }
   async applyAgentDecision(d: AgentDecisionInput) { this.decisions.push(d); }
   async agentOptOut(conversationId: string) { this.optOuts.push(conversationId); }
+  busy: Array<{ starts_at: string; ends_at: string; status: string }> = [];
+  meetings: Array<{ conversationId: string; startsAt: string }> = [];
+  failMeeting = false;
+  async busyMeetingRanges() { return this.busy; }
+  async requestMeeting(conversationId: string, startsAt: string) {
+    if (this.failMeeting) throw new Error("horário indisponível");
+    this.meetings.push({ conversationId, startsAt });
+    return "appt-1";
+  }
 }
 
 const msg = (direction: "inbound" | "outbound", body: string, wamid: string | null, sender: ChatMessage["sender"] = direction === "inbound" ? "cliente" : "agente"): ChatMessage =>
@@ -55,7 +64,7 @@ const msg = (direction: "inbound" | "outbound", body: string, wamid: string | nu
 
 const decision = (over: Partial<AgentDecision> = {}): AgentDecision => ({
   reply: "Olá! Sou o assistente virtual da Agência X. Sua empresa já tem site?", intent: "saudacao", next_stage: "sem_mudanca",
-  handoff_to_human: false, handoff_reason: "", register_opportunity: false, customer_summary: "Dono de oficina, quer saber de sites.", ...over,
+  handoff_to_human: false, handoff_reason: "", register_opportunity: false, customer_summary: "Dono de oficina, quer saber de sites.", meeting_slot: "", ...over,
 });
 
 function fakeLlm(d: AgentDecision | null, extra: Partial<LlmResult> = {}): AgentLlm & { decide: ReturnType<typeof vi.fn> } {
@@ -164,6 +173,29 @@ describe("agente SDR/Closer — execução", () => {
     await runSdrReply({ repo, llm, whatsapp: fakeWhatsApp().config, now: monday10h }, job);
     expect(repo.outbound).toHaveLength(1);
     expect(repo.outbound[0].status).toBe("enviada");
+  });
+
+  it("oferece horários livres e registra o pedido escolhido (sem confirmar)", async () => {
+    Object.assign(repo.settings, { meeting_days: [1, 2, 3, 4, 5], meeting_start: "09:00", meeting_end: "17:00", meeting_duration_min: 30, meeting_buffer_min: 15, meeting_max_per_day: 4, meeting_min_notice_hours: 4, meeting_horizon_days: 10, meeting_location: "Videochamada" });
+    const llm = fakeLlm(decision({ intent: "quer_reuniao", meeting_slot: "H1", reply: "Perfeito! Anotei terça às 09:00; a equipe vai confirmar o horário com você." }));
+    const res = await runSdrReply({ repo, llm, whatsapp: fakeWhatsApp().config, now: monday10h }, job);
+    expect(res).toMatchObject({ outcome: "replied" });
+    const ctxPrompt = llm.decide.mock.calls[0][0].contextPrompt as string;
+    expect(ctxPrompt).toMatch(/H1: (segunda|terça)/);
+    expect(repo.meetings).toHaveLength(1);
+    // segunda 10:00 + 4h de antecedência; grade de 45 min (30 + 15) a partir das 09:00 → 14:15 (17:15 UTC)
+    expect(repo.meetings[0].startsAt).toBe("2026-11-16T17:15:00.000Z");
+    expect(repo.outbound[0].metadata).toMatchObject({ meeting_slot: "H1", meeting_requested: expect.stringContaining("16/11 às 14:15") });
+  });
+
+  it("código de horário inexistente é ignorado; horário que ficou ocupado → equipe assume", async () => {
+    const llm = fakeLlm(decision({ intent: "quer_reuniao", meeting_slot: "H99" }));
+    await runSdrReply({ repo, llm, whatsapp: fakeWhatsApp().config, now: monday10h }, job);
+    expect(repo.meetings).toHaveLength(0);
+    repo = new MemoryAgentRepo([msg("inbound", "Pode ser o primeiro horário", "wamid.IN2")]);
+    repo.failMeeting = true;
+    await runSdrReply({ repo, llm: fakeLlm(decision({ intent: "quer_reuniao", meeting_slot: "H1" })), whatsapp: fakeWhatsApp().config, now: monday10h }, job);
+    expect(repo.decisions[0]).toMatchObject({ handoff: true, handoffReason: expect.stringMatching(/indisponível/) });
   });
 
   it("sem chave da IA: erro definitivo", async () => {

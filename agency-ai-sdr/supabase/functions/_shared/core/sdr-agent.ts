@@ -51,6 +51,7 @@ export const AgentDecisionSchema = z.object({
   handoff_reason: z.string().describe("Motivo curto da transferência, ou string vazia."),
   register_opportunity: z.boolean().describe("true somente se o cliente declarou claramente que quer contratar."),
   customer_summary: z.string().describe("Resumo objetivo, para a equipe, do que o cliente precisa (máx. 3 frases). Sem inventar dados."),
+  meeting_slot: z.string().describe('Código do horário (ex.: "H2") que o cliente ESCOLHEU explicitamente na lista de horários disponíveis; string vazia se não escolheu.'),
 });
 export type AgentDecision = z.infer<typeof AgentDecisionSchema>;
 
@@ -136,6 +137,8 @@ export function buildContextPrompt(ctx: {
   contactName: string | null;
   isFirstAgentMessage: boolean;
   previousSummary: string | null;
+  meetingSlots?: Array<{ code: string; label: string }>;
+  meetingLocation?: string;
 }): string {
   return [
     ROLE_INSTRUCTIONS[ctx.role],
@@ -151,6 +154,15 @@ export function buildContextPrompt(ctx: {
       ? "Esta é sua PRIMEIRA mensagem nesta conversa: apresente-se como assistente virtual e diga que o cliente pode pedir para falar com uma pessoa quando quiser."
       : "",
     "Mensagens marcadas como [Equipe] foram escritas por pessoas da equipe; mantenha coerência com elas.",
+    "",
+    "## Reuniões",
+    ctx.meetingSlots?.length
+      ? [
+          `Se o cliente quiser conversar/reunir, ofereça 2 ou 3 destes horários livres (formato: ${ctx.meetingLocation ?? "a combinar"}):`,
+          ...ctx.meetingSlots.map((m) => `${m.code}: ${m.label}`),
+          "Quando o cliente escolher um deles, preencha meeting_slot com o código e diga que a equipe vai CONFIRMAR o horário. Nunca diga que está confirmado.",
+        ].join("\n")
+      : "Não há horários livres no momento: diga que a equipe vai propor horários e marque handoff_to_human.",
   ].filter(Boolean).join("\n");
 }
 

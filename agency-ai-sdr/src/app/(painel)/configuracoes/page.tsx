@@ -1,5 +1,6 @@
 import { formatBrPhone } from "@core/phone.ts";
 import { saveAiSettings } from "@/actions/ai";
+import { saveTemplate } from "@/actions/templates";
 import { resumeAutomation } from "@/actions/automation";
 import { deleteDemoData } from "@/actions/companies";
 import { removeSuppression, suppressPhone } from "@/actions/consents";
@@ -24,13 +25,14 @@ export default async function SettingsPage() {
   const isAdmin = hasRole(profile, "admin");
   const canOperate = hasRole(profile, "operator");
   const supabase = await createSupabaseServerClient();
-  const [{ data: sData }, { data: areas }, { data: holidays }, { data: users }, { data: suppression }, { count: demoCount }] = await Promise.all([
+  const [{ data: sData }, { data: areas }, { data: holidays }, { data: users }, { data: suppression }, { count: demoCount }, { data: templates }] = await Promise.all([
     supabase.from("agent_settings").select("*").eq("id", 1).single(),
     supabase.from("search_areas").select("*").order("priority"),
     supabase.from("holidays").select("*").gte("holiday_date", new Date().toISOString().slice(0, 10)).order("holiday_date").limit(20),
     supabase.from("profiles").select("id, email, full_name, role").order("email"),
     supabase.from("suppression_list").select("*").order("created_at", { ascending: false }).limit(50),
     supabase.from("companies").select("id", { count: "exact", head: true }).eq("is_demo", true),
+    supabase.from("whatsapp_templates").select("*").order("name"),
   ]);
   const s = sData as SettingsRow;
   const integrations = integrationStatuses();
@@ -125,6 +127,36 @@ export default async function SettingsPage() {
             </fieldset>
           </ActionForm>
           <p className="mt-3 text-xs text-muted">Respostas automáticas do agente (IA) não existem nesta fase: toda mensagem enviada é escrita por uma pessoa da equipe.</p>
+        </Card>
+
+        <Card title="Templates do WhatsApp (mensagens iniciadas pela empresa)" className="xl:col-span-2">
+          <p className="mb-3 text-sm text-muted">
+            Crie e aprove os templates no WhatsApp Manager (Meta) e cadastre aqui com o mesmo nome e idioma. Só templates marcados como aprovados podem ser usados,
+            e só para contatos com autorização válida. Frequência mínima por contato: {s.template_min_days_between} dias. Custo estimado por envio: {fmtUSD(s.whatsapp_cost_per_message_usd)}.
+          </p>
+          <div className="space-y-3">
+            {((templates ?? []) as Array<{ id: string; name: string; language: string; category: string; body_preview: string; approved_confirmed: boolean; active: boolean; param_count: number }>).map((t) => (
+              <details key={t.id} className="rounded-lg border border-line p-3">
+                <summary className="flex cursor-pointer flex-wrap items-center gap-2 text-sm">
+                  <code>{t.name}</code> <span className="text-muted">{t.language} · {t.category} · {t.param_count} parâmetro(s)</span>
+                  {t.approved_confirmed ? <Badge tone="ok">aprovado</Badge> : <Badge tone="warn">não confirmado</Badge>}
+                  {!t.active && <Badge>inativo</Badge>}
+                </summary>
+                <ActionForm action={saveTemplate} submitLabel="Salvar template" variant="secondary" className="mt-3">
+                  <input type="hidden" name="id" value={t.id} />
+                  <TemplateFields t={t} ro={ro} />
+                </ActionForm>
+              </details>
+            ))}
+          </div>
+          {isAdmin && (
+            <details className="mt-3">
+              <summary className="cursor-pointer text-sm font-medium">Cadastrar template</summary>
+              <ActionForm action={saveTemplate} submitLabel="Cadastrar" variant="secondary" className="mt-3">
+                <TemplateFields ro={false} />
+              </ActionForm>
+            </details>
+          )}
         </Card>
 
         <Card title="Agentes de IA (SDR e Closer)" className="xl:col-span-2">
@@ -337,6 +369,21 @@ export default async function SettingsPage() {
         </Card>
       </div>
     </>
+  );
+}
+
+function TemplateFields({ t, ro }: { t?: { name: string; language: string; category: string; body_preview: string; approved_confirmed: boolean; active: boolean }; ro: boolean }) {
+  return (
+    <fieldset disabled={ro} className="grid gap-3 sm:grid-cols-3">
+      <Field label="Nome (igual à Meta)"><input name="name" required defaultValue={t?.name} placeholder="boas_vindas_site" /></Field>
+      <Field label="Idioma"><input name="language" defaultValue={t?.language ?? "pt_BR"} /></Field>
+      <Field label="Categoria">
+        <select name="category" defaultValue={t?.category ?? "marketing"}><option value="marketing">Marketing</option><option value="utility">Utilidade</option></select>
+      </Field>
+      <div className="sm:col-span-3"><Field label="Texto do corpo (com {{1}}, {{2}}…)"><textarea name="body_preview" rows={3} required defaultValue={t?.body_preview} /></Field></div>
+      <label className="flex items-center gap-2 text-sm text-fg"><input type="checkbox" name="approved_confirmed" defaultChecked={t?.approved_confirmed} />Aprovado pela Meta</label>
+      {t && <label className="flex items-center gap-2 text-sm text-fg"><input type="checkbox" name="active" defaultChecked={t.active} />Ativo</label>}
+    </fieldset>
   );
 }
 

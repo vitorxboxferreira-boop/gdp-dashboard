@@ -233,18 +233,28 @@ export async function runAnalyst(deps: PipelineDeps, opts: { maxCompanies?: numb
 // -----------------------------------------------------------------------------
 export async function prepareReport(deps: PipelineDeps, campaignId: string | null, reportDate: string) {
   const { repo } = deps;
-  const metrics = await repo.dashboardMetrics();
+  const m = await repo.reportMetrics(reportDate, reportDate);
   const jobs = campaignId ? await repo.listCampaignJobs(campaignId) : [];
   const scout = jobs.find((j) => j.kind === "scout.search");
   const failures = jobs.filter((j) => j.status === "dead" || j.status === "cancelled");
   const scoutResult = (scout?.result ?? {}) as Partial<ScoutStats>;
+  const n = (k: string) => Number(m[k] ?? 0);
+  const usd = (k: string) => `US$ ${n(k).toFixed(2)}`;
+  const brl = (c: number) => `R$ ${(c / 100).toFixed(2).replace(".", ",")}`;
 
   const lines = [
-    `Empresas novas hoje: ${metrics.companies_today ?? 0}`,
-    `Empresas sem site próprio identificado (total): ${metrics.without_site ?? 0}`,
-    `Leads qualificados (alta/média): ${metrics.qualified_leads ?? 0}`,
-    `Contatos com autorização válida: ${metrics.authorized_contacts ?? 0}`,
-    `Requisições Google Places hoje: ${metrics.places_requests_today ?? 0}`,
+    "Prospecção",
+    `• Empresas novas: ${n("companies_found")} (sem site próprio identificado: ${n("companies_without_site")})`,
+    `• Leads qualificados (alta/média): ${n("leads_qualified")} · novas autorizações de contato: ${n("authorized_contacts_new")}`,
+    "Conversas",
+    `• Novas conversas: ${n("conversations_new")} · mensagens recebidas: ${n("messages_received")}`,
+    `• Respostas do agente: ${n("agent_replies")} · mensagens da equipe: ${n("team_messages")} · templates: ${n("templates_sent")}`,
+    `• Transferências para humano: ${n("handoffs")} · descadastros: ${n("opt_outs")}`,
+    "Resultados",
+    `• Oportunidades: ${n("opportunities")} · vendas aprovadas: ${n("sales_approved")} · pagas: ${n("sales_paid")} (${brl(n("revenue_cents"))})`,
+    `• Reuniões pedidas: ${n("meetings_requested")} · confirmadas: ${n("meetings_confirmed")}`,
+    "Custos estimados",
+    `• Google Places ${usd("cost_places_usd")} · IA ${usd("cost_ai_usd")} (${n("ai_tokens").toLocaleString("pt-BR")} tokens) · WhatsApp ${usd("cost_whatsapp_usd")}`,
   ];
   if (scoutResult.skipped) lines.push(`Pesquisa não executada: ${SKIP_LABELS[scoutResult.skipped] ?? scoutResult.skipped}`);
   if (failures.length) lines.push(`Etapas com falha: ${failures.map((f) => `${f.kind} (${f.last_error ?? f.status})`).join("; ")}`);
@@ -253,7 +263,7 @@ export async function prepareReport(deps: PipelineDeps, campaignId: string | nul
     report_date: reportDate,
     campaign_id: campaignId,
     status: "preparando",
-    metrics: { ...metrics, scout: scoutResult, jobs: jobs.map((j) => ({ kind: j.kind, status: j.status })) },
+    metrics: { ...m, scout: scoutResult, jobs: jobs.map((j) => ({ kind: j.kind, status: j.status })) },
     summary: lines.join("\n"),
   });
   return { lines: lines.length };

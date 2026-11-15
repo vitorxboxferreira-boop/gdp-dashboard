@@ -110,5 +110,6 @@ export interface SettingsRow {
   agent_hours_start: string;
   agent_hours_end: string;
   agent_days: number[];
+  template_min_days_between: number;
   updated_at: string;
 }

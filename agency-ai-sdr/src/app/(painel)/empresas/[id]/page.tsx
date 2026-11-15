@@ -4,6 +4,7 @@ import { formatBrPhone } from "@core/phone.ts";
 import { registerConsent, revokeConsent, suppressPhone } from "@/actions/consents";
 import { updateCompanyNotes, verifyWebsite } from "@/actions/companies";
 import { updateLeadStage } from "@/actions/leads";
+import { sendTemplateToCompany } from "@/actions/templates";
 import { ActionForm } from "@/components/action-form";
 import { ContactBadge, DemoBadge, PriorityBadge, StageBadge, WebsiteBadge } from "@/components/badges";
 import { Badge, Card, Field, Notice, PageHeader, Table, Td, Th } from "@/components/ui";
@@ -44,14 +45,17 @@ export default async function CompanyPage({ params }: { params: Promise<{ id: st
   if (!company) notFound();
   const c = company as CompanyRow;
 
-  const [{ data: leadData }, { data: consents }, { data: suppressed }, { data: history }] = await Promise.all([
+  const [{ data: leadData }, { data: consents }, { data: suppressed }, { data: history }, { data: templates }] = await Promise.all([
     supabase.from("leads").select("*").eq("company_id", id).maybeSingle(),
     supabase.from("consents").select("*").eq("company_id", id).order("granted_at", { ascending: false }),
     c.phone_e164
       ? supabase.from("suppression_list").select("id, reason, created_at").eq("phone_e164", c.phone_e164).maybeSingle()
       : Promise.resolve({ data: null }),
     supabase.from("audit_logs").select("id, occurred_at, action, actor_type, new_data").eq("entity", "companies").eq("entity_id", id).order("occurred_at", { ascending: false }).limit(15),
+    supabase.from("whatsapp_templates").select("id, name, language, category, body_preview, param_count").eq("active", true).eq("approved_confirmed", true).order("name"),
   ]);
+  const tpls = (templates ?? []) as Array<{ id: string; name: string; language: string; category: string; body_preview: string; param_count: number }>;
+  const maxParams = Math.max(0, ...tpls.map((t) => t.param_count));
   const lead = leadData as LeadRow | null;
   const reasons = Array.isArray(lead?.score_reasons) ? [] : lead?.score_reasons?.reasons ?? [];
   const needs = Array.isArray(lead?.score_reasons) ? [] : lead?.score_reasons?.needs_verification ?? [];
@@ -219,6 +223,31 @@ export default async function CompanyPage({ params }: { params: Promise<{ id: st
             </div>
           )}
         </Card>
+
+        {canOperate && !c.is_demo && lead?.contact_status === "elegivel" && (
+          <Card title="Iniciar conversa (template aprovado)" className="lg:col-span-2">
+            <p className="mb-3 text-sm text-muted">
+              Contato com autorização válida. Mensagens iniciadas pela empresa só podem usar templates aprovados pela Meta e respeitam a frequência mínima configurada.
+            </p>
+            {tpls.length === 0 ? (
+              <p className="text-sm text-muted">Nenhum template ativo marcado como aprovado. Cadastre em Configurações → Templates.</p>
+            ) : (
+              <ActionForm action={sendTemplateToCompany} submitLabel="Enviar template" variant="secondary">
+                <input type="hidden" name="company_id" value={c.id} />
+                <input type="hidden" name="idempotency_key" value={crypto.randomUUID()} />
+                <div className="grid gap-3 sm:grid-cols-2">
+                  <Field label="Template">
+                    <select name="template_id" required>{tpls.map((t) => <option key={t.id} value={t.id}>{t.name} ({t.category}, {t.param_count} parâmetro{t.param_count === 1 ? "" : "s"})</option>)}</select>
+                  </Field>
+                  {Array.from({ length: maxParams }, (_, i) => (
+                    <Field key={i} label={`Parâmetro {{${i + 1}}}`} hint="Deixe em branco se o template escolhido não usa"><input name={`param_${i + 1}`} defaultValue={i === 0 ? c.name : ""} /></Field>
+                  ))}
+                </div>
+                <ul className="mt-2 space-y-1 text-xs text-muted">{tpls.map((t) => <li key={t.id}><b>{t.name}:</b> {t.body_preview}</li>)}</ul>
+              </ActionForm>
+            )}
+          </Card>
+        )}
 
         {lead && (
           <Card title="Etapa comercial">

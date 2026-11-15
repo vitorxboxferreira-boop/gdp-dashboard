@@ -1,4 +1,6 @@
-import { LogOut } from "lucide-react";
+import Link from "next/link";
+import { Bell, LogOut } from "lucide-react";
+import { RealtimeRefresh } from "@/components/realtime-refresh";
 import { signOut } from "@/actions/auth";
 import { EmergencyStop } from "@/components/emergency";
 import { Sidebar } from "@/components/sidebar";
@@ -18,6 +20,7 @@ export default async function PanelLayout({ children }: { children: React.ReactN
     .select("automation_paused, paused_reason, paused_at, autopilot_enabled")
     .eq("id", 1)
     .maybeSingle();
+  const { count: unread } = await supabase.from("notifications").select("id", { count: "exact", head: true }).is("read_at", null);
   const warnings = environmentWarnings();
   const envTone = serverEnv.appEnv === "production" ? "danger" : serverEnv.appEnv === "staging" ? "warn" : "info";
 
@@ -37,6 +40,13 @@ export default async function PanelLayout({ children }: { children: React.ReactN
             )}
           </div>
           <div className="flex items-center gap-2">
+            <RealtimeRefresh table="notifications" channel="notifications-bell" silent />
+            <Link href="/notificacoes" aria-label={`Notificações: ${unread ?? 0} não lidas`} className="relative rounded-lg border border-line p-2 hover:bg-surface-2">
+              <Bell size={16} aria-hidden />
+              {(unread ?? 0) > 0 && (
+                <span className="absolute -right-1.5 -top-1.5 min-w-5 rounded-full bg-danger px-1 text-center text-[11px] font-semibold text-white">{(unread ?? 0) > 99 ? "99+" : unread}</span>
+              )}
+            </Link>
             {hasRole(profile, "operator") && !settings?.automation_paused && <EmergencyStop />}
             <form action={signOut}>
               <button className="inline-flex items-center gap-1.5 rounded-lg border border-line px-3 py-2 text-sm hover:bg-surface-2" aria-label="Sair">

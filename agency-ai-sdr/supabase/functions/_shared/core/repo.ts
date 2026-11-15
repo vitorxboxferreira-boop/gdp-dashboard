@@ -33,6 +33,15 @@ export interface AgentSettings {
   agent_days?: number[];
   agency_name?: string;
   assistant_name?: string;
+  meeting_days?: number[];
+  meeting_start?: string;
+  meeting_end?: string;
+  meeting_duration_min?: number;
+  meeting_buffer_min?: number;
+  meeting_max_per_day?: number;
+  meeting_min_notice_hours?: number;
+  meeting_horizon_days?: number;
+  meeting_location?: string;
   offer?: Offer;
 }
 
@@ -129,6 +138,7 @@ export interface Repo {
   listCampaignJobs(campaignId: string): Promise<Array<{ kind: JobKind; status: JobStatus; result: unknown; last_error: string | null }>>;
 
   dashboardMetrics(): Promise<Record<string, unknown>>;
+  reportMetrics(from: string, to: string): Promise<Record<string, unknown>>;
   upsertDailyReport(input: {
     report_date: string;
     campaign_id: string | null;
@@ -184,4 +194,6 @@ export interface AgentRepo {
   completeOutbound(messageId: string, wamid: string | null, error: string | null, metadata?: Record<string, unknown>): Promise<void>;
   applyAgentDecision(d: AgentDecisionInput): Promise<void>;
   agentOptOut(conversationId: string, reason: string): Promise<void>;
+  busyMeetingRanges(fromIso: string, toIso: string): Promise<Array<{ starts_at: string; ends_at: string; status: string }>>;
+  requestMeeting(conversationId: string, startsAtIso: string, reason: string): Promise<string>;
 }

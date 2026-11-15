@@ -68,7 +68,18 @@
 4. Acompanhe custos em **Custos e limites**; ajuste o limite diário de tokens.
 5. Só depois desligue o modo de teste do WhatsApp.
 
+## Fase 4 — concluída (agenda, vendas, relatórios, notificações, templates)
+
+| Item | Situação | Como foi verificado |
+|---|---|---|
+| Disponibilidade configurável e cálculo de horários livres (dias, expediente, duração, intervalo, antecedência, feriados, limite/dia) | ✅ | Testes unitários |
+| Agente oferece até 5 horários e registra o pedido escolhido; confirmação **só por pessoa** (banco recusa confirmação sem usuário), sem sobreposição e com limite diário | ✅ | Testes unitários + SQL |
+| Confirmação com aviso opcional ao cliente pelo WhatsApp (janela de 24h) | ✅ código / ⚠️ API real | — |
+| Vendas: aprovar (com ajuste de valor), rejeitar (motivo), confirmar pagamento, cancelar — transições validadas no banco; lead vira “ganho”/“perdido” | ✅ | Testes SQL |
+| Notificações (atendimento humano, oportunidade, reunião, descadastro, relatório, falha) com sino em tempo real | ✅ | Gatilhos testados em SQL; tempo real depende do Supabase |
+| Relatórios: métricas por período, funil, relatório diário completo (inclui custos), exportação CSV protegida contra injeção de fórmulas | ✅ | Testes SQL e unitários |
+| Templates: cadastro (nome/idioma/categoria/aprovado), envio só para contato autorizado, só pela equipe, frequência mínima, custo registrado | ✅ código / ⚠️ API real | Testes SQL e da requisição oficial |
+
 ## Próximas fases
 
-* **Fase 4** — Agenda, aprovação de vendas, relatórios completos, notificações.
 * **Fase 5** — Revisão de segurança, testes E2E com Supabase real, monitoramento, deploy e ativação das rotinas.
