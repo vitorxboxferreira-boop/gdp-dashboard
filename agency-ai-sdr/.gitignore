@@ -11,3 +11,6 @@ next-env.d.ts
 .vercel
 supabase/.temp
 supabase/.branches
+
+# O .gitignore da raiz (template Python) ignora "lib/"; este projeto precisa de src/lib
+!lib/
