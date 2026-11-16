@@ -1,0 +1,6 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": "nextjs",
+  "regions": ["gru1"],
+  "buildCommand": "node scripts/check-env.mjs --target=${VERCEL_ENV:-development} && next build"
+}
