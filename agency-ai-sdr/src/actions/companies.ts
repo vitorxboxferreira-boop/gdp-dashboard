@@ -5,7 +5,11 @@ import { redirect } from "next/navigation";
 import { z } from "zod";
 import { normalizeBrPhone } from "@core/phone.ts";
 import { classifyWebsite } from "@core/website.ts";
+import { runAnalyst } from "@core/pipeline.ts";
+import { buildAgentDeps } from "@/lib/agent-deps";
 import { requireActionRole } from "@/lib/auth";
+import { serverEnv } from "@/lib/env";
+import { parseCompanyList } from "@/lib/import-companies";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { fail, httpUrl, ok, optStr, str, toResult } from "./helpers";
 import type { ActionResult } from "./types";
@@ -114,6 +118,42 @@ export async function deleteDemoData(_prev: ActionResult | null, fd: FormData): 
     if (error) throw error;
     revalidatePath("/", "layout");
     return ok(`${count ?? 0} registros demonstrativos excluídos.`);
+  } catch (e) {
+    return toResult(e);
+  }
+}
+
+/** Importa uma lista colada (CSV). Insere como cadastro manual; duplicatas são ignoradas pelo banco. */
+export async function importCompanies(_prev: ActionResult | null, fd: FormData): Promise<ActionResult> {
+  try {
+    const profile = await requireActionRole("operator");
+    const text = String(fd.get("list") ?? "");
+    if (text.length > 200_000) return fail("Lista muito grande. Importe em partes de até 300 empresas.");
+    const parsed = parseCompanyList(text, { city: str(fd, "city") || "Sant'Ana do Livramento", state: str(fd, "state") || "RS" });
+    if (!parsed.rows.length) return fail(parsed.errors[0]?.reason ?? "Nenhuma empresa encontrada na lista.");
+
+    const supabase = await createSupabaseServerClient();
+    let inserted = 0;
+    let duplicates = 0;
+    const problems = parsed.errors.map((e) => `linha ${e.line}: ${e.reason}`);
+    for (const { line, ...row } of parsed.rows) {
+      const { error } = await supabase.from("companies").insert({ ...row, source: "manual", business_status: "OPERATIONAL", created_by: profile.id });
+      if (!error) inserted++;
+      else if (error.code === "23505") duplicates++;
+      else problems.push(`linha ${line}: ${error.message.slice(0, 120)}`);
+    }
+
+    let scored = "";
+    if (inserted && serverEnv.supabaseServiceRoleKey) {
+      const deps = buildAgentDeps();
+      const res = await runAnalyst(deps);
+      await deps.repo.classifyLeads();
+      await deps.repo.refreshEligibility();
+      scored = ` ${res.scored} pontuadas pelo Analyst.`;
+    }
+    revalidatePath("/", "layout");
+    const msg = `${inserted} empresas importadas, ${duplicates} já existiam.${scored}${problems.length ? `\nProblemas:\n${problems.slice(0, 15).join("\n")}` : ""}`;
+    return { ok: inserted > 0 || duplicates > 0, message: msg };
   } catch (e) {
     return toResult(e);
   }
