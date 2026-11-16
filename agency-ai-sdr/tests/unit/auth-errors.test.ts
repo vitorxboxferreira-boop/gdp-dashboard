@@ -13,3 +13,12 @@ describe("mensagens de erro do login", () => {
     expect(loginErrorMessage({ code: "unexpected_failure", status: 500 })).toMatch(/unexpected_failure/);
   });
 });
+
+import { cleanKey, cleanUrl } from "@/lib/public-env";
+describe("limpeza das variáveis públicas", () => {
+  it("remove espaços/quebras de linha e barra final", () => {
+    expect(cleanKey(" sb_publishable_abc123\n")).toBe("sb_publishable_abc123");
+    expect(cleanKey('"eyJhbGciOi.J9 x"')).toBe("eyJhbGciOi.J9x");
+    expect(cleanUrl(" https://abc.supabase.co/ \n")).toBe("https://abc.supabase.co");
+  });
+});
