@@ -120,8 +120,20 @@ export async function diagnosePlaces(_prev: ActionResult | null, _fd: FormData):
     const info = `Chave: ${key.length} caracteres, prefixo ${key.slice(0, 4)}…`;
     const a = await call("Teste 1 (campos mínimos)", "places.id,places.displayName");
     const b = await call("Teste 2 (campos completos)", PLACES_FIELD_MASK);
+    // Teste 3: API antiga (legacy) — só para diagnóstico, pois costuma explicar melhor a recusa.
+    let c: string;
+    try {
+      const res = await fetch(
+        `https://maps.googleapis.com/maps/api/place/textsearch/json?query=${encodeURIComponent("padaria em Sant'Ana do Livramento")}&language=pt-BR&key=${encodeURIComponent(key)}`,
+        { signal: AbortSignal.timeout(15000) },
+      );
+      const j = (await res.json()) as { status?: string; error_message?: string; results?: unknown[] };
+      c = `Teste 3 (API antiga, só diagnóstico): HTTP ${res.status} status=${j.status ?? "?"} resultados=${j.results?.length ?? 0} mensagem=${j.error_message ?? "(nenhuma)"}`;
+    } catch (err) {
+      c = `Teste 3 (API antiga): falha de rede (${(err as Error).message})`;
+    }
     const okAll = a.includes("(OK)") && b.includes("(OK)");
-    return { ok: okAll, message: [info, a, b].join("\n\n") };
+    return { ok: okAll, message: [info, a, b, c].join("\n\n") };
   } catch (e) {
     return toResult(e);
   }
