@@ -9,7 +9,8 @@ begin
   insert into public.leads (company_id, score, priority, stage) values (v_company, 80, 'alta', 'interessado') returning id into v_lead;
   r := public.ingest_whatsapp_message('wamid.P4A', '555599995555', '+5555999995555', 'Carla', 'P', 'text', 'Quero marcar uma reunião', now());
   v_conv := (r ->> 'conversation_id')::uuid;
-  v_start := date_trunc('hour', now()) + interval '3 days';
+  -- Horários fixos no fuso de Brasília (evita depender da hora em que o teste roda)
+  v_start := (((now() at time zone 'America/Sao_Paulo')::date + 3) + time '10:00') at time zone 'America/Sao_Paulo';
 
   -- ===== Agenda =====
   -- O agente registra PEDIDO (aguardando aprovação) e notifica a equipe
@@ -126,14 +127,14 @@ begin
   if not exists (select 1 from public.notifications where kind = 'falha') then raise exception 'FALHA: notificação falha'; end if;
 
   -- ===== Relatório =====
-  r := public.report_metrics(current_date, current_date);
+  r := public.report_metrics((now() at time zone 'America/Sao_Paulo')::date, (now() at time zone 'America/Sao_Paulo')::date);
   if (r ->> 'companies_found')::int <> 1 or (r ->> 'messages_received')::int <> 2 or (r ->> 'opportunities')::int <> 1
      or (r ->> 'sales_paid')::int <> 1 or (r ->> 'revenue_cents')::int <> 25000 or (r ->> 'templates_sent')::int <> 1
      or (r ->> 'meetings_confirmed')::int <> 1 or (r ->> 'opt_outs')::int <> 1 then
     raise exception 'FALHA: report_metrics %', r;
   end if;
   begin
-    perform public.report_metrics(current_date, current_date - 1);
+    perform public.report_metrics((now() at time zone 'America/Sao_Paulo')::date, (now() at time zone 'America/Sao_Paulo')::date - 1);
     raise exception 'FALHA: período inválido aceito';
   exception when raise_exception then if sqlerrm like 'FALHA%' then raise; end if;
   end;

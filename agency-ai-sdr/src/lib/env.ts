@@ -45,6 +45,12 @@ export function environmentWarnings(): string[] {
   if (serverEnv.appEnv !== "production" && process.env.VERCEL_ENV === "production") {
     warnings.push("Deploy de produção na Vercel com APP_ENV diferente de production: verifique as variáveis.");
   }
+  if (process.env.HEALTHCHECK_TOKEN && process.env.HEALTHCHECK_TOKEN.length < 32) {
+    warnings.push("HEALTHCHECK_TOKEN deve ter pelo menos 32 caracteres.");
+  }
+  if (serverEnv.appEnv === "production" && !serverEnv.supabaseServiceRoleKey) {
+    warnings.push("Produção sem SUPABASE_SECRET_KEY: agentes e webhook não funcionarão.");
+  }
   if (serverEnv.cronSecret && serverEnv.cronSecret.length < 32) {
     warnings.push("CRON_SECRET deve ter pelo menos 32 caracteres.");
   }

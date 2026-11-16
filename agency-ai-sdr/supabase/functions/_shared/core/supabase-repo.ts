@@ -364,4 +364,12 @@ export class SupabaseRepo implements Repo, AgentRepo {
   async reportMetrics(from: string, to: string) {
     return check(await this.db.rpc("report_metrics", { p_from: from, p_to: to }), "report metrics") as Record<string, unknown>;
   }
+
+  async notifyLimitOnce(key: string, title: string, body: string) {
+    check(await this.db.rpc("notify_limit_once", { p_key: key, p_title: title, p_body: body }), "limit alert");
+  }
+
+  async recordHeartbeat(component: "agent_runner" | "whatsapp_webhook" | "panel_agents", ok: boolean, details: Record<string, unknown>) {
+    check(await this.db.rpc("record_heartbeat", { p_component: component, p_ok: ok, p_details: details }), "heartbeat");
+  }
 }

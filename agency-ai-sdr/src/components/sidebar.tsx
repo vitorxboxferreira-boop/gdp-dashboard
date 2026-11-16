@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 import {
-  BadgeDollarSign, Bot, Building, CalendarClock, FileChartColumn, Gauge, LayoutDashboard,
+  Activity, BadgeDollarSign, Bot, Building, CalendarClock, FileChartColumn, Gauge, LayoutDashboard,
   Megaphone, Menu, MessagesSquare, Settings, Target, X,
 } from "lucide-react";
 
@@ -19,6 +19,7 @@ const NAV = [
   { href: "/vendas", label: "Vendas", icon: BadgeDollarSign },
   { href: "/relatorios", label: "Relatórios", icon: FileChartColumn },
   { href: "/custos", label: "Custos e limites", icon: Gauge },
+  { href: "/monitoramento", label: "Monitoramento", icon: Activity },
   { href: "/configuracoes", label: "Configurações", icon: Settings },
 ];
 

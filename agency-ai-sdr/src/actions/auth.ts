@@ -3,6 +3,7 @@
 import { redirect } from "next/navigation";
 import { z } from "zod";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { safeNextPath } from "@/lib/safe-url";
 import { fail, str } from "./helpers";
 import type { ActionResult } from "./types";
 
@@ -17,8 +18,7 @@ export async function signIn(_prev: ActionResult | null, fd: FormData): Promise<
   // Mensagem genérica para não revelar se o e-mail existe.
   if (error) return fail("E-mail ou senha incorretos.");
 
-  const next = str(fd, "next");
-  redirect(next.startsWith("/") && !next.startsWith("//") ? next : "/");
+  redirect(safeNextPath(str(fd, "next")));
 }
 
 export async function signOut() {

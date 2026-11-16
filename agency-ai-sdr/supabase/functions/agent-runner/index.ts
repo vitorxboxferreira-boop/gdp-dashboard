@@ -52,9 +52,11 @@ Deno.serve(async (req: Request) => {
       },
       { worker, maxJobs: 10, timeBudgetMs: 110_000 },
     );
+    await repo.recordHeartbeat("agent_runner", true, { processed: result.processed.length, paused: Boolean(result.paused), day: result.dayStatus ?? null }).catch(() => undefined);
     return Response.json({ ok: true, worker, ...result });
   } catch (err) {
     console.error(JSON.stringify({ msg: "agent-runner.error", error: (err as Error).message }));
+    await repo.recordHeartbeat("agent_runner", false, { error: (err as Error).message.slice(0, 300) }).catch(() => undefined);
     return Response.json({ ok: false, error: (err as Error).message }, { status: 500 });
   }
 });

@@ -142,6 +142,10 @@ export class MemoryRepo implements Repo {
     return this.jobs.filter((j) => j.campaign_id === campaignId).map((j) => ({ kind: j.kind, status: j.status, result: j.result, last_error: j.last_error }));
   }
   async dashboardMetrics() { return { companies_today: this.companies.length, qualified_leads: 0 }; }
+  limitAlerts: string[] = [];
+  heartbeats: Array<{ component: string; ok: boolean }> = [];
+  async notifyLimitOnce(key: string) { if (!this.limitAlerts.includes(key)) this.limitAlerts.push(key); }
+  async recordHeartbeat(component: "agent_runner" | "whatsapp_webhook" | "panel_agents", ok: boolean) { this.heartbeats.push({ component, ok }); }
   async reportMetrics(from: string, to: string) { return { from, to, companies_found: this.companies.length, revenue_cents: 0 }; }
   async upsertDailyReport(input: { report_date: string; status: string; metrics?: Record<string, unknown>; summary?: string }) {
     this.reports.set(input.report_date, { ...(this.reports.get(input.report_date) ?? {}), ...input });

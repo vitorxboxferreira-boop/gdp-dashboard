@@ -5,6 +5,7 @@ import { RealtimeRefresh } from "@/components/realtime-refresh";
 import { Badge, Card, EmptyState, PageHeader } from "@/components/ui";
 import { requirePageRole } from "@/lib/auth";
 import { fmtDateTime } from "@/lib/format";
+import { safeInternalPath } from "@/lib/safe-url";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 export const metadata = { title: "Notificações" };
@@ -44,7 +45,7 @@ export default async function NotificationsPage() {
                   <div className="text-xs text-muted">{fmtDateTime(n.created_at)}</div>
                 </div>
                 <div className="flex shrink-0 items-center gap-2">
-                  {n.link && <Link href={n.link} className="text-sm text-accent underline">Abrir</Link>}
+                  {safeInternalPath(n.link) && <Link href={safeInternalPath(n.link)!} className="text-sm text-accent underline">Abrir</Link>}
                   {!n.read_at && (
                     <ActionForm action={markNotificationsRead} submitLabel="Lida" variant="secondary">
                       <input type="hidden" name="id" value={n.id} />

@@ -47,5 +47,9 @@ export function spLocalToIso(value: string): string | null {
   return new Date(`${value}:00-03:00`).toISOString();
 }
 
+/** URL http(s) — o validador padrão aceitaria "javascript:". */
+export const httpUrl = (message = "URL inválida (use http:// ou https://)") =>
+  z.string().max(500).url(message).refine((v) => /^https?:\/\//i.test(v), message);
+
 export const lines = (v: string) =>
   v.split("\n").map((s) => s.trim()).filter(Boolean);

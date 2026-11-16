@@ -28,7 +28,7 @@ export default async function SettingsPage() {
   const [{ data: sData }, { data: areas }, { data: holidays }, { data: users }, { data: suppression }, { count: demoCount }, { data: templates }] = await Promise.all([
     supabase.from("agent_settings").select("*").eq("id", 1).single(),
     supabase.from("search_areas").select("*").order("priority"),
-    supabase.from("holidays").select("*").gte("holiday_date", new Date().toISOString().slice(0, 10)).order("holiday_date").limit(20),
+    supabase.from("holidays").select("*").gte("holiday_date", new Intl.DateTimeFormat("en-CA", { timeZone: "America/Sao_Paulo" }).format(new Date())).order("holiday_date").limit(20),
     supabase.from("profiles").select("id, email, full_name, role").order("email"),
     supabase.from("suppression_list").select("*").order("created_at", { ascending: false }).limit(50),
     supabase.from("companies").select("id", { count: "exact", head: true }).eq("is_demo", true),

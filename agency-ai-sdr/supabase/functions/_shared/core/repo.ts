@@ -139,6 +139,9 @@ export interface Repo {
 
   dashboardMetrics(): Promise<Record<string, unknown>>;
   reportMetrics(from: string, to: string): Promise<Record<string, unknown>>;
+  /** Alerta para a equipe, no máximo uma vez por dia por chave. */
+  notifyLimitOnce(key: string, title: string, body: string): Promise<void>;
+  recordHeartbeat(component: "agent_runner" | "whatsapp_webhook" | "panel_agents", ok: boolean, details: Record<string, unknown>): Promise<void>;
   upsertDailyReport(input: {
     report_date: string;
     campaign_id: string | null;

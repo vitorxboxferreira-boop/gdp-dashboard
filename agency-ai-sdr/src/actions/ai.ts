@@ -10,7 +10,7 @@ import { buildAgentDeps } from "@/lib/agent-deps";
 import { requireActionRole } from "@/lib/auth";
 import { serverEnv } from "@/lib/env";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
-import { bool, fail, ok, str, toResult } from "./helpers";
+import { bool, fail, httpUrl, ok, str, toResult } from "./helpers";
 import type { ActionResult } from "./types";
 
 // ---------------------------------------------------------------------------
@@ -74,7 +74,7 @@ export async function saveKnowledge(_prev: ActionResult | null, fd: FormData): P
         kind: z.enum(KINDS, { message: "Tipo inválido" }),
         title: z.string().min(3, "Título muito curto").max(200),
         content: z.string().min(10, "Conteúdo muito curto").max(4000),
-        url: z.string().url("URL inválida").nullable(),
+        url: httpUrl().nullable(),
         client_authorized: z.boolean(),
         authorization_note: z.string().max(500).nullable(),
         active: z.boolean(),
@@ -145,6 +145,10 @@ export async function simulateAgent(prev: SimulationResult | null, fd: FormData)
     const history: ChatTurn[] = prev?.history ?? [];
 
     const s = await deps.repo.getSettings();
+    const local0 = zonedParts(new Date(), s.timezone);
+    if ((await deps.repo.sumAiTokens(local0.date)) >= (s.ai_daily_token_limit ?? 0)) {
+      return { ok: false, message: "Limite diário de tokens de IA atingido (vale também para o simulador).", history };
+    }
     const supabase = await createSupabaseServerClient();
     const { data: kb } = await supabase.from("knowledge_base").select("kind, title, content, url").eq("active", true).order("sort_order");
     const knowledge = (kb ?? []) as KnowledgeEntry[];

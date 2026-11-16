@@ -129,6 +129,7 @@ describe("agente SDR/Closer — execução", () => {
     expect(llm.decide).not.toHaveBeenCalled();
     expect(repo.outbound[0].body).toBe(HANDOFF_MESSAGE);
     expect(repo.decisions[0]).toMatchObject({ handoff: true });
+    expect(repo.limitAlerts).toEqual(["ai_tokens"]);
   });
 
   it("resposta que viola as travas não é enviada; equipe assume", async () => {

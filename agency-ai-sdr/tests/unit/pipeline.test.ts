@@ -78,6 +78,7 @@ describe("Agente Scout", () => {
     expect(stats.queries).toEqual(["salão de beleza em Sant'Ana do Livramento, RS", "padaria em Sant'Ana do Livramento, RS"]);
     expect(repo.areas[0].category_cursor).toBe(2);
     expect((await runScout(deps({ fetchImpl }), { campaignId: null, jobId: null })).skipped).toBe("request_limit_reached");
+    expect(repo.limitAlerts).toEqual(["places_requests"]);
   });
 
   it("deduplica por Place ID e por telefone", async () => {

@@ -3,9 +3,9 @@
 Plataforma de prospecção, qualificação e negociação comercial para uma agência que vende criação de sites para empresas locais.
 Começa por Sant'Ana do Livramento (RS) e permite outras cidades pelo painel.
 
-> **Estado atual: Fases 1 a 4 concluídas** — descoberta/classificação, canal WhatsApp, agentes de IA SDR/Closer com travas,
-> agenda (o agente oferece horários; a equipe confirma), aprovação de vendas, notificações, relatórios com CSV e templates
-> para iniciar conversa com contatos autorizados. Falta a Fase 5 (segurança, testes com serviços reais, monitoramento, deploy, ativação).
+> **Estado atual: Fases 1 a 5 concluídas no código** — descoberta/classificação, WhatsApp, agentes de IA com travas,
+> agenda, vendas, notificações, relatórios, templates, revisão de segurança, monitoramento e roteiro de deploy.
+> **Falta a execução com credenciais reais** (Supabase, Google, Meta, Anthropic) — veja [docs/DEPLOY.md](docs/DEPLOY.md) e [docs/STATUS.md](docs/STATUS.md).
 > Nada é simulado. Veja [docs/STATUS.md](docs/STATUS.md), inclusive o roteiro de validação com a Meta.
 
 ## Stack
@@ -108,7 +108,10 @@ npm run typecheck   # TypeScript (app + núcleo compartilhado)
 npm test            # Vitest — testes unitários (pipeline, Places, WhatsApp, webhook)
 npm run test:db     # Migrations + testes SQL em PostgreSQL local descartável
 TEST_DATABASE_URL=postgres://postgres:postgres@localhost:5432/agency_sdr_test \
-  npm run test:integration   # webhook assinado → funções reais do banco (após test:db)
+  npm run test:integration   # webhook → banco real e condições de corrida (após test:db)
+npm run build && npm start &  # depois:
+BASE_URL=http://localhost:3000 WHATSAPP_APP_SECRET=... WHATSAPP_WEBHOOK_VERIFY_TOKEN=... npm run test:e2e
+npm run check:env:prod      # valida variáveis antes do deploy
 npm run build       # Build de produção
 ```
 

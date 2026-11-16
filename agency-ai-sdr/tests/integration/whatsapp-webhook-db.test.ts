@@ -90,9 +90,11 @@ describe.skipIf(!url)("webhook WhatsApp + PostgreSQL", () => {
   });
 
   it("assinatura inválida não toca no banco", async () => {
-    const b = payload([text(`wamid.${randomUUID()}`, "oi")]);
-    const before = (await client.query("select count(*) from public.messages")).rows[0].count;
+    const wamid = `wamid.${randomUUID()}`;
+    const b = payload([text(wamid, "oi")]);
     expect((await handleWebhookEvent(b, "sha256=" + "f".repeat(64), deps)).status).toBe(401);
-    expect((await client.query("select count(*) from public.messages")).rows[0].count).toBe(before);
+    // Verifica só este evento (outros testes podem gravar mensagens em paralelo)
+    expect((await client.query("select count(*)::int as n from public.messages where wa_message_id = $1", [wamid])).rows[0].n).toBe(0);
+    expect((await client.query("select count(*)::int as n from public.processed_events where event_id = $1", [wamid])).rows[0].n).toBe(0);
   });
 });

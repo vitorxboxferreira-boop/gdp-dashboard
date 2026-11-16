@@ -80,7 +80,10 @@ export async function runScout(
   let companyBudget = settings.daily_company_limit - (await repo.countCompaniesDiscoveredSince(startOfDay));
   stats.request_budget_left = Math.max(0, requestBudget);
   stats.company_budget_left = Math.max(0, companyBudget);
-  if (requestBudget <= 0) return { ...stats, skipped: "request_limit_reached" };
+  if (requestBudget <= 0) {
+    await repo.notifyLimitOnce("places_requests", "Limite diário do Google Places atingido", `${settings.places_daily_request_limit} requisições hoje. Ajuste em Configurações se necessário.`);
+    return { ...stats, skipped: "request_limit_reached" };
+  }
   if (companyBudget <= 0) return { ...stats, skipped: "company_limit_reached" };
 
   const areas = (await repo.listActiveAreas()).filter((a) => a.categories.length > 0);

@@ -92,7 +92,10 @@ export async function runSdrReply(deps: SdrDeps, job: Pick<Job, "id" | "payload"
 
   // Limites de consumo
   const tokensToday = await repo.sumAiTokens(local.date);
-  if (tokensToday >= (s.ai_daily_token_limit ?? 0)) return handoff("Limite diário de tokens de IA atingido");
+  if (tokensToday >= (s.ai_daily_token_limit ?? 0)) {
+    await repo.notifyLimitOnce("ai_tokens", "Limite diário de tokens de IA atingido", "Novas conversas vão para a equipe até amanhã. Ajuste o limite em Configurações.");
+    return handoff("Limite diário de tokens de IA atingido");
+  }
   const sinceIso = zonedTimeToUtc(local.date, "00:00", tz).toISOString();
   if ((await repo.countAgentReplies(conversationId, sinceIso)) >= (s.ai_max_replies_per_conversation_day ?? 15)) {
     return handoff("Limite diário de respostas do agente nesta conversa atingido");

@@ -80,6 +80,41 @@
 | Relatórios: métricas por período, funil, relatório diário completo (inclui custos), exportação CSV protegida contra injeção de fórmulas | ✅ | Testes SQL e unitários |
 | Templates: cadastro (nome/idioma/categoria/aprovado), envio só para contato autorizado, só pela equipe, frequência mínima, custo registrado | ✅ código / ⚠️ API real | Testes SQL e da requisição oficial |
 
+## Fase 5 — concluída no código (segurança, monitoramento, deploy)
+
+### Revisão de segurança — achados e correções
+
+| # | Achado | Risco | Correção |
+|---|---|---|---|
+| 1 | Validador de URL aceitava `javascript:` (site da empresa, base de conhecimento) | XSS ao clicar no link no painel | Entrada só http(s) + restrição no banco + links renderizados só se http(s) |
+| 2 | Destino pós-login aceitava `/\evil.com` | Redirecionamento aberto (phishing) | `safeNextPath` (só caminho interno) |
+| 3 | Simulador ignorava o limite diário de tokens | Gasto não controlado | Limite aplicado também ao simulador |
+| 4 | Sem Content-Security-Policy | Mitigação de XSS/clickjacking | CSP restrita (próprio domínio + Supabase), COOP, `no-store` nas APIs |
+| 5 | Links de notificação vindos do banco | Redirecionamento externo | Restrição no banco (só caminho interno) + validação na renderização |
+| 6 | Teste da Fase 4 dependente do fuso | Falso positivo/negativo noturno | Datas de Brasília nos testes; filtro de feriados no painel corrigido |
+
+Verificado sem achados: todas as 44 server actions verificam papel; chave de serviço só após verificação de papel/assinatura;
+nenhum segredo no repositório; `npm audit` sem vulnerabilidades; RLS em todas as tabelas; `anon` sem acesso a tabelas
+e sem execução de funções internas; toda função `SECURITY DEFINER` com `search_path` fixo (teste automático `80_security.sql`).
+
+### Monitoramento
+
+* `system_health()` + página **Monitoramento**: fila (na fila, travadas, atrasadas, falhas 24h), batimentos da rotina e do webhook, falhas por integração.
+* `/api/health?deep=1` com `HEALTHCHECK_TOKEN` para monitor externo (200/503).
+* Alertas no painel: limite diário do Google Places e de tokens de IA (uma vez por dia), tarefas com falha definitiva.
+
+### Deploy e ativação
+
+* `vercel.json` (região São Paulo, validação de variáveis antes do build), `scripts/check-env.mjs`, `supabase/sql/verify_setup.sql`,
+  `supabase/sql/deactivate_cron.sql`, rotina a cada 2 min das 08:00 às 18:58 (seg–sex) e retenção diária.
+* Roteiro completo: [DEPLOY.md](DEPLOY.md).
+
+### O que NÃO pôde ser executado neste ambiente
+
+* Deploy real (Vercel/Supabase) e ativação do Cron: exigem suas contas e credenciais.
+* Chamadas reais à Google Places, WhatsApp Cloud API e Anthropic.
+* Teste E2E do painel **autenticado** com Supabase Auth/PostgREST reais (o ambiente bloqueou a execução local desses serviços).
+
 ## Próximas fases
 
-* **Fase 5** — Revisão de segurança, testes E2E com Supabase real, monitoramento, deploy e ativação das rotinas.
+* **Após a Fase 5**: executar o roteiro de [DEPLOY.md](DEPLOY.md) com as credenciais reais e o checklist de go-live.

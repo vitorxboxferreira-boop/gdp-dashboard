@@ -11,6 +11,7 @@ import { Badge, Card, Field, Notice, PageHeader, Table, Td, Th } from "@/compone
 import { hasRole, requirePageRole } from "@/lib/auth";
 import { fmtDateTime, STAGE_LABELS } from "@/lib/format";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { safeExternalHref } from "@/lib/safe-url";
 import type { CompanyRow, LeadRow } from "@/lib/types";
 
 export const metadata = { title: "Empresa" };
@@ -86,12 +87,12 @@ export default async function CompanyPage({ params }: { params: Promise<{ id: st
             <Item label="Site">
               <div className="flex flex-wrap items-center gap-2">
                 <WebsiteBadge status={c.website_status} />
-                {c.website_uri && <a href={c.website_uri} target="_blank" rel="noopener noreferrer nofollow" className="break-all text-accent underline">{c.website_uri}</a>}
+                {c.website_uri && (safeExternalHref(c.website_uri) ? <a href={safeExternalHref(c.website_uri)!} target="_blank" rel="noopener noreferrer nofollow" className="break-all text-accent underline">{c.website_uri}</a> : <span className="break-all text-muted">{c.website_uri}</span>)}
               </div>
               {c.website_verified_at && <div className="mt-1 text-xs text-muted">Verificado em {fmtDateTime(c.website_verified_at)}</div>}
             </Item>
             <Item label="Avaliações">{c.user_rating_count != null ? `${c.rating ?? "—"} ★ (${c.user_rating_count})` : "—"}</Item>
-            <Item label="Google Maps">{c.google_maps_uri ? <a href={c.google_maps_uri} target="_blank" rel="noopener noreferrer" className="text-accent underline">Abrir no Maps</a> : "—"}</Item>
+            <Item label="Google Maps">{safeExternalHref(c.google_maps_uri) ? <a href={safeExternalHref(c.google_maps_uri)!} target="_blank" rel="noopener noreferrer" className="text-accent underline">Abrir no Maps</a> : "—"}</Item>
             <Item label="Descoberta / última atualização">{fmtDateTime(c.discovered_at)} / {fmtDateTime(c.last_seen_at)}</Item>
             {c.places_data_expires_at && <Item label="Dados do Places expiram em">{fmtDateTime(c.places_data_expires_at)}</Item>}
           </dl>

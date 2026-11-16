@@ -7,7 +7,7 @@ import { normalizeBrPhone } from "@core/phone.ts";
 import { classifyWebsite } from "@core/website.ts";
 import { requireActionRole } from "@/lib/auth";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
-import { fail, ok, optStr, str, toResult } from "./helpers";
+import { fail, httpUrl, ok, optStr, str, toResult } from "./helpers";
 import type { ActionResult } from "./types";
 
 const companySchema = z.object({
@@ -17,7 +17,7 @@ const companySchema = z.object({
   formatted_address: z.string().max(300).nullable(),
   city: z.string().min(2, "Informe a cidade").max(120),
   state: z.string().length(2, "UF com 2 letras").transform((s) => s.toUpperCase()),
-  website_uri: z.string().url("URL do site inválida").max(500).nullable(),
+  website_uri: httpUrl("URL do site inválida (use http:// ou https://)").nullable(),
   notes: z.string().max(2000).nullable(),
 });
 
@@ -65,7 +65,7 @@ export async function createCompany(_prev: ActionResult | null, fd: FormData): P
 const verifySchema = z.object({
   company_id: z.string().uuid(),
   status: z.enum(["verified_none", "verified_exists", "not_identified"]),
-  website_uri: z.string().url("URL inválida").nullable(),
+  website_uri: httpUrl().nullable(),
 });
 
 export async function verifyWebsite(_prev: ActionResult | null, fd: FormData): Promise<ActionResult> {

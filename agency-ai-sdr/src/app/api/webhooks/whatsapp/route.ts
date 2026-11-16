@@ -89,7 +89,17 @@ export async function POST(req: Request) {
       },
       log: (msg, data) => console.log(JSON.stringify({ msg, ...data })),
     });
-    if (res.status === 200 && Number((res.body as { received?: number }).received ?? 0) > 0) scheduleAgentReplies();
+    if (res.status === 200) {
+      const stats = res.body as Record<string, unknown>;
+      after(async () => {
+        try {
+          await getDb().rpc("record_heartbeat", { p_component: "whatsapp_webhook", p_ok: true, p_details: stats });
+        } catch {
+          /* monitoramento não deve gerar erro no webhook */
+        }
+      });
+      if (Number(stats.received ?? 0) > 0) scheduleAgentReplies();
+    }
     return reply(res.status, res.body);
   } catch (err) {
     // 500 faz a Meta reenviar; o processamento é idempotente (wamid).
