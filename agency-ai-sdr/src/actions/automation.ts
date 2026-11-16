@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { processJobs, runAnalyst, startManualCampaign, SKIP_LABELS } from "@core/pipeline.ts";
+import { PLACES_FIELD_MASK, PLACES_TEXT_SEARCH_URL } from "@core/places.ts";
 import { SupabaseRepo } from "@core/supabase-repo.ts";
 import { requireActionRole } from "@/lib/auth";
 import { serverEnv } from "@/lib/env";
@@ -88,6 +89,39 @@ export async function runAnalysisNow(_prev: ActionResult | null, _fd: FormData):
     await deps.repo.refreshEligibility();
     revalidatePath("/", "layout");
     return ok(`${res.scored} empresas pontuadas; ${cls.qualified ?? 0} leads qualificados. Elegibilidade atualizada.`);
+  } catch (e) {
+    return toResult(e);
+  }
+}
+
+/**
+ * Diagnóstico do Google Places: faz 2 chamadas mínimas (1 resultado) e mostra a resposta
+ * COMPLETA do Google (sem a chave), para identificar recusas de permissão/faturamento.
+ */
+export async function diagnosePlaces(_prev: ActionResult | null, _fd: FormData): Promise<ActionResult> {
+  try {
+    await requireActionRole("admin");
+    const key = serverEnv.googlePlacesApiKey;
+    if (!key) return fail("GOOGLE_PLACES_API_KEY não está definida no servidor (Vercel) — adicione e faça Redeploy.");
+    const call = async (label: string, mask: string) => {
+      try {
+        const res = await fetch(PLACES_TEXT_SEARCH_URL, {
+          method: "POST",
+          headers: { "Content-Type": "application/json", "X-Goog-Api-Key": key, "X-Goog-FieldMask": mask },
+          body: JSON.stringify({ textQuery: "padaria em Sant'Ana do Livramento, RS", languageCode: "pt-BR", regionCode: "BR", pageSize: 1 }),
+          signal: AbortSignal.timeout(15000),
+        });
+        const text = (await res.text()).replace(/\s+/g, " ").slice(0, 900);
+        return `${label}: HTTP ${res.status} ${res.ok ? "(OK)" : ""} ${text}`;
+      } catch (err) {
+        return `${label}: falha de rede (${(err as Error).message})`;
+      }
+    };
+    const info = `Chave: ${key.length} caracteres, prefixo ${key.slice(0, 4)}…`;
+    const a = await call("Teste 1 (campos mínimos)", "places.id,places.displayName");
+    const b = await call("Teste 2 (campos completos)", PLACES_FIELD_MASK);
+    const okAll = a.includes("(OK)") && b.includes("(OK)");
+    return { ok: okAll, message: [info, a, b].join("\n\n") };
   } catch (e) {
     return toResult(e);
   }

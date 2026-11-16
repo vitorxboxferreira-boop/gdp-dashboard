@@ -1,7 +1,7 @@
 import { formatBrPhone } from "@core/phone.ts";
 import { saveAiSettings } from "@/actions/ai";
 import { saveTemplate } from "@/actions/templates";
-import { resumeAutomation } from "@/actions/automation";
+import { diagnosePlaces, resumeAutomation } from "@/actions/automation";
 import { deleteDemoData } from "@/actions/companies";
 import { removeSuppression, suppressPhone } from "@/actions/consents";
 import {
@@ -93,6 +93,12 @@ export default async function SettingsPage() {
             </fieldset>
           </ActionForm>
           <p className="mt-3 text-xs text-muted">O piloto automático só executa depois que o agendamento for ativado (supabase/sql/activate_cron.sql).</p>
+          {isAdmin && (
+            <div className="mt-4 border-t border-line pt-3">
+              <p className="mb-2 text-xs text-muted">Diagnóstico: faz 2 chamadas mínimas ao Google e mostra a resposta completa (a chave não é exibida).</p>
+              <ActionForm action={diagnosePlaces} submitLabel="Testar Google Places" pendingLabel="Testando…" variant="secondary" />
+            </div>
+          )}
         </Card>
 
         <Card title="WhatsApp (Cloud API oficial)" className="xl:col-span-2">
