@@ -20,5 +20,6 @@ describe("limpeza das variáveis públicas", () => {
     expect(cleanKey(" sb_publishable_abc123\n")).toBe("sb_publishable_abc123");
     expect(cleanKey('"eyJhbGciOi.J9 x"')).toBe("eyJhbGciOi.J9x");
     expect(cleanUrl(" https://abc.supabase.co/ \n")).toBe("https://abc.supabase.co");
+    expect(cleanUrl("https://abc.supabase.co/rest/v1/")).toBe("https://abc.supabase.co");
   });
 });
