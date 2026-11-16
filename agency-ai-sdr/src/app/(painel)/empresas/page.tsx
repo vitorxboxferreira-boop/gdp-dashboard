@@ -51,7 +51,7 @@ export default async function CompaniesPage({ searchParams }: { searchParams: Pr
       <PageHeader
         title="Empresas"
         description="Empresas descobertas pelo agente Scout (Google Places) ou cadastradas manualmente. “Site não identificado” não é prova de ausência de site."
-        actions={hasRole(profile, "operator") ? <><RunSearchButton /><ButtonLink href="/empresas/nova">Adicionar manualmente</ButtonLink></> : undefined}
+        actions={hasRole(profile, "operator") ? <><RunSearchButton /><ButtonLink href="/empresas/importar">Importar lista</ButtonLink><ButtonLink href="/empresas/nova">Adicionar manualmente</ButtonLink></> : undefined}
       />
 
       <Card className="mb-4">
