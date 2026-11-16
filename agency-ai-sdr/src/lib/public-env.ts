@@ -5,9 +5,18 @@
 const rawUrl = process.env.NEXT_PUBLIC_SUPABASE_URL ?? "";
 const rawKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ?? process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? "";
 
-/** URL: sem espaços nas pontas e sem "/" no final. */
+/**
+ * URL: somente a origem (https://xxxx.supabase.co). Remove espaços e caminhos colados
+ * por engano, como "/rest/v1/" exibido em algumas telas do Supabase.
+ */
 export function cleanUrl(v: string): string {
-  return v.trim().replace(/\/+$/, "");
+  const t = v.trim();
+  try {
+    const u = new URL(t);
+    return u.origin;
+  } catch {
+    return t.replace(/\/+$/, "");
+  }
 }
 
 /** Chaves nunca contêm espaços: remove qualquer espaço/quebra de linha e aspas coladas por engano. */

@@ -31,6 +31,11 @@ describe("Places API (New) — Text Search", () => {
     await expect(searchTextPage({ apiKey: "x", textQuery: "q", area, fetchImpl: down })).rejects.toBeInstanceOf(PlacesApiError);
   });
 
+  it("inclui o motivo detalhado do Google com dica em português", async () => {
+    const denied = vi.fn(async () => new Response(JSON.stringify({ error: { code: 403, message: "The caller does not have permission", status: "PERMISSION_DENIED", details: [{ "@type": "type.googleapis.com/google.rpc.ErrorInfo", reason: "BILLING_DISABLED" }] } }), { status: 403 }));
+    await expect(searchTextPage({ apiKey: "x", textQuery: "q", area, fetchImpl: denied })).rejects.toThrow(/BILLING_DISABLED: ative o faturamento/);
+  });
+
   it("mapeia resultado sem inventar dados", () => {
     const draft = mapPlaceToCompany({
       id: "ChIJ123",

@@ -82,6 +82,17 @@ export class PlacesApiError extends Error {
   }
 }
 
+/** Dicas em português para os motivos de recusa mais comuns do Google. */
+export const PLACES_REASON_HINTS: Record<string, string> = {
+  BILLING_DISABLED: "ative o faturamento do projeto no Google Cloud",
+  API_KEY_SERVICE_BLOCKED: "a chave está restrita a outra API; marque Places API (New) nas restrições de API",
+  API_KEY_HTTP_REFERRER_BLOCKED: "remova a restrição de aplicativo 'Sites' da chave (use Nenhuma)",
+  API_KEY_IP_ADDRESS_BLOCKED: "remova a restrição de aplicativo por IP da chave (use Nenhuma)",
+  API_KEY_INVALID: "chave inválida; confira GOOGLE_PLACES_API_KEY na Vercel",
+  SERVICE_DISABLED: "ative a Places API (New) no mesmo projeto da chave",
+  CONSUMER_INVALID: "a chave pertence a um projeto excluído ou inválido",
+};
+
 export type FetchLike = (input: string, init?: RequestInit) => Promise<Response>;
 
 export function buildTextQuery(category: string, area: Pick<SearchArea, "city" | "state">): string {
@@ -144,8 +155,13 @@ export async function searchTextPage(opts: {
   if (!res.ok) {
     let detail = "";
     try {
-      const json = (await res.json()) as { error?: { message?: string; status?: string } };
+      const json = (await res.json()) as {
+        error?: { message?: string; status?: string; details?: Array<{ reason?: string; metadata?: Record<string, string> }> };
+      };
       detail = json.error?.message ?? json.error?.status ?? "";
+      // Motivo detalhado do Google (ex.: BILLING_DISABLED, API_KEY_SERVICE_BLOCKED, API_KEY_HTTP_REFERRER_BLOCKED)
+      const reason = json.error?.details?.find((d) => d.reason)?.reason;
+      if (reason) detail += ` [${reason}${PLACES_REASON_HINTS[reason] ? `: ${PLACES_REASON_HINTS[reason]}` : ""}]`;
     } catch {
       /* corpo não-JSON */
     }
