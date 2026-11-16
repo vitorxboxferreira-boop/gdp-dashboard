@@ -5,7 +5,9 @@ export type AppEnv = "development" | "staging" | "production";
 
 function read(name: string): string | null {
   const v = process.env[name];
-  return v && v.trim() ? v.trim() : null;
+  if (!v || !v.trim()) return null;
+  // Chaves e tokens não têm espaços: remove quebras de linha coladas por engano.
+  return /(KEY|TOKEN|SECRET)$/.test(name) ? v.replace(/\s+/g, "") : v.trim();
 }
 
 /** Variáveis do servidor. Nunca importar em componentes de cliente. */

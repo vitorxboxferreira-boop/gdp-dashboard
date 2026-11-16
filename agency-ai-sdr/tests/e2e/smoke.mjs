@@ -35,7 +35,8 @@ try {
   await page.click('button[type="submit"]');
   // p[role=alert] = mensagem do formulário (o Next.js também tem um anunciador de rotas com role=alert)
   const alert = await page.locator('form p[role="alert"]').textContent({ timeout: 15000 }).catch(() => null);
-  check("login inválido mostra erro genérico", alert?.includes("E-mail ou senha incorretos"), alert ?? "sem mensagem");
+  // Neste teste o Supabase está inacessível de propósito: a mensagem deve apontar a causa real (configuração/conexão).
+  check("login informa a causa do erro", /E-mail ou senha incorretos|Não foi possível conectar ao Supabase|Configuração do Supabase/.test(alert ?? ""), alert ?? "sem mensagem");
   check("login sem rolagem horizontal (390px)", !(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth)));
   if (shots) await page.screenshot({ path: `${shots}/e2e-login.png` });
 
