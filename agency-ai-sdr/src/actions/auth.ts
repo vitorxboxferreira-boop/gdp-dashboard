@@ -3,6 +3,7 @@
 import { redirect } from "next/navigation";
 import { z } from "zod";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { loginErrorMessage } from "@/lib/auth-errors";
 import { safeNextPath } from "@/lib/safe-url";
 import { fail, str } from "./helpers";
 import type { ActionResult } from "./types";
@@ -15,8 +16,12 @@ export async function signIn(_prev: ActionResult | null, fd: FormData): Promise<
 
   const supabase = await createSupabaseServerClient();
   const { error } = await supabase.auth.signInWithPassword(parsed.data);
-  // Mensagem genérica para não revelar se o e-mail existe.
-  if (error) return fail("E-mail ou senha incorretos.");
+  if (error) {
+    // Registra a causa (sem senha nem e-mail) para diagnóstico nos logs da Vercel.
+    console.error(JSON.stringify({ msg: "auth.login.failed", code: error.code ?? null, status: error.status ?? null, name: error.name, detail: error.message }));
+    // Credenciais inválidas continuam com mensagem genérica (não revela se o e-mail existe).
+    return fail(loginErrorMessage(error));
+  }
 
   redirect(safeNextPath(str(fd, "next")));
 }
