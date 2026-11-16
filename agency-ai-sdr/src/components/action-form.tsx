@@ -28,7 +28,7 @@ export function ActionForm({
       <div className="mt-3 flex flex-col gap-2 sm:flex-row sm:items-center">
         <SubmitButton label={submitLabel} pendingLabel={pendingLabel} variant={variant} />
         {state && (
-          <p role="status" className={`text-sm ${state.ok ? "text-ok" : "text-danger"}`}>
+          <p role="status" className={`whitespace-pre-wrap break-all text-sm ${state.ok ? "text-ok" : "text-danger"}`}>
             {state.message}
           </p>
         )}
