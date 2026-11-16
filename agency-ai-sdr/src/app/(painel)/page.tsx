@@ -55,8 +55,8 @@ export default async function OverviewPage() {
         <StatCard label="Conversas recebidas hoje" value={n("conversations_received")} hint="Primeira mensagem hoje" />
         <StatCard label="Conversas em andamento" value={n("conversations_open")} hint="Não encerradas" />
         <StatCard label="Interessados" value={n("interested")} hint="Interessados ou com proposta" />
-        <StatCard label="Reuniões agendadas" value={n("meetings_upcoming")} hint="Fase 4" />
-        <StatCard label="Vendas aprovadas" value={n("sales_approved")} hint="Fase 4" />
+        <StatCard label="Reuniões agendadas" value={n("meetings_upcoming")} hint="Confirmadas, a partir de agora" />
+        <StatCard label="Vendas aprovadas" value={n("sales_approved")} hint="Aprovadas pela equipe" />
         <StatCard label="Receita confirmada" value={fmtBRL(m.revenue_confirmed_cents as number)} hint="Somente pagamentos validados" />
       </div>
 
