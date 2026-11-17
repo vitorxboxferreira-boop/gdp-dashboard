@@ -760,10 +760,19 @@ async function makeCar(model) {
       loader.setDRACOLoader(draco);
       loader.setMeshoptDecoder(MeshoptDecoder);
       try {
-        return await loadGLBCar(model, loader);
+        return await loadGLBCar(model, await loader.loadAsync(model.glb));
       } catch (e) {
-        // hospedagens que não servem .glb: versão glTF empacotada em JSON
-        return await loadGLBCar({ ...model, glb: model.glb.replace(/\.glb$/, '.gltf.json') }, loader);
+        // Ambientes restritos (ex.: visualização protegida) não servem .glb nem permitem
+        // WebAssembly: usa a variante com geometria num módulo JS e texturas .webp comuns.
+        const mod = await import(new URL(`../${model.glb}.js`, import.meta.url).href);
+        const bytes = Uint8Array.from(atob(mod.default), (c) => c.charCodeAt(0));
+        const safe = new GLTFLoader();
+        safe.register((parser) => {
+          parser.textureLoader = new THREE.TextureLoader(parser.options.manager);
+          return { name: 'img_textures' };
+        });
+        const base = model.glb.slice(0, model.glb.lastIndexOf('/') + 1);
+        return await loadGLBCar(model, await safe.parseAsync(bytes.buffer, base));
       }
     } catch (err) {
       console.warn(`Modelo ${model.glb} não carregou; usando a foto.`, err);

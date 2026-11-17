@@ -277,8 +277,7 @@ const RX = {
   head: /(head_?light|farol|drl|front_?light|lamp)/i,
 };
 
-export async function loadGLBCar(model, loader) {
-  const gltf = await loader.loadAsync(model.glb);
+export async function loadGLBCar(model, gltf) {
   const root = gltf.scene;
   root.rotation.y = model.glbRotationY || 0;
   root.updateMatrixWorld(true);
