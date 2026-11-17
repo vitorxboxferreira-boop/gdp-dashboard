@@ -183,6 +183,10 @@ h2.big { font-size: clamp(2rem, 4.6vw, 4rem); margin-bottom: 22px; }
 .toggle input:focus-visible + .sw { outline: 2px solid var(--gold-2); outline-offset: 3px; }
 .price-row { display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap; }
 .price-row strong { display: block; font-family: var(--display); font-weight: 400; font-size: 1.35rem; }
+.drag-hint { opacity: 0; transition: opacity .6s; pointer-events: none; }
+body.is-3d .drag-hint { opacity: 1; }
+.credits { width: 100%; order: 3; line-height: 1.5; }
+.credits a { color: #b9c0cc; text-decoration: underline; text-underline-offset: 2px; }
 .drag-hint { position: absolute; left: var(--gutter); bottom: 60px; font-size: 0.75rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--muted); display: flex; align-items: center; gap: 10px; }
 .drag-hint span { font-size: 1.2rem; color: var(--gold); display: inline-block; animation: wobble 3s ease-in-out infinite; }
 @keyframes wobble { 50% { transform: rotate(-200deg); } }
@@ -296,7 +300,7 @@ input[type="range"]::-moz-range-thumb { width: 20px; height: 20px; border: 0; bo
   .perf { margin-top: 40vh; }
   .contact .wrap { grid-template-columns: 1fr; }
   .contact-info { justify-self: start; text-align: left; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); width: 100%; }
-  .drag-hint { display: none; }
+  .drag-hint { left: 50%; transform: translateX(-50%); top: 38vh; bottom: auto; white-space: nowrap; }
   .design { min-height: 120vh; }
 }
 @media (max-width: 640px) {

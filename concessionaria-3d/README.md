@@ -4,21 +4,21 @@ Site de concessionária com os carros reais (Fiat Mobi Trekking, Jeep Compass S 
 
 ## Como os carros são exibidos
 
-Hoje cada carro é a **foto real com o fundo recortado** (`assets/*-cut.webp`), colocada no estúdio 3D:
+- **Jeep Compass S e McLaren 720S Spider: modelos 3D reais** (`models/*.glb`). O visitante arrasta para girar 360°; parado, o carro gira sozinho devagar. Troca de cor com pintura e verniz, faróis com brilho, rodas girando no Modo Sport, reflexo no piso, sombra e materialização com scanner.
+- **Fiat Mobi Trekking: foto real recortada** (`assets/mobi-cut.webp`), com troca de cor por máscara de pintura. Ele não gira, porque não existe modelo 3D do Mobi disponível para download. Para trocar por outro carro com 3D (por exemplo, o Fiat Argo), basta o arquivo do modelo.
 
-- Piso espelhado com reflexo do carro, sombra de contato, luzes, poeira flutuando e brilho (bloom).
-- O carro surge de baixo para cima por um scanner dourado e um feixe de luz percorre a lataria de tempos em tempos.
-- **Troca de cor** no Mobi e no McLaren: uma máscara da pintura (`assets/*-paint.webp`) separa reflexo e cor, então preto, branco e prata ficam realistas. O Compass, por ser cinza, mantém a cor da foto.
-- **Faróis** acendem com brilho e reflexo de lente; o **Modo Sport** liga linhas de velocidade, grade do piso correndo e vibração.
-- Pontos clicáveis com os destaques de cada carro na seção Design.
+### Créditos dos modelos 3D (CC BY 4.0, uso comercial permitido com crédito)
 
-### Trocar por modelos 3D de verdade (giro 360°)
+- "2019 McLaren 720S Spider" por Ddiaz Design: https://sketchfab.com/3d-models/2019-mclaren-720s-spider-d598b285dbc4408591c98aaf80648074
+- "Jeep Compass 2022 Lowpoly" por Davidson: https://sketchfab.com/3d-models/jeep-compass-2022-lowpoly-e4087350c4d84d8391de09b405c96488
 
-1. Consiga o modelo em `.glb` (Sketchfab, CGTrader, TurboSquid ou o material oficial da montadora, com licença de uso comercial).
-2. Coloque o arquivo em `models/`, por exemplo `models/fiat-mobi.glb`.
-3. Em `js/cars.js`, preencha `glb: 'models/fiat-mobi.glb'` no carro correspondente. Se o modelo vier virado, ajuste `glbRotationY` (em radianos); `glbLength` define o comprimento em metros.
+Os créditos também aparecem no rodapé do site. Os modelos foram otimizados para a web (de 16 MB para 3,4 MB cada): frente alinhada, tamanho real, 4 rodas separadas, texturas WebP e compressão Meshopt.
 
-O site detecta sozinho a pintura (para a troca de cor), as rodas (que giram no Modo Sport) e os faróis pelos nomes das peças no arquivo. Arquivos com compressão Draco ou Meshopt também funcionam.
+### Adicionar outro modelo 3D
+
+1. Baixe o modelo em glTF/GLB com licença de uso comercial.
+2. Coloque o `.glb` em `models/` e preencha `glb` no carro correspondente em `js/cars.js`. Ajuste `glbRotationY` se ele vier virado e `glbLength` com o comprimento em metros.
+3. Opcional: `lights3d` (posição dos faróis) e `hotspots3d` (posição dos pontos de destaque), em metros, com a frente do carro apontando para +X.
 
 ## Desempenho
 

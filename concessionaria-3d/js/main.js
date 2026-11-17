@@ -285,7 +285,7 @@ let current = null;
 let currentIdx = 0;
 let busy = false;
 const state = {
-  drive: 0, lights: false, spinOffset: 0, drag: 0, dragVel: 0, dragging: false, autoSpin: 0.12,
+  drive: 0, lights: false, spinOffset: 0, drag: 0, dragVel: 0, dragging: false, lastDrag: -10, autoSpin: 0.16,
   pointer: new THREE.Vector2(), activeSection: 'hero', colorIdx: MODELS.map(() => 0),
 };
 
@@ -367,7 +367,7 @@ function setDrive(on) {
 // ======================= CÂMERA / ROLAGEM =======================
 const KEYS = {
   hero: { px: 5.2, py: 1.7, pz: 11.5, tx: 0, ty: 1.15, tz: 0, carX: 3.1, spin: 1 },
-  showroom: { px: 0.6, py: 1.5, pz: 11.2, tx: 0, ty: 1.15, tz: 0, carX: -2.4, spin: 0 },
+  showroom: { px: 0.6, py: 1.5, pz: 11.2, tx: 0, ty: 1.15, tz: 0, carX: -2.4, spin: 0.6 },
   design: { px: 2.2, py: 1.3, pz: 8.6, tx: 0.2, ty: 1.15, tz: 0, carX: 1.3, spin: 0 },
   performance: { px: -4.8, py: 1.6, pz: 10.2, tx: 0, ty: 1.1, tz: 0, carX: 2.3, spin: 0 },
   estoque: { px: 0.01, py: 4.2, pz: 13, tx: 0, ty: 0.9, tz: 0, carX: 0, spin: 0.35 },
@@ -432,10 +432,13 @@ function setupPointer() {
       state.dragVel = (e.clientX - lastX) * 0.006;
       lastX = e.clientX;
       state.drag += state.dragVel;
+      state.lastDrag = clock.elapsedTime;
     }
   }, { passive: true });
-  canvas.addEventListener('pointerdown', (e) => { state.dragging = true; lastX = e.clientX; document.body.classList.add('dragging'); });
-  addEventListener('pointerup', () => { state.dragging = false; document.body.classList.remove('dragging'); });
+  canvas.addEventListener('pointerdown', (e) => { state.dragging = true; lastX = e.clientX; state.lastDrag = clock.elapsedTime; document.body.classList.add('dragging'); });
+  const stop = () => { state.dragging = false; document.body.classList.remove('dragging'); };
+  addEventListener('pointerup', stop);
+  addEventListener('pointercancel', stop);
 
   if (!isTouch) {
     const cur = $('#cursor');
@@ -546,6 +549,7 @@ function buildStock() {
 
 function updateModelUI() {
   const m = MODELS[currentIdx];
+  document.body.classList.toggle('is-3d', current.userData.api.kind === 'glb');
   $$('#model-tabs .tab').forEach((t, i) => t.classList.toggle('active', i === currentIdx));
   const swap = (sel, text) => {
     const el = $(sel);
@@ -658,9 +662,9 @@ function frame() {
   stage.position.x += (cam.carX * xScale - stage.position.x) * k;
 
   if (!state.dragging) { state.dragVel *= 0.94; state.drag += state.dragVel; }
-  if (cam.spin > 0.01 && state.drive < 0.1) state.spinOffset += dt * state.autoSpin * cam.spin;
-  else state.spinOffset += (Math.round(state.spinOffset / TAU) * TAU - state.spinOffset) * k * 0.8;
-  if (cam.spin < 0.01 && Math.abs(state.dragVel) < 0.002 && !state.dragging) state.drag += (Math.round(state.drag / TAU) * TAU - state.drag) * dt * 0.6;
+  // giro livre: arrastar gira o carro; parado por alguns segundos, ele volta a girar sozinho devagar
+  const idle = t - state.lastDrag > 3 && !state.dragging;
+  if (cam.spin > 0.01 && state.drive < 0.1 && idle) state.spinOffset += dt * state.autoSpin * cam.spin;
   const bb = current && current.userData.api.billboard;
   turntable.rotation.y = bb ? 0 : state.spinOffset + state.drag;
   if (bb) {

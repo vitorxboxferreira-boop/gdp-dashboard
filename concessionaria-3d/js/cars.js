@@ -60,7 +60,12 @@ export const MODELS = [
       { uv: [0.6, 0.92], title: 'Teto solar panorâmico', text: 'Teto preto com abertura elétrica e cortina, e iluminação ambiente na cabine.' },
       { uv: [0.52, 0.17], title: 'Rodas aro 19', text: 'Rodas escurecidas e suspensão calibrada para conforto e estabilidade.' },
     ],
-    glb: null, // ex.: 'models/jeep-compass.glb'
+    glb: 'models/jeep-compass.glb',
+    glbLength: 4.4,
+    paintMetal: 0.2,
+    paintRough: 0.34,
+    lights3d: [[2.13, 0.93, 0.66, 1], [2.13, 0.93, -0.66, 1]],
+    hotspots3d: [[2.22, 0.86, 0.0], [2.13, 0.95, 0.66], [-0.4, 1.68, 0.0], [1.28, 0.42, 0.95]],
     colors: [
       { name: 'Cinza Sting', hex: '#7b7e81' },
       { name: 'Branco Polar', hex: '#ecedeb' },
@@ -92,7 +97,10 @@ export const MODELS = [
       { uv: [0.68, 0.5], title: 'Entradas laterais', text: 'Esculpidas na porta diédrica, levam ar ao V8 4.0 biturbo de 720 cv.' },
       { uv: [0.53, 0.3], title: 'Freios carbono-cerâmica', text: 'De 200 a 0 km/h em apenas 117 metros, com Monocage II em fibra de carbono.' },
     ],
-    glb: null, // ex.: 'models/mclaren-720s.glb'
+    glb: 'models/mclaren-720s.glb',
+    glbLength: 4.54,
+    lights3d: [[2.02, 0.6, 0.68, 0.8], [2.02, 0.6, -0.68, 0.8]],
+    hotspots3d: [[2.02, 0.62, 0.66], [-0.25, 1.1, 0.0], [-0.35, 0.58, 0.96], [1.21, 0.4, 0.98]],
     colors: [
       { name: 'Azul Belize', hex: '#138a9c' },
       { name: 'Laranja Papaya', hex: '#ff6a00' },
@@ -288,7 +296,7 @@ export async function loadGLBCar(model, loader) {
 
   const heads = [];
   const tails = [];
-  let paint = null;
+  let paint = null; // eslint-disable-line prefer-const
   let paintArea = 0;
   const wheelNodes = [];
   root.traverse((o) => {
@@ -306,8 +314,31 @@ export async function loadGLBCar(model, loader) {
       }
     }
   });
-  heads.forEach((m) => m.emissive?.set(0xfff4e0));
+  heads.forEach((m) => { m.emissive?.set(0xfff4e0); m.emissiveIntensity = 1.2; });
   tails.forEach((m) => m.emissive?.set(0xff1418));
+
+  // pintura automotiva: metálico com verniz (clearcoat) e cor inicial do catálogo
+  if (paint) {
+    const car_paint = new THREE.MeshPhysicalMaterial({
+      name: paint.name, color: new THREE.Color(model.colors[0].hex),
+      metalness: model.paintMetal ?? 0.45, roughness: model.paintRough ?? 0.32,
+      clearcoat: 1, clearcoatRoughness: 0.03, envMapIntensity: 1.25,
+      side: paint.side, // alguns modelos têm painéis com a face invertida
+    });
+    root.traverse((o) => {
+      if (!o.isMesh) return;
+      if (Array.isArray(o.material)) o.material = o.material.map((mm) => (mm === paint ? car_paint : mm));
+      else if (o.material === paint) o.material = car_paint;
+    });
+    paint = car_paint;
+  }
+  // vidros mais escuros e reflexivos
+  root.traverse((o) => {
+    if (!o.isMesh || Array.isArray(o.material)) return;
+    if (o.material.transparent && /window|glass|vidro|mat_4_/i.test(o.material.name)) {
+      o.material.metalness = 0.6; o.material.roughness = 0.05; o.material.envMapIntensity = 1.4;
+    }
+  });
 
   const wheels = wheelNodes.map((node) => {
     const center = new THREE.Box3().setFromObject(node).getCenter(new THREE.Vector3());
@@ -332,6 +363,20 @@ export async function loadGLBCar(model, loader) {
   });
   meshes.forEach((x) => { const h = new THREE.Mesh(x.geometry, holoMat); h.castShadow = false; x.add(h); });
 
+  // brilho dos faróis + reflexo de lente
+  const glows = [];
+  for (const [x, y, z, k] of model.lights3d || []) {
+    const g = new THREE.Sprite(new THREE.SpriteMaterial({ map: GLOW, color: new THREE.Color(1.6, 1.5, 1.35), transparent: true, opacity: 0, blending: THREE.AdditiveBlending, depthWrite: false }));
+    g.position.set(x + 0.04, y, z);
+    g.scale.setScalar(0.5 * k);
+    const f = new THREE.Sprite(g.material.clone());
+    f.position.copy(g.position);
+    f.scale.set(2.6 * k, 0.06, 1);
+    g.renderOrder = f.renderOrder = 4;
+    car.add(g, f);
+    glows.push({ g, f, k });
+  }
+
   const api = {
     model,
     kind: 'glb',
@@ -341,7 +386,7 @@ export async function loadGLBCar(model, loader) {
     length: dims.x,
     width: dims.z,
     holoMat,
-    hotspots: model.hotspots.map((h, i) => ({ ...h, pos: new THREE.Vector3([dims.x * 0.42, dims.x * 0.3, -dims.x * 0.1, -dims.x * 0.2][i], [dims.y * 0.45, 0.35, dims.y, dims.y * 0.5][i], dims.z * 0.45) })),
+    hotspots: model.hotspots.map((h, i) => ({ ...h, pos: model.hotspots3d ? new THREE.Vector3(...model.hotspots3d[i]) : new THREE.Vector3(dims.x * 0.3, dims.y * 0.5, dims.z * 0.45) })),
     setClip(h) { solidPlane.constant = h; holoPlane.constant = -h; },
     setGlow() {},
     update() {},
@@ -355,8 +400,13 @@ export async function loadGLBCar(model, loader) {
       gsap.to(o, { t: 1, duration: 0.9, ease: 'power2.inOut', onUpdate: () => paint.color.copy(from).lerp(target, o.t) });
     },
     setLights(on) {
-      gsap.to(heads, { emissiveIntensity: on ? 5 : 0.5, duration: 0.4 });
+      gsap.to(heads, { emissiveIntensity: on ? 6 : 1.2, duration: 0.4 });
       gsap.to(tails, { emissiveIntensity: on ? 4 : 1, duration: 0.4 });
+      glows.forEach(({ g, f, k }, i) => {
+        gsap.to(g.material, { opacity: on ? 1 : 0, duration: 0.35, delay: i * 0.05 });
+        gsap.to(f.material, { opacity: on ? 0.85 * k : 0, duration: 0.5, delay: i * 0.05 });
+        if (on) gsap.fromTo(g.material, { opacity: 0.1 }, { opacity: 1, duration: 0.07, repeat: 3, yoyo: true });
+      });
     },
   };
   car.userData.api = api;
