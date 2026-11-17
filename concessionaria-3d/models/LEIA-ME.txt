@@ -1,0 +1,1 @@
+Coloque aqui os modelos 3D (.glb) dos carros. Veja o README da pasta concessionaria-3d.
