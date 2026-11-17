@@ -759,9 +759,14 @@ async function makeCar(model) {
       draco.setDecoderPath('vendor/three/addons/libs/draco/gltf/');
       loader.setDRACOLoader(draco);
       loader.setMeshoptDecoder(MeshoptDecoder);
-      return await loadGLBCar(model, loader);
+      try {
+        return await loadGLBCar(model, loader);
+      } catch (e) {
+        // hospedagens que não servem .glb: versão glTF empacotada em JSON
+        return await loadGLBCar({ ...model, glb: model.glb.replace(/\.glb$/, '.gltf.json') }, loader);
+      }
     } catch (err) {
-      console.warn(`Modelo ${model.glb} não carregou; usando a versão procedural.`, err);
+      console.warn(`Modelo ${model.glb} não carregou; usando a foto.`, err);
     }
   }
   return buildPhotoCar(model, texLoader);
