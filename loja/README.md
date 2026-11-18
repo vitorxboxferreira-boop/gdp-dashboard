@@ -17,6 +17,15 @@ Abra `index.html` no navegador ou suba a pasta em qualquer hospedagem estática 
 - Carrinho salvo no navegador, finalizado **pelo WhatsApp** com o pedido já escrito
 - Perguntas frequentes, rodapé com contato e horário, botão flutuante do WhatsApp
 
+## Efeitos e acabamento
+
+- Abertura com o logo (só na primeira visita da sessão) e transição suave entre páginas
+- Título do banner animado palavra por palavra, luz que segue o mouse, parallax e contadores
+- Conteúdo que aparece ao rolar, topo que encolhe com barra de progresso e botão de voltar ao topo
+- "Adicionar rápido" com os tamanhos ao passar o mouse no card
+- Página de produto com zoom na foto, compartilhar, guia de medidas e barra de compra fixa
+- Tudo respeita a opção "reduzir movimento" do sistema
+
 ## Como personalizar
 
 | O quê | Onde |

@@ -49,7 +49,7 @@
 
   function toast(msg) {
     const t = $("#toast");
-    t.textContent = msg;
+    t.innerHTML = `${icone("i-check")}<span>${esc(msg)}</span>`;
     t.classList.add("on");
     clearTimeout(toast._t);
     toast._t = setTimeout(() => t.classList.remove("on"), 2200);
@@ -104,6 +104,7 @@
     gravar("carrinho", carrinho);
     const n = carrinho.reduce((s, i) => s + i.qtd, 0);
     const b = $("#cont-car");
+    if (n && Number(b.textContent) !== n) { b.classList.remove("pulo"); void b.offsetWidth; b.classList.add("pulo"); }
     b.hidden = !n;
     b.textContent = n;
     desenharCarrinho();
@@ -161,7 +162,7 @@
   }
 
   // ---------------------------------------------------------- componentes
-  function card(p) {
+  function card(p, i = 0) {
     const selos = [];
     if (p.selo) selos.push(`<span class="selo ${classeSelo(p.selo)}">${esc(p.selo)}</span>`);
     if (p.novidade) selos.push(`<span class="selo novo">novo!</span>`);
@@ -169,10 +170,19 @@
     const tamTxt = !p.tamanhos.length ? "Tam. único" : tams.length > 4 ? `${tams.length} tamanhos` : tams.map((t) => esc(t.t)).join(" · ");
     const pc = parcelas(p.preco);
     const fav = favoritos.includes(p.slug) ? " on" : "";
-    return `<article class="card">
+    const variasCores = p.cores && p.cores.length > 1;
+    const rapido = variasCores
+      ? `<a class="rapido-unico" href="#/produto/${esc(p.slug)}">Escolher cor e tamanho ${icone("i-right")}</a>`
+      : p.tamanhos.length
+        ? `<span class="rapido-tit">Adicionar rápido</span><div class="rapido-tams">${p.tamanhos.map((t) => `<button data-rapido="${esc(p.slug)}" data-t="${esc(t.t)}" ${t.estoque > 0 ? "" : "disabled"}>${esc(t.t)}</button>`).join("")}</div>`
+        : `<button class="rapido-unico" data-rapido="${esc(p.slug)}" data-t="">${icone("i-plus")} Adicionar ao carrinho</button>`;
+    return `<article class="card" style="--i:${i % 8}">
       ${selos.join("")}
       <button class="fav${fav}" data-fav="${esc(p.slug)}" aria-label="Favoritar ${esc(p.nome)}">${icone("i-heart")}</button>
-      <a class="card-img" href="#/produto/${esc(p.slug)}" tabindex="-1" aria-hidden="true"><img src="${esc(imagens(p)[0])}" alt="" loading="lazy" /></a>
+      <div class="card-midia">
+        <a class="card-img" href="#/produto/${esc(p.slug)}" tabindex="-1" aria-hidden="true"><img src="${esc(imagens(p)[0])}" alt="" loading="lazy" /></a>
+        <div class="rapido">${rapido}</div>
+      </div>
       <div class="card-corpo">
         <span class="card-marca">${esc(p.marca)}</span>
         <h3><a href="#/produto/${esc(p.slug)}">${esc(p.nome)}</a></h3>
@@ -189,7 +199,7 @@
   function carrossel(lista) {
     return `<div class="carrossel">
       <button class="seta esq" data-rolar="-1" aria-label="Anterior">${icone("i-left")}</button>
-      <div class="trilho">${lista.map(card).join("")}</div>
+      <div class="trilho">${lista.map((p, i) => card(p, i)).join("")}</div>
       <button class="seta dir" data-rolar="1" aria-label="Próximo">${icone("i-right")}</button>
     </div>`;
   }
@@ -224,14 +234,24 @@
 
     return `
       <h1 class="pular">${esc(L.nome)}</h1>
-      <section class="hero" aria-label="Destaque">
+      <section class="hero" aria-label="Destaque" id="hero">
+        <div class="hero-luz" aria-hidden="true"></div>
         <div class="hero-gigante" aria-hidden="true">${esc(L.nome)}</div>
         <div class="fita-hero" aria-hidden="true"><div class="fita-trilho">${avisos.repeat(4)}${avisos.repeat(4)}</div></div>
         <div class="hero-in">
           <span class="hero-chamada">${esc(L.banner.chamada)}</span>
-          <h2>${L.banner.titulo.map((t) => `<span>${esc(t)}</span>`).join("")}</h2>
-          <p>${esc(L.banner.texto)}</p>
-          <a class="btn btn-marca" href="${esc(L.banner.link)}">${esc(L.banner.botao)} ${icone("i-right")}</a>
+          <h2>${L.banner.titulo.map((linha, li) => `<span class="linha">${linha.split(" ").map((w, wi) => `<span class="palavra" style="--d:${li * 2 + wi}"><span>${esc(w)}</span></span>`).join(" ")}</span>`).join("")}</h2>
+          <p class="hero-sub">${esc(L.banner.texto)}</p>
+          <div class="hero-ctas">
+            <a class="btn btn-marca magnetico" href="${esc(L.banner.link)}">${esc(L.banner.botao)} ${icone("i-right")}</a>
+            <a class="btn btn-vidro" href="#/promocoes">Ver promoções</a>
+          </div>
+          <dl class="hero-numeros">
+            <div><dt data-contar="${PRODS.length}">0</dt><dd>produtos</dd></div>
+            <div><dt data-contar="${new Set(PRODS.map((p) => p.marca).filter(Boolean)).size}">0</dt><dd>marcas</dd></div>
+            <div><dt>${L.parcelasSemJuros}x</dt><dd>sem juros</dd></div>
+            <div><dt>${L.descontoPix}%</dt><dd>off no Pix</dd></div>
+          </dl>
           <svg class="adesivo-giro" viewBox="0 0 120 120" aria-hidden="true">
             <defs><path id="circ" d="M60,60 m-46,0 a46,46 0 1,1 92,0 a46,46 0 1,1 -92,0"/></defs>
             <circle cx="60" cy="60" r="58" fill="#0b0b0b"/>
@@ -240,14 +260,30 @@
           </svg>
         </div>
       </section>
+      <section class="confianca" aria-label="Por que comprar com a gente">
+        ${L.beneficios.map((b) => `<div class="conf-item">${icone("i-" + b.icone)}<div><strong>${esc(b.titulo)}</strong><span>${esc(b.texto)}</span></div></div>`).join("")}
+      </section>
       <nav class="cats" aria-label="Categorias">
         ${CATS.map((c, i) => `<a class="cat" href="#/categoria/${c.slug}"><span class="num">${String(i + 1).padStart(2, "0")}/</span>${icone("c-" + c.icone)}<strong>${esc(c.nome)}</strong></a>`).join("")}
       </nav>
-      ${vitrines.join("")}
+      ${vitrines.slice(0, 2).join("")}
+      ${secaoMarcas()}
+      ${vitrines.slice(2).join("")}
       <section class="faq" id="perguntas">
         <h2>Perguntas frequentes</h2>
         ${L.faq.map((f) => `<details><summary>${esc(f.p)}</summary><p>${esc(f.r)}</p></details>`).join("")}
       </section>`;
+  }
+
+  function secaoMarcas() {
+    const cont = {};
+    PRODS.forEach((p) => p.marca && (cont[p.marca] = (cont[p.marca] || 0) + 1));
+    const marcas = Object.keys(cont).sort((a, b) => cont[b] - cont[a]).slice(0, 18);
+    const itens = marcas.map((m) => `<a href="#/busca?q=${encodeURIComponent(m)}">${esc(m)}<sup>${cont[m]}</sup></a>`).join("");
+    return `<section class="marcas" aria-label="Marcas">
+      <div class="container marcas-cab"><span class="rotulo-sec">As marcas da rua</span><span class="mono">${Object.keys(cont).length} marcas originais</span></div>
+      <div class="marcas-trilho">${itens}${itens}</div>
+    </section>`;
   }
 
   function paginaCategorias() {
@@ -286,7 +322,7 @@
           <select data-filtro="ordem" aria-label="Ordenar">${opt("", "Relevância", ordem)}${opt("menor", "Menor preço", ordem)}${opt("maior", "Maior preço", ordem)}${opt("az", "A–Z", ordem)}</select>
         </div>` : ""}
       </div>
-      ${r.length ? `<div class="grade">${visiveis.map(card).join("")}</div>` : vazio(vazioTxt)}
+      ${r.length ? `<div class="grade">${visiveis.map((p, i) => card(p, i)).join("")}</div>` : vazio(vazioTxt)}
       ${r.length > visiveis.length ? `<div class="mais-wrap"><span>Mostrando ${visiveis.length} de ${r.length}</span><button class="btn btn-linha" data-mais="${qtd + POR_PAGINA}">Carregar mais</button></div>` : ""}
     </div>`;
   }
@@ -309,7 +345,7 @@
       </nav>
       <div class="produto">
         <div>
-          <div class="galeria-principal">
+          <div class="galeria-principal" id="galeria">
             ${p.selo ? `<span class="selo ${classeSelo(p.selo)}">${esc(p.selo)}</span>` : ""}
             <button class="fav${fav}" data-fav="${esc(p.slug)}" aria-label="Favoritar">${icone("i-heart")}</button>
             <img id="img-principal" src="${esc(imgs[0])}" alt="${esc(p.nome)}" />
@@ -317,7 +353,8 @@
           ${imgs.length > 1 ? `<div class="miniaturas">${imgs.map((src, i) => `<button class="${i ? "" : "on"}" data-img="${esc(src)}" aria-label="Foto ${i + 1}"><img src="${esc(src)}" alt="" /></button>`).join("")}</div>` : ""}
         </div>
         <div class="info-prod">
-          <span class="card-marca">${esc(p.marca)}</span>
+          <div class="prod-topo"><span class="card-marca">${esc(p.marca)}</span>
+            <button class="link-acao" id="compartilhar">${icone("i-share")} Compartilhar</button></div>
           <h1>${esc(p.nome)}</h1>
           <div class="preco">${p.precoAntigo ? `<s>${brl(p.precoAntigo)}</s>` : ""}${brl(p.preco)}</div>
           <div class="parcela">ou ${pc.n}x de ${brl(pc.p)} sem juros${pc.ultima !== pc.p ? ` (última de ${brl(pc.ultima)})` : ""}</div>
@@ -330,7 +367,7 @@
             </div>` : ""}
 
           ${p.tamanhos.length ? `
-            <div class="rotulo">Tamanho <small>Escolha um</small></div>
+            <div class="rotulo">Tamanho ${["camisetas", "moletons", "calcas", "bermudas", "tenis"].includes(p.categoria) ? `<button class="link-acao" id="abrir-guia">${icone("i-ruler")} Guia de medidas</button>` : "<small>Escolha um</small>"}</div>
             <div class="opcoes" role="radiogroup" aria-label="Tamanhos">
               ${p.tamanhos.map((t) => `<button role="radio" aria-checked="false" data-tam="${esc(t.t)}" ${t.estoque > 0 ? "" : "disabled"}>${esc(t.t)}</button>`).join("")}
             </div>
@@ -347,11 +384,36 @@
             <button class="btn btn-whats" id="comprar-agora">${icone("i-whats")} Comprar agora no Whats</button>
           </div>
           <div class="erro-tam" id="erro-tam" role="alert"></div>
+          <ul class="garantias">
+            <li>${icone("i-shield")} Produto 100% original</li>
+            <li>${icone("i-truck")} Envio pra todo o Brasil</li>
+            <li>${icone("i-whats")} Atendimento direto no WhatsApp</li>
+          </ul>
           <div class="descricao"><p>${esc(p.descricao)}</p></div>
         </div>
       </div>
+      <div class="barra-compra" id="barra-compra" aria-hidden="true">
+        <img src="${esc(imgs[0])}" alt="" />
+        <div><strong>${esc(p.nome)}</strong><span>${brl(p.preco)}</span></div>
+        <button class="btn btn-marca" id="barra-comprar">Comprar</button>
+      </div>
+      <dialog class="modal" id="guia-medidas">${guiaMedidas(p.categoria)}</dialog>
       ${relacionados.length ? `<section class="secao"><div class="secao-cab"><h2>Combina com</h2><a href="#/categoria/${c.slug}">Ver tudo</a></div>${carrossel(relacionados)}</section>` : ""}
     </div>`;
+  }
+
+  function guiaMedidas(cat) {
+    const tenis = cat === "tenis";
+    const cab = tenis ? ["BR", "EUA", "Comprimento do pé"] : cat === "calcas" || cat === "bermudas" ? ["Tamanho", "Cintura", "Quadril"] : ["Tamanho", "Peito", "Comprimento"];
+    const linhas = tenis
+      ? [["37", "5", "24,5 cm"], ["38", "6", "25 cm"], ["39", "7", "25,5 cm"], ["40", "7.5", "26,5 cm"], ["41", "8.5", "27 cm"], ["42", "9", "27,5 cm"], ["43", "10", "28,5 cm"], ["44", "11", "29 cm"]]
+      : cat === "calcas" || cat === "bermudas"
+        ? [["38 / P", "76 cm", "96 cm"], ["40 / M", "80 cm", "100 cm"], ["42 / G", "84 cm", "104 cm"], ["44 / GG", "88 cm", "108 cm"], ["46", "92 cm", "112 cm"]]
+        : [["P", "100 cm", "70 cm"], ["M", "106 cm", "72 cm"], ["G", "112 cm", "74 cm"], ["GG", "118 cm", "76 cm"], ["XG", "124 cm", "78 cm"]];
+    return `<div class="modal-cab"><h2>Guia de medidas</h2><button class="icone-btn" data-fechar-modal aria-label="Fechar">${icone("i-x")}</button></div>
+      <table><thead><tr>${cab.map((c) => `<th>${c}</th>`).join("")}</tr></thead>
+      <tbody>${linhas.map((l) => `<tr>${l.map((c) => `<td>${c}</td>`).join("")}</tr>`).join("")}</tbody></table>
+      <p class="mono">Medidas aproximadas: variam um pouco de marca pra marca. Ficou na dúvida? Chama no WhatsApp que a gente mede a peça.</p>`;
   }
 
   function ligarProduto(slug) {
@@ -409,6 +471,47 @@
         $$("[data-img]").forEach((x) => x.classList.toggle("on", x === b));
       })
     );
+
+    // zoom da foto acompanhando o mouse
+    const gal = $("#galeria"), img = $("#img-principal");
+    if (matchMedia("(hover: hover)").matches) {
+      gal.addEventListener("mousemove", (e) => {
+        const r = gal.getBoundingClientRect();
+        img.style.transformOrigin = `${((e.clientX - r.left) / r.width) * 100}% ${((e.clientY - r.top) / r.height) * 100}%`;
+        gal.classList.add("zoom");
+      });
+      gal.addEventListener("mouseleave", () => gal.classList.remove("zoom"));
+    }
+
+    // compartilhar
+    $("#compartilhar").addEventListener("click", async () => {
+      const dados = { title: p.nome, text: `${p.nome} na ${L.nome}`, url: location.href };
+      try {
+        if (navigator.share) await navigator.share(dados);
+        else { await navigator.clipboard.writeText(location.href); toast("Link copiado"); }
+      } catch (e) { /* cancelado */ }
+    });
+
+    // guia de medidas
+    const guia = $("#guia-medidas");
+    $("#abrir-guia")?.addEventListener("click", () => guia.showModal());
+    guia.addEventListener("click", (e) => { if (e.target === guia || e.target.closest("[data-fechar-modal]")) guia.close(); });
+
+    // barra de compra fixa (aparece quando os botões saem da tela)
+    const barra = $("#barra-compra");
+    $("#barra-comprar").addEventListener("click", () => {
+      $(".info-prod").scrollIntoView({ behavior: "smooth", block: "start" });
+      if (valida()) { adicionar(p.slug, tam, cor, qtd); abrir("#gaveta-carrinho"); }
+    });
+    if ("IntersectionObserver" in window) {
+      const io = new IntersectionObserver(([en]) => {
+        const mostrar = !en.isIntersecting && en.boundingClientRect.top < 0;
+        barra.classList.toggle("on", mostrar);
+        barra.setAttribute("aria-hidden", String(!mostrar));
+      });
+      io.observe($(".compra"));
+      observadores.push(io);
+    }
   }
 
   const pagina404 = () =>
@@ -419,6 +522,53 @@
 
   // -------------------------------------------------------------- roteador
   let ultimaRota = "";
+  let observadores = [];
+  const semMovimento = matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  // revela elementos ao rolar, conta números e liga botões magnéticos
+  function efeitos(raiz) {
+    const alvos = $$(".secao-cab, .carrossel, .manifesto p, .faq details, .faq h2, .confianca .conf-item, .marcas, .grade .card, .cats-grade a, .lista-cab, .info-prod, .galeria-principal", raiz);
+    if (semMovimento || !("IntersectionObserver" in window)) {
+      $$("[data-contar]", raiz).forEach((el) => (el.textContent = el.dataset.contar));
+      return;
+    }
+    alvos.forEach((el) => el.classList.add("rv"));
+    const io = new IntersectionObserver((ents) => {
+      ents.forEach((en) => {
+        if (!en.isIntersecting) return;
+        en.target.classList.add("visivel");
+        io.unobserve(en.target);
+      });
+    }, { rootMargin: "0px 0px -8% 0px", threshold: 0.08 });
+    alvos.forEach((el) => io.observe(el));
+    observadores.push(io);
+
+    $$("[data-contar]", raiz).forEach((el) => {
+      const fim = Number(el.dataset.contar), t0 = performance.now(), dur = 1400;
+      const passo = (t) => {
+        const k = Math.min(1, (t - t0) / dur);
+        el.textContent = Math.round(fim * (1 - Math.pow(1 - k, 3)));
+        if (k < 1) requestAnimationFrame(passo);
+      };
+      setTimeout(() => requestAnimationFrame(passo), 700);
+    });
+
+    if (matchMedia("(hover: hover)").matches) {
+      $$(".magnetico", raiz).forEach((b) => {
+        b.addEventListener("mousemove", (e) => {
+          const r = b.getBoundingClientRect();
+          b.style.transform = `translate(${(e.clientX - r.left - r.width / 2) * 0.25}px, ${(e.clientY - r.top - r.height / 2) * 0.35}px)`;
+        });
+        b.addEventListener("mouseleave", () => (b.style.transform = ""));
+      });
+      const hero = $("#hero", raiz);
+      hero && hero.addEventListener("mousemove", (e) => {
+        const r = hero.getBoundingClientRect();
+        hero.style.setProperty("--mx", `${e.clientX - r.left}px`);
+        hero.style.setProperty("--my", `${e.clientY - r.top}px`);
+      });
+    }
+  }
   function rotear() {
     const [caminho, query] = (location.hash.slice(1) || "/").split("?");
     const partes = caminho.split("/").filter(Boolean);
@@ -462,8 +612,14 @@
       ]);
     } else html = pagina404();
 
+    observadores.forEach((o) => o.disconnect());
+    observadores = [];
     main.innerHTML = html;
+    main.classList.remove("entrando");
+    void main.offsetWidth; // reinicia a animação de entrada
+    main.classList.add("entrando");
     depois && depois();
+    efeitos(main);
     $$("#menu a").forEach((a) => a.classList.toggle("ativo", location.hash.split("?")[0] === a.getAttribute("href")));
     fechar();
     // "carregar mais" e filtros mantêm a posição; troca de página volta ao topo
@@ -600,6 +756,14 @@
         else { adicionar(p.slug, "", (p.cores && p.cores[0]) || ""); abrir("#gaveta-carrinho"); }
         return;
       }
+      if (t.dataset.rapido) {
+        e.preventDefault();
+        const p = prodPorSlug(t.dataset.rapido);
+        adicionar(p.slug, t.dataset.t, (p.cores && p.cores[0]) || "");
+        t.classList.add("ok");
+        setTimeout(() => t.classList.remove("ok"), 900);
+        return;
+      }
       if (t.dataset.mais) return trocarParam("ver", t.dataset.mais);
       if (t.dataset.rolar) {
         const tr = t.parentElement.querySelector(".trilho");
@@ -643,9 +807,32 @@
     });
     document.addEventListener("keydown", (e) => { if (e.key === "Escape") { fechar(); $("#barra-busca").hidden = true; } });
     window.addEventListener("hashchange", rotear);
+
+    // rolagem: topo compacto, barra de progresso, botão de voltar e parallax do banner
+    const topo = $(".topo"), prog = $("#progresso"), subir = $("#subir");
+    let agendado = false;
+    const aoRolar = () => {
+      agendado = false;
+      const y = scrollY, total = document.documentElement.scrollHeight - innerHeight;
+      topo.classList.toggle("rolou", y > 20);
+      prog.style.transform = `scaleX(${total > 0 ? y / total : 0})`;
+      subir.classList.toggle("on", y > 900);
+      const gig = $(".hero-gigante");
+      if (gig && !semMovimento && y < innerHeight * 1.2) gig.style.transform = `translate3d(${-y * 0.35}px, ${y * 0.12}px, 0)`;
+    };
+    addEventListener("scroll", () => { if (!agendado) { agendado = true; requestAnimationFrame(aoRolar); } }, { passive: true });
+    subir.addEventListener("click", () => scrollTo({ top: 0, behavior: semMovimento ? "auto" : "smooth" }));
   }
 
   // ------------------------------------------------------------ início
+  // abertura com o logo (só na primeira visita da sessão)
+  const intro = $("#intro");
+  if (intro) {
+    let visto = false;
+    try { visto = sessionStorage.getItem("intro") === "1"; sessionStorage.setItem("intro", "1"); } catch (e) {}
+    if (visto || semMovimento) intro.remove();
+    else setTimeout(() => { intro.classList.add("sai"); setTimeout(() => intro.remove(), 700); }, 1300);
+  }
   montarFixos();
   ligarEventos();
   salvarCarrinho();

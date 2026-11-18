@@ -26,6 +26,14 @@ window.LOJA = {
   // Fita rolante do topo
   avisos: ["Só original", "5% OFF no Pix", "7x sem juros", "Envio pra todo o Brasil", "Compra direto no WhatsApp"],
 
+  // Faixa de confiança logo abaixo do banner
+  beneficios: [
+    { icone: "shield", titulo: "100% original", texto: "Só marcas oficiais" },
+    { icone: "truck", titulo: "Envio pra todo o Brasil", texto: "Postagem imediata" },
+    { icone: "pix", titulo: "5% OFF no Pix", texto: "Desconto direto no Whats" },
+    { icone: "card", titulo: "7x sem juros", texto: "No cartão de crédito" },
+  ],
+
   // Banner principal
   banner: {
     chamada: "Drop novo na área",

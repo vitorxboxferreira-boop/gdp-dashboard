@@ -4,7 +4,13 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Loja</title>
-  <meta name="description" content="" />
+  <meta name="description" content="Volare Streetwear: tênis, roupas, bonés, skate e acessórios originais. Compra direto no WhatsApp, 5% OFF no Pix e 7x sem juros." />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="Volare Streetwear" />
+  <meta property="og:title" content="Volare Streetwear" />
+  <meta property="og:description" content="Streetwear e skate originais. Compra direto no WhatsApp." />
+  <meta property="og:image" content="img/logo-volare.png" />
+  <meta property="og:locale" content="pt_BR" />
   <meta name="theme-color" content="#09080d" />
   <link rel="icon" type="image/png" href="img/icone.png" />
   <link rel="apple-touch-icon" href="img/icone.png" />
@@ -19,11 +25,13 @@
   </script>
 </head>
 <body>
+  <div class="intro" id="intro" aria-hidden="true"><img src="img/logo-volare.png" alt="" /><span class="intro-barra"></span></div>
   <a class="pular" href="#conteudo">Pular para o conteúdo</a>
 
   <div class="faixa" aria-label="Avisos"><div class="faixa-trilho" id="faixa"></div></div>
 
   <header class="topo">
+    <span class="progresso" id="progresso" aria-hidden="true"></span>
     <div class="topo-in">
       <button class="icone-btn so-mobile" id="btn-menu" aria-label="Abrir menu"><svg><use href="#i-menu"/></svg></button>
       <a class="logo" href="#/" id="logo"></a>
@@ -65,6 +73,7 @@
 
   <a class="whats-flutuante" id="whats-flutuante" target="_blank" rel="noopener" aria-label="Falar no WhatsApp"><svg><use href="#i-whats"/></svg></a>
   <div class="aviso-toast" id="toast" role="status" aria-live="polite"></div>
+  <button class="subir" id="subir" aria-label="Voltar ao topo"><svg><use href="#i-up"/></svg></button>
 
   <!-- ícones (desenhados aqui, sem bibliotecas externas) -->
   <svg width="0" height="0" style="position:absolute" aria-hidden="true">
@@ -77,6 +86,10 @@
       <symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></symbol>
       <symbol id="i-left" viewBox="0 0 24 24"><path d="m15 5-7 7 7 7"/></symbol>
       <symbol id="i-right" viewBox="0 0 24 24"><path d="m9 5 7 7-7 7"/></symbol>
+      <symbol id="i-check" viewBox="0 0 24 24"><path d="m5 12 5 5 9-10"/></symbol>
+      <symbol id="i-up" viewBox="0 0 24 24"><path d="M12 19V5M6 11l6-6 6 6"/></symbol>
+      <symbol id="i-share" viewBox="0 0 24 24"><circle cx="18" cy="5" r="2.5"/><circle cx="6" cy="12" r="2.5"/><circle cx="18" cy="19" r="2.5"/><path d="m8.2 10.8 7.6-4.4M8.2 13.2l7.6 4.4"/></symbol>
+      <symbol id="i-ruler" viewBox="0 0 24 24"><path d="M3 16 16 3l5 5L8 21z"/><path d="m7 12 2 2M10 9l2 2M13 6l2 2"/></symbol>
       <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
       <symbol id="i-minus" viewBox="0 0 24 24"><path d="M5 12h14"/></symbol>
       <symbol id="i-trash" viewBox="0 0 24 24"><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13"/></symbol>
