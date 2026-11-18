@@ -24,7 +24,9 @@ Os créditos também aparecem no rodapé do site. Os modelos foram otimizados pa
 
 - **Qualidade adaptativa**: o site começa em qualidade alta (ou média em aparelhos mais fracos) e reduz resolução, reflexo e brilho sozinho se a taxa de quadros cair. Para forçar um nível, use `?q=0` (leve), `?q=1` (média) ou `?q=2` (alta) no endereço.
 - A poeira é animada na placa de vídeo, os pontos de destaque só são calculados na seção Design e a sombra só é recalculada quando algo muda.
-- No modo leve, o desfoque dos painéis de vidro e a granulação são desligados.
+- No modo leve e em celulares, o desfoque dos painéis de vidro e a granulação são desligados.
+- Só o primeiro carro segura a abertura do site; os modelos 3D carregam em segundo plano.
+- No celular, o sumiço da barra de endereço durante a rolagem não refaz a cena 3D.
 
 ## Como rodar
 
@@ -37,6 +39,16 @@ python3 -m http.server 8000
 ```
 
 Ele pode ser publicado em qualquer hospedagem estática (GitHub Pages, Netlify, Vercel). As bibliotecas estão em `vendor/`, sem dependência de CDN.
+
+## Publicar no Vercel (domínio próprio)
+
+1. Em vercel.com, entre com a conta do GitHub e clique em **Add New → Project**.
+2. Importe o repositório `gdp-dashboard`.
+3. Em **Root Directory**, escolha `concessionaria-3d`. Framework: **Other**. Não há comando de build.
+4. Clique em **Deploy**. O site fica em `nome-do-projeto.vercel.app`.
+5. Para o domínio próprio (ex.: `fronteiraveiculos.com.br`): **Settings → Domains → Add** e copie os registros DNS indicados para onde o domínio foi registrado (Registro.br, por exemplo).
+
+O `vercel.json` já configura o cache dos modelos e imagens.
 
 ## Personalizar
 

@@ -337,7 +337,8 @@ async function selectModel(idx) {
     turntable.remove(current);
   }
   currentIdx = idx;
-  current = cars[idx];
+  if (!cars[idx]) { updateModelUI(); toast('Carregando o modelo 3D…'); }
+  current = await carReady[idx];
   turntable.add(current);
   fitStageToCar(current);
   updateModelUI();
@@ -379,6 +380,7 @@ const cam = { ...KEYS.hero };
 let lenis = null;
 
 function setupScroll() {
+  ScrollTrigger.config({ ignoreMobileResize: true });
   if (Lenis && !reduceMotion) {
     lenis = new Lenis({ lerp: 0.085, wheelMultiplier: 0.9, touchMultiplier: 1.4 });
     lenis.on('scroll', ScrollTrigger.update);
@@ -740,18 +742,28 @@ function frame() {
 }
 
 function updateBars() { const show = innerWidth / innerHeight >= 1; stage.children.forEach((o) => { if (o.name === 'lightbar') o.visible = show; }); }
+// No celular a barra de endereço some/aparece durante a rolagem e dispara "resize":
+// ignora mudanças só de altura pequenas e agrupa o resto, para não refazer os buffers a cada pixel.
+let lastW = innerWidth, lastH = innerHeight, resizeTimer = 0;
 addEventListener('resize', () => {
+  if (isTouch && innerWidth === lastW && Math.abs(innerHeight - lastH) < 160) return;
+  clearTimeout(resizeTimer);
+  resizeTimer = setTimeout(onResize, 120);
+});
+function onResize() {
+  lastW = innerWidth; lastH = innerHeight;
   updateBars();
   camera.aspect = innerWidth / innerHeight;
   camera.updateProjectionMatrix();
   renderer.setSize(innerWidth, innerHeight);
   composer.setSize(innerWidth, innerHeight);
   if (tier.reflector) reflector.getRenderTarget().setSize(Math.floor(innerWidth * tier.dpr * tier.refl), Math.floor(innerHeight * tier.dpr * tier.refl));
-});
+}
 document.addEventListener('visibilitychange', () => { perfFrames = 0; perfTime = 0; perfCooldown = 2; clock.getDelta(); });
 
 // ======================= INICIALIZAÇÃO =======================
 const texLoader = new THREE.TextureLoader();
+const carReady = [];
 async function makeCar(model) {
   if (model.glb) {
     try {
@@ -797,22 +809,31 @@ async function init() {
   updateBars();
   setProgress(0.35);
   await tick();
-  for (let i = 0; i < MODELS.length; i++) {
-    cars.push(await makeCar(MODELS[i]));
-    setProgress(0.35 + (i + 1) * 0.15);
-    await tick();
-  }
-  keyLight.castShadow = cars.some((c) => !c.userData.api.billboard);
+  // Só o primeiro carro segura a abertura; os outros (modelos 3D mais pesados)
+  // carregam em segundo plano, um de cada vez, enquanto o visitante já navega.
+  cars[0] = await makeCar(MODELS[0]);
+  carReady[0] = Promise.resolve(cars[0]);
+  setProgress(0.8);
+  await tick();
+  keyLight.castShadow = !cars[0].userData.api.billboard;
   current = cars[0];
   turntable.add(current);
   fitStageToCar(current);
   current.userData.api.setClip(-0.05);
   buildUI();
   updateModelUI();
-  // compila os shaders de todos os carros antes de mostrar (evita travadas na troca)
-  cars.forEach((c) => { if (c !== current) { c.visible = true; turntable.add(c); } });
   renderer.compile(scene, camera);
-  cars.forEach((c) => { if (c !== current) turntable.remove(c); });
+  let chain = carReady[0];
+  for (let i = 1; i < MODELS.length; i++) {
+    chain = carReady[i] = chain.then(async () => {
+      await new Promise((r) => setTimeout(r, 400));
+      const car = await makeCar(MODELS[i]);
+      if (!car.userData.api.billboard) keyLight.castShadow = true;
+      renderer.compile(car, camera, scene); // shaders prontos antes da troca (evita travada)
+      cars[i] = car;
+      return car;
+    });
+  }
   setProgress(1);
   await tick();
 
