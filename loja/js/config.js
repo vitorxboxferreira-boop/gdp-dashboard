@@ -4,16 +4,19 @@
 // =====================================================================
 window.LOJA = {
   nome: "Volare",
+  subtitulo: "Streetwear",
+  logo: "img/logo-volare-topo.png",     // logo do topo
+  logoGrande: "img/logo-volare.png",    // logo grande do rodapé
   slogan: "Streetwear e skate. Direto da rua.",
   descricao:
     "Tênis, roupas, bonés, skate e acessórios das melhores marcas. Só produtos originais, com atendimento direto no WhatsApp.",
 
   // WhatsApp só com números: DDI + DDD + número (ex.: 5511999999999)
-  whatsapp: "5500000000000",
-  whatsappExibicao: "(00) 00000-0000",
-  email: "contato@volare.com.br",
-  instagram: "volare",
-  endereco: "Rua Exemplo, 123 - Centro, Sua Cidade / UF",
+  whatsapp: "5555996467948",
+  whatsappExibicao: "(55) 99646-7948",
+  email: "",       // deixe vazio para não aparecer no site
+  instagram: "volare.streetwear",
+  endereco: "",    // ex.: "Rua X, 123 - Centro, Cidade / UF" (vazio = não aparece)
   horario: { dias: "Segunda a sábado", horas: "09:30 – 19:00" },
 
   // Regras de preço

@@ -56,8 +56,8 @@
   }
 
   // ------------------------------- arte automática (produto sem foto)
-  const FUNDOS = ["#0b0b0b", "#151515", "#1d1c1a", "#101418", "#171310"];
-  const TINTAS = ["#e8ff1a", "#ff3d1f", "#f2f0e9", "#e8ff1a", "#8affc1"];
+  const FUNDOS = ["#09080d", "#120f1f", "#1c0e4f", "#0d0b16", "#161226"];
+  const TINTAS = ["#9d8bff", "#f2f0e9", "#6a4ff0", "#b9adff", "#ff3d1f"];
   const hash = (s) => [...s].reduce((a, c) => (a * 31 + c.charCodeAt(0)) >>> 0, 7);
   const cacheImg = {};
   function imagemAuto(p) {
@@ -527,8 +527,9 @@
 
   // ---------------------------------------------------- partes fixas
   function montarFixos() {
-    const logo = `${esc(L.nome)}<span class="ponto" aria-hidden="true"></span>`;
-    $("#logo").innerHTML = logo;
+    $("#logo").innerHTML = L.logo
+      ? `<img src="${esc(L.logo)}" alt="${esc(L.nome)}" /><span class="sub">${esc(L.subtitulo || "")}</span>`
+      : `${esc(L.nome)}<span class="ponto" aria-hidden="true"></span>`;
     $("#logo").setAttribute("aria-label", L.nome);
     document.querySelector('meta[name="description"]').content = L.descricao;
 
@@ -548,7 +549,7 @@
 
     const ano = new Date().getFullYear();
     $("#rodape").innerHTML = `<div class="container">
-      <div class="rodape-gigante" aria-hidden="true">${esc(L.nome)}</div>
+      ${L.logoGrande ? `<a class="rodape-logo" href="#/"><img src="${esc(L.logoGrande)}" alt="${esc(L.nome)}" loading="lazy" /></a>` : ""}
       <div class="rodape-grade">
         <div>
           <p>${esc(L.descricao)}</p>
@@ -560,8 +561,9 @@
           <li><a href="#/categorias">Todas as categorias</a></li></ul></nav>
         <div><h3>Contato</h3><ul>
           <li>${icone("i-whats")}<a href="${linkWhats(`Salve, ${L.nome}!`)}" target="_blank" rel="noopener">${esc(L.whatsappExibicao)}</a></li>
-          <li>${icone("i-mail")}<a href="mailto:${esc(L.email)}">${esc(L.email)}</a></li>
-          <li>${icone("i-pin")}<span>${esc(L.endereco)}</span></li></ul></div>
+          <li>${icone("i-insta")}<a href="https://instagram.com/${esc(L.instagram)}" target="_blank" rel="noopener">@${esc(L.instagram)}</a></li>
+          ${L.email ? `<li>${icone("i-mail")}<a href="mailto:${esc(L.email)}">${esc(L.email)}</a></li>` : ""}
+          ${L.endereco ? `<li>${icone("i-pin")}<span>${esc(L.endereco)}</span></li>` : ""}</ul></div>
         <div><h3>Atendimento</h3><ul>
           <li>${icone("i-clock")}<span>${esc(L.horario.dias)}<br/>${esc(L.horario.horas)}</span></li>
           <li>${icone("i-truck")}<span>Envio imediato</span></li>

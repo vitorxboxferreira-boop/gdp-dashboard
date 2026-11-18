@@ -1,6 +1,6 @@
 # Volare: loja streetwear com compra pelo WhatsApp
 
-Loja de streetwear e skate com visual de rua (escuro, fita zebrada, adesivos), feita em **HTML, CSS e JavaScript puro**. Não tem build, servidor nem dependências.
+Loja da Volare Streetwear com visual de rua (preto, roxo do logo e branco; fita zebrada, adesivos), feita em **HTML, CSS e JavaScript puro**. Não tem build, servidor nem dependências.
 Abra `index.html` no navegador ou suba a pasta em qualquer hospedagem estática (GitHub Pages, Netlify, Vercel).
 
 ## O que tem
@@ -23,7 +23,8 @@ Abra `index.html` no navegador ou suba a pasta em qualquer hospedagem estática 
 |---|---|
 | Nome da loja, WhatsApp, e-mail, Instagram, endereço, horário, Pix, parcelas, FAQ, banner | `js/config.js` |
 | Categorias e produtos | `js/dados.js` |
-| Cores e fontes | topo de `css/estilo.css` (`--marca`, etc.) |
+| Cores e fontes | topo de `css/estilo.css` (`--marca`, `--marca-clara`, etc.) |
+| Logo | `img/logo-volare-topo.png` (topo) e `img/logo-volare.png` (rodapé), caminhos em `js/config.js` |
 
 **Fotos:** crie uma pasta `img/`, coloque as fotos e preencha `imagens: ["img/minha-foto.jpg"]` no produto.
 Produto sem foto ganha uma ilustração automática com a marca.
