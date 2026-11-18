@@ -73,11 +73,9 @@
     const num = String((h % 900) + 100);
     const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 500">
       <defs>
-        <pattern id="d" width="10" height="10" patternUnits="userSpaceOnUse"><circle cx="5" cy="5" r="1.6" fill="${tinta}" opacity=".18"/></pattern>
         <pattern id="z" width="22" height="22" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="11" height="22" fill="${tinta}"/></pattern>
       </defs>
       <rect width="400" height="500" fill="${fundo}"/>
-      <rect width="400" height="500" fill="url(#d)"/>
       <polygon points="300,0 400,0 400,100" fill="url(#z)"/>
       <g transform="rotate(${giro} 200 250)">
         <text x="200" y="270" text-anchor="middle" font-family="Impact,Haettenschweiler,'Arial Narrow Bold',sans-serif" font-size="${fs}" fill="${tinta}"${caber}>${esc(titulo)}</text>
@@ -87,7 +85,8 @@
     </svg>`;
     return (cacheImg[p.slug] = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svg));
   }
-  const imagens = (p) => (p.imagens.length ? p.imagens : [imagemAuto(p)]);
+  const FOTOS = window.FOTOS || {};
+  const imagens = (p) => (p.imagens.length ? p.imagens : FOTOS[p.slug] && FOTOS[p.slug].length ? FOTOS[p.slug] : [imagemAuto(p)]);
 
   // ------------------------------------------------------------- estado
   let carrinho = ler("carrinho", []); // [{slug, tam, cor, qtd}]
@@ -180,7 +179,7 @@
       ${selos.join("")}
       <button class="fav${fav}" data-fav="${esc(p.slug)}" aria-label="Favoritar ${esc(p.nome)}">${icone("i-heart")}</button>
       <div class="card-midia">
-        <a class="card-img" href="#/produto/${esc(p.slug)}" tabindex="-1" aria-hidden="true"><img src="${esc(imagens(p)[0])}" alt="" loading="lazy" /></a>
+        <a class="card-img" href="#/produto/${esc(p.slug)}" tabindex="-1" aria-hidden="true"><img src="${esc(imagens(p)[0])}" alt="" loading="lazy" decoding="async" /></a>
         <div class="rapido">${rapido}</div>
       </div>
       <div class="card-corpo">
@@ -226,7 +225,7 @@
         if (!lista.length) return "";
         return `<section class="secao container" id="${esc(slug)}">
           <div class="secao-cab"><h2>${esc(titulo)}${extra ? `<small>${esc(extra)}</small>` : ""}</h2><a href="${link}">Ver tudo (${lista.length})</a></div>
-          ${carrossel(lista.slice(0, 16))}
+          ${carrossel(lista.slice(0, 10))}
         </section>`;
       });
     // manifesto entra depois da terceira vitrine
@@ -543,6 +542,11 @@
     alvos.forEach((el) => io.observe(el));
     observadores.push(io);
 
+    // animações infinitas param quando a seção sai da tela
+    const pausa = new IntersectionObserver((ents) => ents.forEach((en) => en.target.classList.toggle("pausado", !en.isIntersecting)));
+    $$(".hero, .marcas", raiz).forEach((el) => pausa.observe(el));
+    observadores.push(pausa);
+
     $$("[data-contar]", raiz).forEach((el) => {
       const fim = Number(el.dataset.contar), t0 = performance.now(), dur = 1400;
       const passo = (t) => {
@@ -561,12 +565,15 @@
         });
         b.addEventListener("mouseleave", () => (b.style.transform = ""));
       });
-      const hero = $("#hero", raiz);
-      hero && hero.addEventListener("mousemove", (e) => {
-        const r = hero.getBoundingClientRect();
-        hero.style.setProperty("--mx", `${e.clientX - r.left}px`);
-        hero.style.setProperty("--my", `${e.clientY - r.top}px`);
-      });
+      const hero = $("#hero", raiz), luz = $(".hero-luz", raiz);
+      if (hero && luz) {
+        let pendente = null;
+        hero.addEventListener("mousemove", (e) => {
+          const r = hero.getBoundingClientRect();
+          const x = e.clientX - r.left, y = e.clientY - r.top;
+          if (!pendente) pendente = requestAnimationFrame(() => { luz.style.transform = `translate3d(${x}px, ${y}px, 0)`; pendente = null; });
+        });
+      }
     }
   }
   function rotear() {

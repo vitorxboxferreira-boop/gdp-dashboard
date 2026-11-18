@@ -42,11 +42,6 @@ body {
   font: 15px/1.5 var(--fonte); -webkit-font-smoothing: antialiased;
   min-height: 100vh; display: flex; flex-direction: column; overflow-x: hidden;
 }
-/* granulado de concreto por cima de tudo */
-body::after {
-  content: ""; position: fixed; inset: 0; z-index: 90; pointer-events: none; opacity: .07; mix-blend-mode: overlay;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-}
 main { flex: 1; outline: none; }
 a { color: inherit; text-decoration: none; }
 button { font: inherit; color: inherit; cursor: pointer; }
@@ -141,9 +136,10 @@ svg { width: 1.25em; height: 1.25em; fill: none; stroke: currentColor; stroke-wi
 
 /* ---------- hero ---------- */
 .hero { position: relative; overflow: hidden; border-bottom: 3px solid var(--borda); background: #0b0b0b; color: #f2f0e9; isolation: isolate; }
+.hero::after { content: ""; position: absolute; inset: 0; z-index: -1; opacity: .06; pointer-events: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); }
 .hero::before { /* mancha de spray */
   content: ""; position: absolute; z-index: -1; width: 70vw; height: 70vw; max-width: 900px; max-height: 900px; right: -18vw; top: -22vw;
-  background: radial-gradient(circle, color-mix(in srgb, #6a4ff0 60%, transparent) 0%, color-mix(in srgb, var(--marca) 25%, transparent) 38%, transparent 66%); filter: blur(8px); }
+  background: radial-gradient(circle, color-mix(in srgb, #6a4ff0 60%, transparent) 0%, color-mix(in srgb, var(--marca) 25%, transparent) 38%, transparent 66%); }
 .hero-gigante { position: absolute; z-index: -1; left: -1vw; bottom: -4vw; font: 400 clamp(150px, 34vw, 480px)/.8 var(--fonte-titulo); text-transform: uppercase;
   color: transparent; -webkit-text-stroke: 2px rgba(242,240,233,.14); white-space: nowrap; letter-spacing: -.01em; user-select: none; }
 .hero-in { max-width: 1280px; margin: 0 auto; padding: 56px 16px 64px; min-height: min(78vh, 640px); display: flex; flex-direction: column; justify-content: center; position: relative; }
@@ -335,7 +331,8 @@ main.entrando { animation: entra .5s var(--suave-curva) both; }
 
 /* topo: progresso e modo compacto */
 .topo { transition: background .3s, box-shadow .3s; }
-.topo.rolou { background: color-mix(in srgb, var(--fundo) 82%, transparent); backdrop-filter: blur(14px) saturate(1.4); -webkit-backdrop-filter: blur(14px) saturate(1.4); box-shadow: 0 10px 30px -18px rgba(0, 0, 0, .8); }
+.topo.rolou { box-shadow: 0 10px 30px -18px rgba(0, 0, 0, .8); }
+
 .topo-in { transition: height .3s var(--suave-curva); }
 .topo.rolou .topo-in { height: 58px; }
 .logo img { transition: height .3s var(--suave-curva), filter .3s; }
@@ -346,7 +343,7 @@ main.entrando { animation: entra .5s var(--suave-curva) both; }
 @keyframes pulo { 40% { transform: rotate(6deg) scale(1.5); } }
 
 /* banner */
-.hero-luz { position: absolute; inset: 0; z-index: -1; pointer-events: none; background: radial-gradient(420px circle at var(--mx, 70%) var(--my, 30%), rgba(106, 79, 240, .28), transparent 70%); transition: background .1s; }
+.hero-luz { position: absolute; left: 0; top: 0; width: 840px; height: 840px; margin: -420px 0 0 -420px; z-index: -1; pointer-events: none; border-radius: 50%; background: radial-gradient(circle, rgba(106, 79, 240, .28), transparent 70%); transform: translate3d(var(--mx, 70vw), var(--my, 200px), 0); will-change: transform; }
 .hero-gigante { will-change: transform; }
 .hero h2 .palavra { display: inline-block; overflow: hidden; vertical-align: top; padding-bottom: .04em; margin-bottom: -.04em; }
 .hero h2 .palavra > span { display: inline-block; animation: sobe 1s var(--suave-curva) both; animation-delay: calc(var(--d) * 90ms + 250ms); }
@@ -360,7 +357,7 @@ main.entrando { animation: entra .5s var(--suave-curva) both; }
 .hero-numeros dd { margin: 4px 0 0; font: 700 10.5px var(--fonte-mono); letter-spacing: .14em; text-transform: uppercase; color: #9b988f; }
 @media (min-width: 640px) { .hero-numeros { grid-template-columns: repeat(4, auto); } }
 @keyframes aparece { from { opacity: 0; transform: translateY(18px); } }
-.btn-vidro { background: rgba(255, 255, 255, .06); color: #f2f0e9; backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); }
+.btn-vidro { background: rgba(255, 255, 255, .06); color: #f2f0e9; }
 .btn-vidro:hover { background: rgba(255, 255, 255, .12); }
 .magnetico { transition: transform .25s var(--suave-curva), box-shadow .15s; }
 
@@ -394,7 +391,7 @@ main.entrando { animation: entra .5s var(--suave-curva) both; }
 .card-midia .card-img { border-bottom: 0; }
 .card-img img { transition: transform .6s var(--suave-curva), filter .4s; }
 .card:hover .card-img img { transform: scale(1.06); filter: brightness(1.12) saturate(1.1); }
-.rapido { position: absolute; left: 0; right: 0; bottom: 0; padding: 10px; background: color-mix(in srgb, var(--fundo) 88%, transparent); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); transform: translateY(101%); transition: transform .35s var(--suave-curva); display: none; }
+.rapido { position: absolute; left: 0; right: 0; bottom: 0; padding: 10px; background: var(--fundo); transform: translateY(101%); transition: transform .35s var(--suave-curva); display: none; }
 @media (hover: hover) { .rapido { display: block; } .card:hover .rapido, .card:focus-within .rapido { transform: none; } }
 .rapido-tit { display: block; font: 700 10px var(--fonte-mono); letter-spacing: .14em; text-transform: uppercase; color: var(--suave); margin-bottom: 6px; }
 .rapido-tams { display: flex; flex-wrap: wrap; gap: 4px; }
@@ -416,7 +413,7 @@ main.entrando { animation: entra .5s var(--suave-curva) both; }
 .garantias { list-style: none; padding: 16px; margin: 20px 0 0; display: grid; gap: 10px; border: 1px solid var(--linha); background: var(--cartao); }
 .garantias li { display: flex; align-items: center; gap: 10px; font-size: 14px; color: var(--suave); }
 .garantias svg { color: var(--marca-clara); }
-.barra-compra { position: fixed; left: 0; right: 0; bottom: 0; z-index: 35; display: flex; align-items: center; gap: 12px; padding: 10px 16px; padding-right: 90px; background: color-mix(in srgb, var(--fundo) 90%, transparent); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); border-top: 2px solid var(--borda); transform: translateY(110%); transition: transform .35s var(--suave-curva); }
+.barra-compra { position: fixed; left: 0; right: 0; bottom: 0; z-index: 35; display: flex; align-items: center; gap: 12px; padding: 10px 16px; padding-right: 90px; background: var(--fundo); border-top: 2px solid var(--borda); transform: translateY(110%); transition: transform .35s var(--suave-curva); }
 .barra-compra.on { transform: none; }
 .barra-compra img { width: 44px; height: 54px; object-fit: cover; border: 1px solid var(--linha); }
 .barra-compra div { flex: 1; min-width: 0; display: flex; flex-direction: column; }
@@ -424,7 +421,7 @@ main.entrando { animation: entra .5s var(--suave-curva) both; }
 .barra-compra span { font: 400 20px/1.1 var(--fonte-titulo); }
 .barra-compra .btn { height: 44px; }
 .modal { border: 2px solid var(--borda); background: var(--fundo); color: var(--texto); padding: 0; width: min(560px, calc(100vw - 32px)); max-height: 85vh; }
-.modal::backdrop { background: rgba(5, 4, 10, .7); backdrop-filter: blur(4px); }
+.modal::backdrop { background: rgba(5, 4, 10, .78); }
 .modal[open] { animation: entra .35s var(--suave-curva); }
 .modal-cab { display: flex; justify-content: space-between; align-items: center; padding: 14px 18px; border-bottom: 2px solid var(--borda); }
 .modal-cab h2 { font-size: 30px; }
@@ -446,3 +443,10 @@ main.entrando { animation: entra .5s var(--suave-curva) both; }
   .rv, .carrossel.rv .card { opacity: 1; transform: none; }
   .marcas-trilho { animation: none !important; flex-wrap: wrap; width: auto; }
 }
+
+/* ---------- desempenho ---------- */
+.faixa-trilho, .fita-trilho, .marcas-trilho, .adesivo-giro { will-change: transform; }
+.pausado .faixa-trilho, .pausado .fita-trilho, .pausado .marcas-trilho, .pausado .adesivo-giro { animation-play-state: paused; }
+/* seções fora da tela só são desenhadas quando chegam perto */
+.secao, .marcas, .faq, .manifesto { content-visibility: auto; contain-intrinsic-size: auto 640px; }
+.card { contain: layout style; transition: transform .2s var(--suave-curva); }

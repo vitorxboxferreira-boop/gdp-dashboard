@@ -35,7 +35,9 @@ Abra `index.html` no navegador ou suba a pasta em qualquer hospedagem estática 
 | Cores e fontes | topo de `css/estilo.css` (`--marca`, `--marca-clara`, etc.) |
 | Logo | `img/logo-volare-topo.png` (topo) e `img/logo-volare.png` (rodapé), caminhos em `js/config.js` |
 
-**Fotos:** crie uma pasta `img/`, coloque as fotos e preencha `imagens: ["img/minha-foto.jpg"]` no produto.
+**Fotos:** salve as fotos em `img/produtos/` com o nome do produto (o `slug` de `js/dados.js`),
+ex.: `img/produtos/tenis-nike-big-low.jpg` (extras: `-2.jpg`, `-3.jpg`). Depois, na pasta `loja/`, rode
+`python3 ferramentas/atualizar_fotos.py`, que atualiza `js/fotos.js` sozinho.
 Produto sem foto ganha uma ilustração automática com a marca.
 
 **WhatsApp:** em `config.js`, `whatsapp` vai só com números, com DDI e DDD: `5511999999999`.
