@@ -8,9 +8,10 @@ import * as THREE from 'three';
 export const MODELS = [
   {
     id: 'mobi',
+    badge: 'Seminovo',
     brand: 'Fiat',
     name: 'Mobi Trekking',
-    tag: 'Hatch compacto',
+    tag: 'Hatch compacto · seminovo',
     year: 2025,
     price: 82990,
     photo: 'assets/fiat-mobi-trekking.webp',
@@ -40,6 +41,7 @@ export const MODELS = [
   },
   {
     id: 'compass',
+    badge: '0KM',
     brand: 'Jeep',
     name: 'Compass S',
     tag: 'SUV médio premium',
@@ -76,6 +78,7 @@ export const MODELS = [
   },
   {
     id: 'mclaren',
+    badge: 'Carros Premium',
     brand: 'McLaren',
     name: '720S Spider',
     tag: 'Superesportivo conversível',
@@ -160,7 +163,7 @@ void main() {
   float a = tex.a;
   float edge = vUv.y - uReveal;
   float shown = 1.0 - smoothstep(-0.002, 0.004, edge);
-  vec3 gold = vec3(1.7, 1.15, 0.5);
+  vec3 gold = vec3(0.35, 0.75, 2.2); // azul elétrico da marca
   float scan = 0.55 + 0.45 * sin(vUv.y * 520.0 - uTime * 8.0);
   vec3 holo = gold * scan * 0.5;
   float band = exp(-abs(edge) * 70.0) * uGlow;
@@ -357,7 +360,7 @@ export async function loadGLBCar(model, gltf) {
   meshes.forEach((x) => (Array.isArray(x.material) ? x.material : [x.material]).forEach((mm) => mats.add(mm)));
   mats.forEach((mm) => { mm.clippingPlanes = [solidPlane]; mm.clipShadows = true; });
   const holoMat = new THREE.MeshBasicMaterial({
-    color: new THREE.Color(1.6, 1.1, 0.45), wireframe: true, transparent: true, opacity: 0, visible: false,
+    color: new THREE.Color(0.3, 0.7, 2.0), wireframe: true, transparent: true, opacity: 0, visible: false,
     blending: THREE.AdditiveBlending, depthWrite: false, clippingPlanes: [holoPlane],
   });
   meshes.forEach((x) => { const h = new THREE.Mesh(x.geometry, holoMat); h.castShadow = false; x.add(h); });

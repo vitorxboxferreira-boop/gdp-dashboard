@@ -1,6 +1,6 @@
-# Aurum Motors: showroom virtual
+# Fronteira Veículos: showroom virtual
 
-Site de concessionária com os carros reais (Fiat Mobi Trekking, Jeep Compass S e McLaren 720S Spider) dentro de um estúdio 3D em tempo real (Three.js + WebGL), com animações ligadas à rolagem (GSAP ScrollTrigger) e rolagem suave (Lenis).
+Site da Fronteira Veículos (Santana do Livramento, RS) com os carros reais (Fiat Mobi Trekking, Jeep Compass S e McLaren 720S Spider) dentro de um estúdio 3D em tempo real (Three.js + WebGL), com animações ligadas à rolagem (GSAP ScrollTrigger) e rolagem suave (Lenis).
 
 ## Como os carros são exibidos
 

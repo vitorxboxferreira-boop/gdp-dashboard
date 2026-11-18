@@ -3,12 +3,13 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Aurum Motors — Showroom 3D</title>
-  <meta name="description" content="Concessionária Aurum Motors: explore nossos veículos em 3D, configure cores, simule o financiamento e agende seu test-drive.">
-  <meta name="theme-color" content="#06070b">
+  <title>Fronteira Veículos | Showroom 3D</title>
+  <meta name="description" content="Fronteira Veículos: + de 25 anos no mercado automotivo em Santana do Livramento (RS). 0KM Ford, Jeep, RAM, Hyundai e BYD, seminovos e carros premium. Explore em 3D e simule seu financiamento.">
+  <meta name="theme-color" content="#040811">
+  <link rel="icon" href="assets/logo-fronteira.svg" type="image/svg+xml">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Michroma&family=Manrope:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Exo+2:ital,wght@0,500;0,700;1,700;1,800;1,900&family=Manrope:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/style.css">
   <script type="importmap">
     {
@@ -23,7 +24,7 @@
   <!-- Loader -->
   <div id="loader">
     <div class="loader-inner">
-      <div class="logo big"><span class="mark"></span>AURUM</div>
+      <img class="loader-logo" src="assets/logo-fronteira-white.svg" alt="Fronteira Veículos" width="260" height="117">
       <div class="bar"><i></i></div>
       <div class="loader-row"><span class="hint">Preparando o showroom</span><span class="pct">000</span></div>
     </div>
@@ -38,14 +39,14 @@
 
   <!-- Navegação -->
   <header class="nav">
-    <a href="#hero" class="logo"><span class="mark"></span>AURUM<small>MOTORS</small></a>
+    <a href="#hero" class="logo" aria-label="Fronteira Veículos, início"><img src="assets/logo-fronteira-white.svg" alt="Fronteira Veículos" width="150" height="68"></a>
     <nav class="nav-links">
       <a href="#showroom">Showroom</a>
-      <a href="#design">Design</a>
+      <a href="#design">Condições</a>
       <a href="#performance">Performance</a>
       <a href="#estoque">Estoque</a>
       <a href="#financiamento">Financiamento</a>
-      <a href="#contato" class="nav-cta">Agendar test-drive</a>
+      <a href="https://bit.ly/ContatoFronteiraVeiculos" target="_blank" rel="noopener" class="nav-cta">Falar no WhatsApp</a>
     </nav>
     <button class="burger" aria-label="Abrir menu"><span></span><span></span></button>
   </header>
@@ -53,7 +54,7 @@
   <nav class="dots" aria-label="Seções">
     <a href="#hero" title="Início"></a>
     <a href="#showroom" title="Showroom"></a>
-    <a href="#design" title="Design"></a>
+    <a href="#design" title="Condições"></a>
     <a href="#performance" title="Performance"></a>
     <a href="#estoque" title="Estoque"></a>
     <a href="#financiamento" title="Financiamento"></a>
@@ -64,20 +65,21 @@
     <!-- HERO -->
     <section id="hero" class="section hero">
       <div class="wrap">
-        <p class="eyebrow" data-in>Fiat · Jeep · McLaren · Showroom virtual</p>
+        <p class="promo" data-in><b>Black November</b> Só aqui na Fronteira Veículos</p>
+        <p class="eyebrow" data-in>+ de 25 anos no mercado automotivo</p>
         <h1>
-          <span class="line"><span>A emoção</span></span>
-          <span class="line"><span>em outra <em>dimensão.</em></span></span>
+          <span class="line"><span>Seu próximo carro</span></span>
+          <span class="line"><span>começa <em>aqui.</em></span></span>
         </h1>
-        <p class="lead" data-in>Do compacto urbano ao superesportivo: explore nossos carros no showroom virtual, escolha a cor, acenda os faróis e sinta a potência antes mesmo do test-drive.</p>
+        <p class="lead" data-in>0KM Ford, Jeep, RAM, Hyundai e BYD, seminovos com procedência e carros premium. Explore em 3D, simule o financiamento e fale direto com nossos vendedores.</p>
         <div class="actions" data-in>
           <a href="#showroom" class="btn primary magnetic">Explorar showroom</a>
-          <a href="#estoque" class="btn ghost magnetic">Ver estoque</a>
+          <a href="https://bit.ly/ContatoFronteiraVeiculos" target="_blank" rel="noopener" class="btn ghost magnetic">Falar no WhatsApp</a>
         </div>
         <ul class="hero-stats" data-in>
-          <li><strong>27</strong><span>anos de tradição</span></li>
-          <li><strong>4.9★</strong><span>avaliação dos clientes</span></li>
-          <li><strong>+3.200</strong><span>carros entregues</span></li>
+          <li><strong>+25</strong><span>anos no mercado</span></li>
+          <li><strong>5</strong><span>marcas 0KM</span></li>
+          <li><strong>27 mil</strong><span>seguidores no Instagram</span></li>
         </ul>
       </div>
       <a href="#showroom" class="scroll-hint"><span></span>Role para explorar</a>
@@ -121,30 +123,51 @@
       <p class="drag-hint"><span>⟲</span> Arraste o carro para girar 360°</p>
     </section>
 
-    <!-- DESIGN -->
+    <!-- CONDIÇÕES -->
     <section id="design" class="section design">
       <div class="wrap">
         <div class="design-copy" data-reveal>
-          <p class="eyebrow">Detalhes do modelo</p>
-          <h2 class="big">Cada detalhe,<br>esculpido.</h2>
-          <p class="lead">Toque nos pontos luminosos sobre o carro para conhecer os destaques de cada versão.</p>
+          <p class="eyebrow">Condições especiais</p>
+          <h2 class="big">Facilitamos o seu<br><em>pagamento.</em></h2>
+          <p class="lead">Para você sair de carro novo. Toque nos pontos luminosos sobre o carro para conhecer os destaques de cada modelo.</p>
         </div>
       </div>
-      <div class="wrap features" data-stagger>
-        <article class="feature glass tilt">
-          <span class="ico">◆</span>
-          <h3>Procedência garantida</h3>
-          <p>Todos os veículos com laudo cautelar, histórico de revisões e garantia de fábrica ou da loja.</p>
+      <div class="wrap conditions" data-stagger>
+        <article class="cond glass tilt">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M8 12.5l2.7 2.7L16.5 9"/></svg>
+          <div><small>Aprovação</small><h3>Rápida e sem burocracia</h3></div>
         </article>
-        <article class="feature glass tilt">
-          <span class="ico">◈</span>
-          <h3>Seu usado vale mais</h3>
-          <p>Avaliação na hora pela tabela FIPE e uso do seu carro como entrada em qualquer modelo.</p>
+        <article class="cond glass tilt">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12l4-4 4 3 3-3 7 5M3 12l5 5 3-2 3 3 7-6"/></svg>
+          <div><small>Entrada</small><h3>Parcelada</h3></div>
         </article>
-        <article class="feature glass tilt">
-          <span class="ico">◎</span>
-          <h3>Test-drive onde você estiver</h3>
-          <p>Levamos o carro até a sua casa ou trabalho, sem compromisso, com um consultor especializado.</p>
+        <article class="cond glass tilt">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3h9l4 4v14H6zM14 3v5h5M9 13h7M9 17h5"/></svg>
+          <div><small>Financiamento</small><h3>100%</h3></div>
+        </article>
+        <article class="cond glass tilt">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 15l2-6h14l2 6v4H3zM5 15h14M7 19v2M17 19v2"/><circle cx="7.5" cy="15.5" r=".5"/><circle cx="16.5" cy="15.5" r=".5"/></svg>
+          <div><small>Sem entrada</small><h3>Consulte condições</h3></div>
+        </article>
+        <article class="cond glass tilt">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>
+          <div><small>1ª parcela</small><h3>Só em 2027</h3></div>
+        </article>
+        <article class="cond glass tilt">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 12l-8 8-9-9V3h8z"/><circle cx="7.5" cy="7.5" r="1.5"/></svg>
+          <div><small>Veículos</small><h3>Abaixo da FIPE</h3></div>
+        </article>
+        <article class="cond glass tilt">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 8a8 8 0 00-14.5-3M4 4v4h4M4 16a8 8 0 0014.5 3M20 20v-4h-4"/></svg>
+          <div><small>Bônus no usado</small><h3>Na troca</h3></div>
+        </article>
+        <article class="cond glass tilt">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 21V5a2 2 0 012-2h6a2 2 0 012 2v16M3 21h12M6 9h6M14 10h2a2 2 0 012 2v4a1.5 1.5 0 003 0V8l-3-3"/></svg>
+          <div><small>Tanque cheio</small><h3>E transferência grátis</h3></div>
+        </article>
+        <article class="cond glass tilt">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 5L5 19"/><circle cx="7" cy="7" r="2.5"/><circle cx="17" cy="17" r="2.5"/></svg>
+          <div><small>Taxa de juros</small><h3>Reduzida</h3></div>
         </article>
       </div>
     </section>
@@ -172,7 +195,7 @@
         <div class="section-head" data-reveal>
           <p class="eyebrow">Pronta entrega</p>
           <h2 class="big">Nosso estoque</h2>
-          <p class="lead">Veículos revisados, com procedência e prontos para sair da loja. Clique em "Ver no showroom" para explorar cada um.</p>
+          <p class="lead">0KM, seminovos e carros premium, revisados e com procedência. Clique em "Ver no showroom" para explorar cada um.</p>
         </div>
         <div id="stock-grid" class="grid"></div>
       </div>
@@ -190,18 +213,19 @@
           </label>
           <label class="field">
             <div class="field-head"><span>Entrada</span><span id="fin-down-out" class="muted"></span></div>
-            <input type="range" id="fin-down" min="20" max="80" step="5" value="40">
+            <input type="range" id="fin-down" min="0" max="80" step="5" value="30">
           </label>
           <label class="field">
             <div class="field-head"><span>Prazo</span><span id="fin-months-out" class="muted"></span></div>
-            <input type="range" id="fin-months" min="12" max="60" step="6" value="36">
+            <input type="range" id="fin-months" min="12" max="60" step="6" value="48">
           </label>
           <div class="result">
             <span class="muted small">Parcelas estimadas</span>
             <strong id="fin-pmt">R$ 0</strong>
             <span class="muted small">Taxa de 1,49% a.m. · Total: <span id="fin-total"></span></span>
           </div>
-          <p class="fine">Simulação ilustrativa, sujeita à análise de crédito. Valores e taxas podem mudar sem aviso.</p>
+          <p class="fine">Simulação ilustrativa, sujeita à análise de crédito. Financiamento de até 100% e entrada parcelada: consulte as condições com nossos vendedores.</p>
+          <a href="https://bit.ly/ContatoFronteiraVeiculos" target="_blank" rel="noopener" class="btn primary full magnetic">Simular com um vendedor</a>
         </div>
       </div>
     </section>
@@ -211,28 +235,32 @@
       <div class="wrap">
         <div class="panel glass" data-reveal>
           <p class="eyebrow">Test-drive</p>
-          <h2>Agende sua experiência</h2>
+          <h2>Agende sua visita</h2>
           <form id="contact-form" class="form">
             <label><span>Nome</span><input id="c-name" required placeholder="Seu nome completo"></label>
-            <label><span>Telefone</span><input id="c-phone" type="tel" required placeholder="(11) 90000-0000"></label>
+            <label><span>Telefone / WhatsApp</span><input id="c-phone" type="tel" required placeholder="(55) 90000-0000"></label>
             <label><span>Modelo de interesse</span><select id="c-model"></select></label>
             <label><span>Data preferida</span><input type="date" id="c-date"></label>
-            <button class="btn primary magnetic" type="submit">Agendar test-drive</button>
+            <button class="btn primary magnetic" type="submit">Agendar e falar no WhatsApp</button>
           </form>
         </div>
         <div class="contact-info" data-stagger>
-          <div><span class="eyebrow">Showroom</span><p>Av. das Nações, 2027<br>São Paulo · SP</p></div>
-          <div><span class="eyebrow">Horário</span><p>Seg a Sex · 9h às 20h<br>Sáb · 9h às 17h</p></div>
-          <div><span class="eyebrow">Fale conosco</span><p>(11) 4000-2027<br>contato@aurummotors.com.br</p></div>
+          <div><span class="eyebrow">Showroom</span><p><a href="https://www.google.com/maps/search/?api=1&amp;query=Av.+Jo%C3%A3o+B.+Goulart%2C+1650%2C+Santana+do+Livramento%2C+RS" target="_blank" rel="noopener">Av. João B. Goulart, 1650<br>Santana do Livramento · RS</a></p></div>
+          <div><span class="eyebrow">WhatsApp</span><p><a href="https://bit.ly/ContatoFronteiraVeiculos" target="_blank" rel="noopener">Fale com nossos vendedores</a></p></div>
+          <div><span class="eyebrow">Instagram</span><p><a href="https://www.instagram.com/fronteira_veiculos/" target="_blank" rel="noopener">@fronteira_veiculos</a></p></div>
         </div>
       </div>
       <footer class="footer">
-        <div class="logo"><span class="mark"></span>AURUM<small>MOTORS</small></div>
-        <p class="muted small">© 2025 Aurum Motors. Imagens e valores ilustrativos, sujeitos a alteração.</p>
+        <img class="footer-logo" src="assets/logo-fronteira-white.svg" alt="Fronteira Veículos" width="140" height="63">
+        <p class="muted small">© 2026 Fronteira Veículos · Santana do Livramento, RS. Imagens e valores ilustrativos, sujeitos a alteração.</p>
         <p class="credits muted small">Modelos 3D (CC BY 4.0): <a href="https://sketchfab.com/3d-models/2019-mclaren-720s-spider-d598b285dbc4408591c98aaf80648074" target="_blank" rel="noopener">"2019 McLaren 720S Spider"</a> por <a href="https://sketchfab.com/ddiaz-design" target="_blank" rel="noopener">Ddiaz Design</a> · <a href="https://sketchfab.com/3d-models/jeep-compass-2022-lowpoly-e4087350c4d84d8391de09b405c96488" target="_blank" rel="noopener">"Jeep Compass 2022 Lowpoly"</a> por <a href="https://sketchfab.com/a0930582398" target="_blank" rel="noopener">Davidson</a> · <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener">licença</a>. Modelos otimizados para a web.</p>
       </footer>
     </section>
   </main>
+
+  <a class="wa-float" href="https://bit.ly/ContatoFronteiraVeiculos" target="_blank" rel="noopener" aria-label="Falar no WhatsApp">
+    <svg viewBox="0 0 32 32" aria-hidden="true"><path d="M16 3a13 13 0 00-11.2 19.6L3 29l6.6-1.7A13 13 0 1016 3zm0 23.6a10.6 10.6 0 01-5.4-1.5l-.4-.2-3.9 1 1-3.8-.3-.4A10.6 10.6 0 1116 26.6zm5.8-7.9c-.3-.2-1.9-.9-2.2-1s-.5-.2-.7.2-.8 1-1 1.2-.4.2-.7 0a8.7 8.7 0 01-2.6-1.6 9.6 9.6 0 01-1.8-2.2c-.2-.3 0-.5.1-.6l.5-.6.3-.5a.6.6 0 000-.6l-1-2.4c-.3-.6-.5-.5-.7-.5h-.6a1.2 1.2 0 00-.9.4 3.6 3.6 0 00-1.1 2.7 6.3 6.3 0 001.3 3.3 14.4 14.4 0 005.5 4.9c2 .9 2.8.9 3.8.8a3.2 3.2 0 002.1-1.5 2.6 2.6 0 00.2-1.5c-.1-.1-.3-.2-.6-.4z"/></svg>
+  </a>
 
   <div id="toast" role="status"></div>
 

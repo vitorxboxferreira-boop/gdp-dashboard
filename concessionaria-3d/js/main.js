@@ -50,7 +50,7 @@ renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 renderer.shadowMap.autoUpdate = false; // sombra recalculada só quando algo muda
 let shadowDirty = 2;
 
-const BG = new THREE.Color(0x06070b);
+const BG = new THREE.Color(0x040811);
 const scene = new THREE.Scene();
 scene.background = BG;
 scene.fog = new THREE.Fog(BG, 14, 34);
@@ -67,7 +67,7 @@ function buildEnvironment() {
   };
   panel(10, 3, 0, 8, 0, Math.PI / 2, 0, 3.2);
   for (const z of [-7, 7]) { panel(14, 0.6, 0, 3, z, 0, 0, 5); panel(14, 0.25, 0, 5, z, 0, 0, 3); }
-  panel(4, 5, -9, 3, 0, 0, Math.PI / 2, 1.6, [1, 0.85, 0.6]);
+  panel(4, 5, -9, 3, 0, 0, Math.PI / 2, 1.6, [0.6, 0.8, 1]);
   panel(4, 5, 9, 3, 0, 0, -Math.PI / 2, 1.2, [0.7, 0.85, 1]);
   const floor = new THREE.Mesh(new THREE.PlaneGeometry(40, 40), new THREE.MeshBasicMaterial({ color: 0x0a0a0c }));
   floor.rotation.x = -Math.PI / 2;
@@ -135,7 +135,7 @@ function buildStage() {
   scene.add(veil);
 
   floorGrid = new THREE.Mesh(new THREE.PlaneGeometry(40, 40), new THREE.ShaderMaterial({
-    uniforms: { uOffset: { value: 0 }, uColor: { value: new THREE.Color(1.0, 0.72, 0.35) }, uOpacity: { value: 0.22 } },
+    uniforms: { uOffset: { value: 0 }, uColor: { value: new THREE.Color(0.25, 0.55, 1.6) }, uOpacity: { value: 0.22 } },
     vertexShader: 'varying vec3 vPos; void main(){ vec4 w = modelMatrix * vec4(position,1.0); vPos = w.xyz; gl_Position = projectionMatrix * viewMatrix * w; }',
     fragmentShader: `uniform float uOffset; uniform vec3 uColor; uniform float uOpacity; varying vec3 vPos;
       void main(){ vec2 p = vPos.xz * 0.8; p.x += uOffset; vec2 g = abs(fract(p - 0.5) - 0.5) / fwidth(p);
@@ -169,12 +169,12 @@ function buildStage() {
   contactShadow.position.y = 0.008;
   turntable.add(contactShadow);
 
-  ringMat = new THREE.MeshBasicMaterial({ color: new THREE.Color(2.2, 1.5, 0.7), transparent: true, opacity: 0.9 });
+  ringMat = new THREE.MeshBasicMaterial({ color: new THREE.Color(0.45, 1.1, 3.0), transparent: true, opacity: 0.9 });
   const ring = new THREE.Mesh(new THREE.RingGeometry(3.55, 3.585, 128), ringMat);
   ring.rotation.x = -Math.PI / 2;
   ring.position.y = 0.01;
   stage.add(ring);
-  const ring2 = new THREE.Mesh(new THREE.RingGeometry(3.75, 3.76, 128), new THREE.MeshBasicMaterial({ color: new THREE.Color(1, 0.75, 0.4), transparent: true, opacity: 0.25 }));
+  const ring2 = new THREE.Mesh(new THREE.RingGeometry(3.75, 3.76, 128), new THREE.MeshBasicMaterial({ color: new THREE.Color(0.3, 0.55, 1.2), transparent: true, opacity: 0.3 }));
   ring2.rotation.x = -Math.PI / 2;
   ring2.position.y = 0.01;
   stage.add(ring2);
@@ -196,7 +196,7 @@ function buildStage() {
   }
 
   scene.add(new THREE.HemisphereLight(0x8899aa, 0x080808, 0.4));
-  const rim = new THREE.DirectionalLight(0xffd7a0, 1.4);
+  const rim = new THREE.DirectionalLight(0x7fb4ff, 1.5);
   rim.position.set(-6, 3, -4);
   scene.add(rim);
   const fill = new THREE.DirectionalLight(0x9fc4ff, 0.8);
@@ -225,7 +225,7 @@ function buildStage() {
         p.x += sin(uTime * 0.3 + seed * 10.0) * 0.3; p.x = mod(p.x - uShift * seed + 7.5, 15.0) - 7.5;
         vec4 mv = modelViewMatrix * vec4(p, 1.0); gl_Position = projectionMatrix * mv;
         gl_PointSize = min(7.0 * uPR / -mv.z * 3.0, 4.0 * uPR); vA = smoothstep(0.0, 1.0, p.y) * smoothstep(7.0, 5.5, p.y); }`,
-    fragmentShader: `varying float vA; void main(){ float d = length(gl_PointCoord - 0.5); float a = smoothstep(0.5, 0.0, d) * 0.55 * vA; gl_FragColor = vec4(vec3(1.4, 1.2, 0.95) * a, a); }`,
+    fragmentShader: `varying float vA; void main(){ float d = length(gl_PointCoord - 0.5); float a = smoothstep(0.5, 0.0, d) * 0.55 * vA; gl_FragColor = vec4(vec3(0.9, 1.15, 1.6) * a, a); }`,
     transparent: true, depthWrite: false, blending: THREE.AdditiveBlending,
   }));
   dust.frustumCulled = false;
@@ -234,7 +234,7 @@ function buildStage() {
 
   const SL = 60;
   speedLines = new THREE.InstancedMesh(new THREE.BoxGeometry(1, 0.006, 0.006),
-    new THREE.MeshBasicMaterial({ color: new THREE.Color(1.6, 1.3, 0.9), transparent: true, opacity: 0, blending: THREE.AdditiveBlending, depthWrite: false }), SL);
+    new THREE.MeshBasicMaterial({ color: new THREE.Color(0.8, 1.3, 2.2), transparent: true, opacity: 0, blending: THREE.AdditiveBlending, depthWrite: false }), SL);
   for (let i = 0; i < SL; i++) {
     let z = (Math.random() - 0.5) * 12;
     if (Math.abs(z) < 1.4) z += Math.sign(z || 1) * 1.4;
@@ -245,12 +245,12 @@ function buildStage() {
   stage.add(speedLines);
 
   scanner = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), new THREE.MeshBasicMaterial({
-    map: scannerTexture(), color: new THREE.Color(2.4, 1.6, 0.7), transparent: true, opacity: 0,
+    map: scannerTexture(), color: new THREE.Color(0.5, 1.2, 3.0), transparent: true, opacity: 0,
     blending: THREE.AdditiveBlending, depthWrite: false, side: THREE.DoubleSide,
   }));
   scanner.rotation.x = -Math.PI / 2;
   turntable.add(scanner);
-  scanLight = new THREE.PointLight(0xffb84d, 0, 6, 1.5);
+  scanLight = new THREE.PointLight(0x3d8bff, 0, 6, 1.5);
   turntable.add(scanLight);
 }
 
@@ -372,7 +372,7 @@ const KEYS = {
   performance: { px: -4.8, py: 1.6, pz: 10.2, tx: 0, ty: 1.1, tz: 0, carX: 2.3, spin: 0 },
   estoque: { px: 0.01, py: 4.2, pz: 13, tx: 0, ty: 0.9, tz: 0, carX: 0, spin: 0.35 },
   financiamento: { px: 4.2, py: 2.2, pz: 11, tx: 0, ty: 1.1, tz: 0, carX: -2.4, spin: 0 },
-  contato: { px: -1.2, py: 2.0, pz: 13.5, tx: 0, ty: 1.1, tz: 0, carX: 2.4, spin: 0.6 },
+  contato: { px: -1.2, py: 2.2, pz: 15, tx: 0, ty: 1.4, tz: 0, carX: 0.4, spin: 0.6 },
 };
 const SECTIONS = Object.keys(KEYS);
 const cam = { ...KEYS.hero };
@@ -499,7 +499,8 @@ function buildUI() {
   $('#contact-form').addEventListener('submit', (e) => {
     e.preventDefault();
     const name = $('#c-name').value.trim().split(' ')[0] || 'cliente';
-    toast(`Obrigado, ${name}! Um consultor entrará em contato em breve.`);
+    toast(`Obrigado, ${name}! Abrindo o WhatsApp da Fronteira Veículos para confirmar sua visita.`);
+    window.open('https://bit.ly/ContatoFronteiraVeiculos', '_blank', 'noopener');
     e.target.reset();
   });
 
@@ -525,7 +526,7 @@ function buildStock() {
     const card = document.createElement('article');
     card.className = 'card tilt';
     card.innerHTML = `
-      <div class="card-img ${m.photoBg}"><span class="badge">${m.year >= 2025 ? '0 km' : 'Seminovo certificado'}</span>
+      <div class="card-img ${m.photoBg}"><span class="badge">${m.badge || (m.year >= 2025 ? '0KM' : 'Seminovo')}</span>
         <img src="${m.photo}" alt="${m.brand} ${m.name}" loading="lazy" decoding="async" width="600" height="380"></div>
       <div class="card-body">
         <div class="card-top"><div><small class="brand">${m.brand}</small><h3>${m.name}</h3></div><span>${m.year}</span></div>
@@ -637,6 +638,7 @@ const vC = new THREE.Vector3();
 const dummy = new THREE.Object3D();
 const TAU = Math.PI * 2;
 let sweepTimer = 5;
+const condEl = document.querySelector('.conditions');
 let perfFrames = 0;
 let perfTime = 0;
 let perfCooldown = 4; // segundos antes de começar a medir
@@ -705,6 +707,8 @@ function frame() {
   // hotspots: só calculados na seção Design
   if (current && state.activeSection === 'design') {
     const api = current.userData.api;
+    const condTop = condEl ? condEl.getBoundingClientRect().top : Infinity;
+    const clear = condTop > innerHeight * 0.6; // some quando os cards de condições sobem
     current.getWorldPosition(vC);
     hsEls.forEach((el, i) => {
       vA.copy(api.hotspots[i].pos);
@@ -712,7 +716,7 @@ function frame() {
       const facing = api.billboard || vB.copy(camera.position).sub(vA).dot(vA.clone().sub(vC).setY(0)) > -0.2;
       vA.project(camera);
       el.style.transform = `translate3d(${(vA.x * 0.5 + 0.5) * innerWidth}px, ${(-vA.y * 0.5 + 0.5) * innerHeight}px, 0)`;
-      el.classList.toggle('visible', !busy && facing && vA.z < 1);
+      el.classList.toggle('visible', clear && !busy && facing && vA.z < 1);
     });
   }
 
