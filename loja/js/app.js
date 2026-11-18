@@ -4,6 +4,8 @@
      #/                      início
      #/categorias            todas as categorias
      #/categoria/:slug       listagem de uma categoria
+     #/novidades             produtos marcados como novidade
+     #/promocoes             produtos com preço antigo / selo Promo
      #/produto/:slug         página do produto
      #/busca?q=termo         busca
      #/favoritos             favoritos
@@ -15,6 +17,7 @@
   const L = window.LOJA;
   const CATS = window.CATEGORIAS;
   const PRODS = window.PRODUTOS;
+  const POR_PAGINA = 24;
   const $ = (s, el = document) => el.querySelector(s);
   const $$ = (s, el = document) => [...el.querySelectorAll(s)];
 
@@ -27,6 +30,8 @@
   const prodPorSlug = (slug) => PRODS.find((p) => p.slug === slug);
   const precoPix = (v) => Math.round(v * (1 - L.descontoPix / 100) * 100) / 100;
   const icone = (id) => `<svg aria-hidden="true"><use href="#${id}"/></svg>`;
+  const ehPromo = (p) => !!p.precoAntigo || p.selo === "Promo";
+  const classeSelo = (selo) => semAcento(selo).split(" ")[0];
 
   function parcelas(valor) {
     const n = L.parcelasSemJuros;
@@ -50,31 +55,42 @@
     toast._t = setTimeout(() => t.classList.remove("on"), 2200);
   }
 
-  // ----------------------------------------- imagem automática (sem foto)
-  const PALETAS = [
-    ["#1c1c1a", "#3a3a36"], ["#2b1a12", "#ff5b14"], ["#0f1f2e", "#2f6f9f"],
-    ["#1d2a1a", "#5f8f3a"], ["#2a1f2e", "#8b5fa8"], ["#2e2a1a", "#c9a227"],
-  ];
+  // ------------------------------- arte automática (produto sem foto)
+  const FUNDOS = ["#0b0b0b", "#151515", "#1d1c1a", "#101418", "#171310"];
+  const TINTAS = ["#e8ff1a", "#ff3d1f", "#f2f0e9", "#e8ff1a", "#8affc1"];
   const hash = (s) => [...s].reduce((a, c) => (a * 31 + c.charCodeAt(0)) >>> 0, 7);
   const cacheImg = {};
   function imagemAuto(p) {
     if (cacheImg[p.slug]) return cacheImg[p.slug];
-    const [a, b] = PALETAS[hash(p.slug) % PALETAS.length];
+    const h = hash(p.slug);
+    const fundo = FUNDOS[h % FUNDOS.length];
+    const tinta = TINTAS[(h >>> 3) % TINTAS.length];
     const cat = catPorSlug(p.categoria);
-    const marca = esc(p.marca.toUpperCase());
-    const tamFonte = Math.min(64, Math.floor(620 / Math.max(p.marca.length, 1)));
+    const titulo = (p.marca || (cat ? cat.nome : L.nome)).toUpperCase();
+    const fs = Math.min(112, Math.floor(620 / Math.max(titulo.length, 1)));
+    const caber = titulo.length * fs * 0.62 > 340 ? ' textLength="340" lengthAdjust="spacingAndGlyphs"' : "";
+    const giro = ((h >>> 5) % 9) - 4;
+    const num = String((h % 900) + 100);
     const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 500">
-      <defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="${a}"/><stop offset="1" stop-color="${b}"/></linearGradient></defs>
-      <rect width="400" height="500" fill="url(#g)"/>
-      <text x="200" y="250" text-anchor="middle" font-family="Arial Black,Arial,sans-serif" font-weight="900" font-size="${tamFonte}" fill="rgba(255,255,255,.92)" letter-spacing="-2">${marca}</text>
-      <text x="200" y="290" text-anchor="middle" font-family="Arial,sans-serif" font-size="18" fill="rgba(255,255,255,.6)" letter-spacing="4">${esc((cat ? cat.nome : "").toUpperCase())}</text>
-      <text x="200" y="470" text-anchor="middle" font-family="Arial,sans-serif" font-size="13" fill="rgba(255,255,255,.4)">foto do produto</text></svg>`;
+      <defs>
+        <pattern id="d" width="10" height="10" patternUnits="userSpaceOnUse"><circle cx="5" cy="5" r="1.6" fill="${tinta}" opacity=".18"/></pattern>
+        <pattern id="z" width="22" height="22" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="11" height="22" fill="${tinta}"/></pattern>
+      </defs>
+      <rect width="400" height="500" fill="${fundo}"/>
+      <rect width="400" height="500" fill="url(#d)"/>
+      <polygon points="300,0 400,0 400,100" fill="url(#z)"/>
+      <g transform="rotate(${giro} 200 250)">
+        <text x="200" y="270" text-anchor="middle" font-family="Impact,Haettenschweiler,'Arial Narrow Bold',sans-serif" font-size="${fs}" fill="${tinta}"${caber}>${esc(titulo)}</text>
+      </g>
+      <text x="22" y="474" font-family="Courier New,monospace" font-weight="700" font-size="14" fill="${tinta}" opacity=".7" letter-spacing="2">${esc((cat ? cat.nome : "").toUpperCase())} /// N.${num}</text>
+      <text x="378" y="474" text-anchor="end" font-family="Courier New,monospace" font-size="12" fill="#f2f0e9" opacity=".35">sem foto</text>
+    </svg>`;
     return (cacheImg[p.slug] = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svg));
   }
   const imagens = (p) => (p.imagens.length ? p.imagens : [imagemAuto(p)]);
 
   // ------------------------------------------------------------- estado
-  let carrinho = ler("carrinho", []); // [{slug, tam, qtd}]
+  let carrinho = ler("carrinho", []); // [{slug, tam, cor, qtd}]
   let favoritos = ler("favoritos", []); // [slug]
 
   const estoqueDe = (p, tam) => {
@@ -93,21 +109,21 @@
     desenharCarrinho();
   }
 
-  function adicionar(slug, tam, qtd = 1) {
+  function adicionar(slug, tam, cor, qtd = 1) {
     const p = prodPorSlug(slug);
-    const ex = carrinho.find((i) => i.slug === slug && i.tam === tam);
+    const ex = carrinho.find((i) => i.slug === slug && i.tam === tam && (i.cor || "") === (cor || ""));
     const max = estoqueDe(p, tam);
     if (ex) ex.qtd = Math.min(ex.qtd + qtd, max);
-    else carrinho.push({ slug, tam, qtd: Math.min(qtd, max) });
+    else carrinho.push({ slug, tam, cor: cor || "", qtd: Math.min(qtd, max) });
     salvarCarrinho();
-    toast("Adicionado ao carrinho");
+    toast("Foi pro carrinho");
   }
 
   function alternarFav(slug) {
     favoritos = favoritos.includes(slug) ? favoritos.filter((s) => s !== slug) : [...favoritos, slug];
     gravar("favoritos", favoritos);
     atualizarFavs();
-    toast(favoritos.includes(slug) ? "Salvo nos favoritos" : "Removido dos favoritos");
+    toast(favoritos.includes(slug) ? "Salvo nos favoritos" : "Saiu dos favoritos");
     if (location.hash.startsWith("#/favoritos")) rotear();
   }
   function atualizarFavs() {
@@ -126,10 +142,11 @@
       const p = prodPorSlug(i.slug);
       const sub = p.preco * i.qtd;
       total += sub;
-      return `• ${i.qtd}x ${p.nome}${i.tam ? ` (Tam: ${i.tam})` : ""}: ${brl(sub)}`;
+      const det = [i.tam && `Tam: ${i.tam}`, i.cor && `Cor: ${i.cor}`].filter(Boolean).join(" · ");
+      return `• ${i.qtd}x ${p.nome}${det ? ` (${det})` : ""}: ${brl(sub)}`;
     });
     return [
-      `Olá, ${L.nome}! Quero fazer este pedido:`,
+      `Salve, ${L.nome}! Quero fechar este pedido:`,
       "",
       ...linhas,
       "",
@@ -145,23 +162,22 @@
 
   // ---------------------------------------------------------- componentes
   function card(p) {
-    const sel = p.selo
-      ? `<span class="selo ${semAcento(p.selo).split(" ")[0]}">${esc(p.selo)}</span>`
-      : "";
+    const selos = [];
+    if (p.selo) selos.push(`<span class="selo ${classeSelo(p.selo)}">${esc(p.selo)}</span>`);
+    if (p.novidade) selos.push(`<span class="selo novo">novo!</span>`);
     const tams = p.tamanhos.filter((t) => t.estoque > 0);
-    const tamTxt = !p.tamanhos.length ? "Tamanho único" : tams.length > 4 ? `${tams.length} tamanhos` : tams.map((t) => esc(t.t)).join(" · ");
+    const tamTxt = !p.tamanhos.length ? "Tam. único" : tams.length > 4 ? `${tams.length} tamanhos` : tams.map((t) => esc(t.t)).join(" · ");
     const pc = parcelas(p.preco);
-    const precoAntigo = p.precoAntigo ? `<s>${brl(p.precoAntigo)}</s>` : "";
     const fav = favoritos.includes(p.slug) ? " on" : "";
     return `<article class="card">
-      ${sel}
+      ${selos.join("")}
       <button class="fav${fav}" data-fav="${esc(p.slug)}" aria-label="Favoritar ${esc(p.nome)}">${icone("i-heart")}</button>
       <a class="card-img" href="#/produto/${esc(p.slug)}" tabindex="-1" aria-hidden="true"><img src="${esc(imagens(p)[0])}" alt="" loading="lazy" /></a>
       <div class="card-corpo">
         <span class="card-marca">${esc(p.marca)}</span>
         <h3><a href="#/produto/${esc(p.slug)}">${esc(p.nome)}</a></h3>
-        <div class="preco">${precoAntigo}${brl(p.preco)}</div>
-        <div class="parcela">ou ${pc.n}x de ${brl(pc.p)} sem juros</div>
+        <div class="preco">${p.precoAntigo ? `<s>${brl(p.precoAntigo)}</s>` : ""}${brl(p.preco)}</div>
+        <div class="parcela">${pc.n}x ${brl(pc.p)} s/ juros</div>
         <div class="tams">${tamTxt}</div>
       </div>
       <div class="card-rodape">
@@ -178,52 +194,57 @@
     </div>`;
   }
 
-  const grade = (lista) =>
-    lista.length
-      ? `<div class="grade">${lista.map(card).join("")}</div>`
-      : `<div class="vazio">${icone("i-search")}<p>Nenhum produto encontrado.</p></div>`;
+  const vazio = (txt) => `<div class="vazio">${icone("i-search")}<p class="marcador">${esc(txt)}</p></div>`;
+
+  // listas especiais usadas na home e nas rotas
+  const listaNovidades = () => PRODS.filter((p) => p.novidade);
+  const listaPromocoes = () => PRODS.filter(ehPromo);
 
   // --------------------------------------------------------------- páginas
   function paginaInicio() {
-    const novidades = PRODS.filter((p) => p.novidade);
+    const avisos = L.avisos.map((a) => `<span>${esc(a)} ✕</span>`).join("");
     const vitrines = L.vitrines
       .map((slug) => {
-        const c = catPorSlug(slug);
-        const lista = PRODS.filter((p) => p.categoria === slug);
-        if (!c || !lista.length) return "";
-        return `<section class="secao container">
-          <div class="secao-cab"><h2>${esc(c.nome)}</h2><a href="#/categoria/${c.slug}">Ver todos →</a></div>
-          ${carrossel(lista)}
+        let titulo, lista, link, extra = "";
+        if (slug === "novidades") { titulo = "Novidades"; lista = listaNovidades(); link = "#/novidades"; extra = "acabou de chegar"; }
+        else if (slug === "promocoes") { titulo = "Promoções"; lista = listaPromocoes(); link = "#/promocoes"; extra = "corre que acaba"; }
+        else {
+          const c = catPorSlug(slug);
+          if (!c) return "";
+          titulo = c.nome; lista = PRODS.filter((p) => p.categoria === slug); link = `#/categoria/${slug}`;
+        }
+        if (!lista.length) return "";
+        return `<section class="secao container" id="${esc(slug)}">
+          <div class="secao-cab"><h2>${esc(titulo)}${extra ? `<small>${esc(extra)}</small>` : ""}</h2><a href="${link}">Ver tudo (${lista.length})</a></div>
+          ${carrossel(lista.slice(0, 16))}
         </section>`;
-      })
-      .join("");
-    const ben = L.beneficios
-      .map((b) => `<div class="beneficio">${icone("i-" + b.icone)}<div><strong>${esc(b.titulo)}</strong><small>${esc(b.texto)}</small></div></div>`)
-      .join("");
+      });
+    // manifesto entra depois da terceira vitrine
+    vitrines.splice(3, 0, `<section class="manifesto"><div class="container"><p>${esc(L.manifesto)}</p><span class="assina">— ${esc(L.nome)}</span></div></section>`);
 
     return `
       <h1 class="pular">${esc(L.nome)}</h1>
-      <div class="container">
-        <section class="hero" aria-label="Destaque">
-          <div class="hero-marca" aria-hidden="true">${esc(L.nome)}</div>
-          <div class="hero-txt">
-            <span class="hero-chamada">${esc(L.banner.chamada)}</span>
-            <h2>${esc(L.banner.titulo)}</h2>
-            <p>${esc(L.banner.texto)}</p>
-            <a class="btn btn-marca" href="${esc(L.banner.link)}">${esc(L.banner.botao)} ${icone("i-right")}</a>
-          </div>
-        </section>
-      </div>
-      <section class="beneficios" aria-label="Benefícios"><div class="beneficios-trilho">${ben}<span class="dup">${ben}</span></div></section>
-      <nav class="cats" aria-label="Categorias">
-        ${CATS.map((c) => `<a class="cat" href="#/categoria/${c.slug}"><span class="cat-ico">${icone("c-" + c.icone)}</span>${esc(c.nome)}</a>`).join("")}
-      </nav>
-      <section class="secao container" id="novidades">
-        <div class="secao-cab"><h2>Novidades</h2><a href="#/categorias">Ver categorias →</a></div>
-        ${carrossel(novidades)}
+      <section class="hero" aria-label="Destaque">
+        <div class="hero-gigante" aria-hidden="true">${esc(L.nome)}</div>
+        <div class="fita-hero" aria-hidden="true"><div class="fita-trilho">${avisos.repeat(4)}${avisos.repeat(4)}</div></div>
+        <div class="hero-in">
+          <span class="hero-chamada">${esc(L.banner.chamada)}</span>
+          <h2>${L.banner.titulo.map((t) => `<span>${esc(t)}</span>`).join("")}</h2>
+          <p>${esc(L.banner.texto)}</p>
+          <a class="btn btn-marca" href="${esc(L.banner.link)}">${esc(L.banner.botao)} ${icone("i-right")}</a>
+          <svg class="adesivo-giro" viewBox="0 0 120 120" aria-hidden="true">
+            <defs><path id="circ" d="M60,60 m-46,0 a46,46 0 1,1 92,0 a46,46 0 1,1 -92,0"/></defs>
+            <circle cx="60" cy="60" r="58" fill="#0b0b0b"/>
+            <text><textPath href="#circ">${esc(L.banner.adesivo)} ✕ ${esc(L.banner.adesivo)} ✕ </textPath></text>
+            <circle cx="60" cy="60" r="22" style="fill:var(--marca)"/>
+          </svg>
+        </div>
       </section>
-      ${vitrines}
-      <section class="faq container" id="perguntas">
+      <nav class="cats" aria-label="Categorias">
+        ${CATS.map((c, i) => `<a class="cat" href="#/categoria/${c.slug}"><span class="num">${String(i + 1).padStart(2, "0")}/</span>${icone("c-" + c.icone)}<strong>${esc(c.nome)}</strong></a>`).join("")}
+      </nav>
+      ${vitrines.join("")}
+      <section class="faq" id="perguntas">
         <h2>Perguntas frequentes</h2>
         ${L.faq.map((f) => `<details><summary>${esc(f.p)}</summary><p>${esc(f.r)}</p></details>`).join("")}
       </section>`;
@@ -231,26 +252,29 @@
 
   function paginaCategorias() {
     return `<div class="container">
+      <nav class="migalha" aria-label="Você está em"><a href="#/">Início</a><span>/</span><span>Categorias</span></nav>
       <div class="lista-cab"><div><h1>Categorias</h1><p>${PRODS.length} produtos no catálogo</p></div></div>
       <div class="cats-grade">
         ${CATS.map((c) => {
           const n = PRODS.filter((p) => p.categoria === c.slug).length;
-          return `<a href="#/categoria/${c.slug}">${icone("c-" + c.icone)}${esc(c.nome)}<small>${n} produto${n === 1 ? "" : "s"}</small></a>`;
+          return `<a href="#/categoria/${c.slug}">${icone("c-" + c.icone)}<strong>${esc(c.nome)}</strong><small>${n} produto${n === 1 ? "" : "s"}</small></a>`;
         }).join("")}
       </div></div>`;
   }
 
-  // listagem com ordenação e filtro de marca (categoria, busca, favoritos)
-  function paginaLista({ titulo, sub, lista, chips = true, ativo = "" }) {
+  // listagem com ordenação, filtro de marca e "carregar mais"
+  function paginaLista({ titulo, sub, lista, chips = true, ativo = "", vazioTxt = "Nada por aqui." }) {
     const params = new URLSearchParams(location.hash.split("?")[1] || "");
     const ordem = params.get("ordem") || "";
     const marca = params.get("marca") || "";
-    const marcas = [...new Set(lista.map((p) => p.marca))].sort();
+    const qtd = Math.max(POR_PAGINA, Number(params.get("ver")) || POR_PAGINA);
+    const marcas = [...new Set(lista.map((p) => p.marca).filter(Boolean))].sort((a, b) => a.localeCompare(b, "pt-BR"));
     let r = marca ? lista.filter((p) => p.marca === marca) : [...lista];
     if (ordem === "menor") r.sort((a, b) => a.preco - b.preco);
     if (ordem === "maior") r.sort((a, b) => b.preco - a.preco);
     if (ordem === "az") r.sort((a, b) => a.nome.localeCompare(b.nome, "pt-BR"));
-    const opt = (v, t, cur) => `<option value="${v}"${v === cur ? " selected" : ""}>${t}</option>`;
+    const opt = (v, t, cur) => `<option value="${esc(v)}"${v === cur ? " selected" : ""}>${esc(t)}</option>`;
+    const visiveis = r.slice(0, qtd);
 
     return `<div class="container">
       <nav class="migalha" aria-label="Você está em"><a href="#/">Início</a><span>/</span><span>${esc(titulo)}</span></nav>
@@ -258,11 +282,12 @@
       <div class="lista-cab">
         <div><h1>${esc(titulo)}</h1><p>${sub || `${r.length} produto${r.length === 1 ? "" : "s"}`}</p></div>
         ${lista.length ? `<div class="filtros">
-          <select data-filtro="marca" aria-label="Filtrar por marca">${opt("", "Todas as marcas", marca)}${marcas.map((m) => opt(esc(m), esc(m), marca)).join("")}</select>
+          ${marcas.length > 1 ? `<select data-filtro="marca" aria-label="Filtrar por marca">${opt("", "Todas as marcas", marca)}${marcas.map((m) => opt(m, m, marca)).join("")}</select>` : ""}
           <select data-filtro="ordem" aria-label="Ordenar">${opt("", "Relevância", ordem)}${opt("menor", "Menor preço", ordem)}${opt("maior", "Maior preço", ordem)}${opt("az", "A–Z", ordem)}</select>
         </div>` : ""}
       </div>
-      ${grade(r)}
+      ${r.length ? `<div class="grade">${visiveis.map(card).join("")}</div>` : vazio(vazioTxt)}
+      ${r.length > visiveis.length ? `<div class="mais-wrap"><span>Mostrando ${visiveis.length} de ${r.length}</span><button class="btn btn-linha" data-mais="${qtd + POR_PAGINA}">Carregar mais</button></div>` : ""}
     </div>`;
   }
 
@@ -273,17 +298,19 @@
     const pc = parcelas(p.preco);
     const imgs = imagens(p);
     const fav = favoritos.includes(p.slug) ? " on" : "";
-    const relacionados = PRODS.filter((x) => x.categoria === p.categoria && x.slug !== p.slug).slice(0, 10);
+    const relacionados = PRODS.filter((x) => x.categoria === p.categoria && x.slug !== p.slug && (!p.marca || x.marca === p.marca))
+      .concat(PRODS.filter((x) => x.categoria === p.categoria && x.slug !== p.slug && p.marca && x.marca !== p.marca))
+      .slice(0, 12);
     document.title = `${p.nome} · ${L.nome}`;
 
     return `<div class="container">
       <nav class="migalha" aria-label="Você está em">
         <a href="#/">Início</a><span>/</span><a href="#/categoria/${c.slug}">${esc(c.nome)}</a><span>/</span><span>${esc(p.nome)}</span>
       </nav>
-      <div class="produto" data-produto="${esc(p.slug)}">
+      <div class="produto">
         <div>
           <div class="galeria-principal">
-            ${p.selo ? `<span class="selo ${semAcento(p.selo).split(" ")[0]}">${esc(p.selo)}</span>` : ""}
+            ${p.selo ? `<span class="selo ${classeSelo(p.selo)}">${esc(p.selo)}</span>` : ""}
             <button class="fav${fav}" data-fav="${esc(p.slug)}" aria-label="Favoritar">${icone("i-heart")}</button>
             <img id="img-principal" src="${esc(imgs[0])}" alt="${esc(p.nome)}" />
           </div>
@@ -294,30 +321,36 @@
           <h1>${esc(p.nome)}</h1>
           <div class="preco">${p.precoAntigo ? `<s>${brl(p.precoAntigo)}</s>` : ""}${brl(p.preco)}</div>
           <div class="parcela">ou ${pc.n}x de ${brl(pc.p)} sem juros${pc.ultima !== pc.p ? ` (última de ${brl(pc.ultima)})` : ""}</div>
-          <div class="pix-box">${icone("i-pix")} ${brl(precoPix(p.preco))} no Pix (${L.descontoPix}% OFF)</div>
+          <div class="pix-box">${icone("i-pix")} ${brl(precoPix(p.preco))} no Pix</div>
+
+          ${p.cores && p.cores.length > 1 ? `
+            <div class="rotulo">Cor <small id="cor-sel">Escolha uma</small></div>
+            <div class="opcoes" role="radiogroup" aria-label="Cores">
+              ${p.cores.map((cor) => `<button role="radio" aria-checked="false" data-cor="${esc(cor)}">${esc(cor)}</button>`).join("")}
+            </div>` : ""}
 
           ${p.tamanhos.length ? `
-            <div class="rotulo">Tamanho <small>Selecione uma opção</small></div>
-            <div class="tamanhos" role="radiogroup" aria-label="Tamanhos">
+            <div class="rotulo">Tamanho <small>Escolha um</small></div>
+            <div class="opcoes" role="radiogroup" aria-label="Tamanhos">
               ${p.tamanhos.map((t) => `<button role="radio" aria-checked="false" data-tam="${esc(t.t)}" ${t.estoque > 0 ? "" : "disabled"}>${esc(t.t)}</button>`).join("")}
             </div>
-            <div class="estoque-info" id="estoque-info">Escolha o tamanho para ver a quantidade disponível.</div>` : ""}
+            <div class="estoque-info" id="estoque-info">Escolhe o tamanho pra ver quantas tem.</div>` : ""}
 
           <div class="rotulo">Quantidade</div>
           <div class="compra">
-            <div class="qtd" style="margin:0;height:46px">
+            <div class="qtd">
               <button data-q="-1" aria-label="Diminuir">${icone("i-minus")}</button>
               <span id="qtd-val">1</span>
               <button data-q="1" aria-label="Aumentar">${icone("i-plus")}</button>
             </div>
-            <button class="btn btn-escuro" id="add-carrinho">${icone("i-bag")} Adicionar ao carrinho</button>
-            <button class="btn btn-whats" id="comprar-agora">${icone("i-whats")} Comprar agora pelo WhatsApp</button>
+            <button class="btn btn-escuro" id="add-carrinho">${icone("i-bag")} Pro carrinho</button>
+            <button class="btn btn-whats" id="comprar-agora">${icone("i-whats")} Comprar agora no Whats</button>
           </div>
           <div class="erro-tam" id="erro-tam" role="alert"></div>
           <div class="descricao"><p>${esc(p.descricao)}</p></div>
         </div>
       </div>
-      ${relacionados.length ? `<section class="secao"><div class="secao-cab"><h2>Você também pode gostar</h2><a href="#/categoria/${c.slug}">Ver todos →</a></div>${carrossel(relacionados)}</section>` : ""}
+      ${relacionados.length ? `<section class="secao"><div class="secao-cab"><h2>Combina com</h2><a href="#/categoria/${c.slug}">Ver tudo</a></div>${carrossel(relacionados)}</section>` : ""}
     </div>`;
   }
 
@@ -325,21 +358,34 @@
     const p = prodPorSlug(slug);
     if (!p) return;
     let tam = p.tamanhos.length ? null : "";
+    let cor = p.cores && p.cores.length > 1 ? null : (p.cores && p.cores[0]) || "";
     let qtd = 1;
     const max = () => (tam === null ? 1 : estoqueDe(p, tam));
     const atualizaQtd = () => ($("#qtd-val").textContent = qtd);
+    const marcar = (grupo, b) => {
+      $$(grupo).forEach((x) => { x.classList.remove("on"); x.setAttribute("aria-checked", "false"); });
+      b.classList.add("on");
+      b.setAttribute("aria-checked", "true");
+      $("#erro-tam").textContent = "";
+    };
 
-    $$(".tamanhos button").forEach((b) =>
+    $$("[data-tam]").forEach((b) =>
       b.addEventListener("click", () => {
-        $$(".tamanhos button").forEach((x) => { x.classList.remove("on"); x.setAttribute("aria-checked", "false"); });
-        b.classList.add("on");
-        b.setAttribute("aria-checked", "true");
+        marcar("[data-tam]", b);
         tam = b.dataset.tam;
         const e = estoqueDe(p, tam);
-        $("#estoque-info").textContent = e === 1 ? "Última unidade neste tamanho!" : `${e} unidades disponíveis`;
-        $("#erro-tam").textContent = "";
+        const info = $("#estoque-info");
+        info.textContent = e === 1 ? "Última peça nesse tamanho!" : e <= 2 ? `Só ${e} peças nesse tamanho` : `${e} disponíveis`;
+        info.classList.toggle("pouco", e <= 2);
         qtd = Math.min(qtd, e);
         atualizaQtd();
+      })
+    );
+    $$("[data-cor]").forEach((b) =>
+      b.addEventListener("click", () => {
+        marcar("[data-cor]", b);
+        cor = b.dataset.cor;
+        $("#cor-sel").textContent = cor;
       })
     );
     $$("[data-q]").forEach((b) =>
@@ -348,13 +394,14 @@
         atualizaQtd();
       })
     );
-    const exigeTam = () => {
-      if (tam === null) { $("#erro-tam").textContent = "Selecione um tamanho."; return false; }
+    const valida = () => {
+      const falta = [cor === null && "a cor", tam === null && "o tamanho"].filter(Boolean);
+      if (falta.length) { $("#erro-tam").textContent = `Escolhe ${falta.join(" e ")}.`; return false; }
       return true;
     };
-    $("#add-carrinho").addEventListener("click", () => { if (exigeTam()) { adicionar(p.slug, tam, qtd); abrir("#gaveta-carrinho"); } });
+    $("#add-carrinho").addEventListener("click", () => { if (valida()) { adicionar(p.slug, tam, cor, qtd); abrir("#gaveta-carrinho"); } });
     $("#comprar-agora").addEventListener("click", () => {
-      if (exigeTam()) window.open(linkWhats(mensagemPedido([{ slug: p.slug, tam, qtd }])), "_blank", "noopener");
+      if (valida()) window.open(linkWhats(mensagemPedido([{ slug: p.slug, tam, cor, qtd }])), "_blank", "noopener");
     });
     $$("[data-img]").forEach((b) =>
       b.addEventListener("click", () => {
@@ -365,12 +412,13 @@
   }
 
   const pagina404 = () =>
-    `<div class="container vazio" style="padding:80px 16px"><h1 style="font-size:48px">404</h1><p>Página não encontrada.</p><a class="btn btn-escuro" href="#/">Voltar ao início</a></div>`;
+    `<div class="container vazio" style="padding:80px 16px"><h1 style="font-size:120px">404</h1><p class="marcador">Se perdeu no rolê.</p><br/><a class="btn btn-marca" href="#/">Voltar pro início</a></div>`;
 
   const paginaTexto = (titulo, texto) =>
     `<div class="container pagina-txt"><h1>${esc(titulo)}</h1>${texto.map((t) => `<p>${esc(t)}</p>`).join("")}</div>`;
 
   // -------------------------------------------------------------- roteador
+  let ultimaRota = "";
   function rotear() {
     const [caminho, query] = (location.hash.slice(1) || "/").split("?");
     const partes = caminho.split("/").filter(Boolean);
@@ -382,10 +430,12 @@
     else if (partes[0] === "categorias") html = paginaCategorias();
     else if (partes[0] === "categoria") {
       const c = catPorSlug(partes[1]);
-      html = c
-        ? paginaLista({ titulo: c.nome, lista: PRODS.filter((p) => p.categoria === c.slug), ativo: c.slug })
-        : pagina404();
+      html = c ? paginaLista({ titulo: c.nome, lista: PRODS.filter((p) => p.categoria === c.slug), ativo: c.slug }) : pagina404();
       if (c) document.title = `${c.nome} · ${L.nome}`;
+    } else if (partes[0] === "novidades") {
+      html = paginaLista({ titulo: "Novidades", lista: listaNovidades() });
+    } else if (partes[0] === "promocoes") {
+      html = paginaLista({ titulo: "Promoções", lista: listaPromocoes() });
     } else if (partes[0] === "produto") {
       html = paginaProduto(partes[1]);
       depois = () => ligarProduto(partes[1]);
@@ -396,28 +446,29 @@
         const alvo = semAcento(`${p.nome} ${p.marca} ${catPorSlug(p.categoria).nome}`);
         return termos.every((t) => alvo.includes(t));
       });
-      html = paginaLista({ titulo: q ? `Busca: “${q}”` : "Busca", lista, chips: false });
+      html = paginaLista({ titulo: q ? `“${q}”` : "Busca", lista, chips: false, vazioTxt: "Não achamos nada com isso." });
     } else if (partes[0] === "favoritos") {
       const lista = favoritos.map(prodPorSlug).filter(Boolean);
-      html = paginaLista({ titulo: "Favoritos", lista, chips: false, sub: lista.length ? "" : "Toque no coração dos produtos para salvar aqui." });
+      html = paginaLista({ titulo: "Favoritos", lista, chips: false, vazioTxt: "Toca no coração dos produtos pra salvar aqui." });
     } else if (partes[0] === "privacidade") {
-      html = paginaTexto("Política de Privacidade", [
-        `A ${L.nome} usa o armazenamento do seu navegador só para lembrar seu carrinho, favoritos e tema. Nada disso é enviado para nossos servidores.`,
+      html = paginaTexto("Privacidade", [
+        `A ${L.nome} usa o armazenamento do seu navegador só pra lembrar carrinho, favoritos e tema. Nada disso vai pros nossos servidores.`,
         "Os dados do pedido (produtos, nome e observações) só são compartilhados quando você envia a mensagem pelo WhatsApp.",
       ]);
     } else if (partes[0] === "termos") {
-      html = paginaTexto("Termos de Uso", [
-        "Os preços e a disponibilidade podem mudar sem aviso prévio. O pedido só é confirmado após o atendimento pelo WhatsApp.",
-        `O desconto de ${L.descontoPix}% vale para pagamentos via Pix. Parcelamento em até ${L.parcelasSemJuros}x sem juros no cartão de crédito.`,
+      html = paginaTexto("Termos de uso", [
+        "Preços e disponibilidade podem mudar sem aviso. O pedido só é confirmado depois do atendimento pelo WhatsApp.",
+        `O desconto de ${L.descontoPix}% vale pra pagamentos via Pix. Parcelamento em até ${L.parcelasSemJuros}x sem juros no cartão de crédito.`,
       ]);
     } else html = pagina404();
 
     main.innerHTML = html;
     depois && depois();
-    $$("#menu a").forEach((a) => a.classList.toggle("ativo", location.hash.startsWith(a.getAttribute("href"))));
+    $$("#menu a").forEach((a) => a.classList.toggle("ativo", location.hash.split("?")[0] === a.getAttribute("href")));
     fechar();
-    // rola para o topo, exceto quando a âncora é uma seção da página inicial
-    window.scrollTo({ top: 0, behavior: "instant" in window ? "instant" : "auto" });
+    // "carregar mais" e filtros mantêm a posição; troca de página volta ao topo
+    if (caminho !== ultimaRota) window.scrollTo(0, 0);
+    ultimaRota = caminho;
   }
 
   // --------------------------------------------------------------- carrinho
@@ -425,8 +476,8 @@
     const box = $("#carrinho-itens");
     const rod = $("#carrinho-rodape");
     if (!carrinho.length) {
-      box.innerHTML = `<div class="vazio">${icone("i-bag")}<p>Seu carrinho está vazio.</p></div>`;
-      rod.innerHTML = `<button class="btn btn-linha btn-bloco" data-fechar>Continuar comprando</button>`;
+      box.innerHTML = `<div class="vazio">${icone("i-bag")}<p class="marcador">Carrinho vazio, parça.</p></div>`;
+      rod.innerHTML = `<button class="btn btn-marca btn-bloco" data-fechar>Bora escolher</button>`;
       return;
     }
     let total = 0;
@@ -434,11 +485,12 @@
       .map((i, idx) => {
         const p = prodPorSlug(i.slug);
         total += p.preco * i.qtd;
+        const det = [i.tam && `Tam ${esc(i.tam)}`, i.cor && esc(i.cor)].filter(Boolean).join(" · ");
         return `<div class="item-car">
           <a class="mini" href="#/produto/${esc(p.slug)}"><img src="${esc(imagens(p)[0])}" alt="" /></a>
           <div>
             <h4>${esc(p.nome)}</h4>
-            <small>${i.tam ? `Tamanho ${esc(i.tam)} · ` : ""}${brl(p.preco)}</small><br/>
+            <small>${det ? det + " · " : ""}${brl(p.preco)}</small><br/>
             <div class="qtd">
               <button data-cq="${idx}" data-d="-1" aria-label="Diminuir">${icone("i-minus")}</button>
               <span>${i.qtd}</span>
@@ -454,11 +506,11 @@
       .join("");
     rod.innerHTML = `
       <div class="linha-total grande"><span>Total</span><span>${brl(total)}</span></div>
-      <div class="linha-total" style="color:var(--ok);font-weight:600"><span>No Pix (${L.descontoPix}% OFF)</span><span>${brl(precoPix(total))}</span></div>
-      <input id="ped-nome" placeholder="Seu nome (opcional)" autocomplete="name" />
-      <textarea id="ped-obs" rows="2" placeholder="Observações: cidade para envio, forma de pagamento…"></textarea>
-      <button class="btn btn-whats btn-bloco" id="finalizar">${icone("i-whats")} Finalizar pelo WhatsApp</button>
-      <small style="color:var(--suave);text-align:center">A compra é finalizada no WhatsApp com o pedido já preenchido.</small>`;
+      <div class="linha-total" style="color:var(--ok);font-weight:700"><span>No Pix (${L.descontoPix}% OFF)</span><span>${brl(precoPix(total))}</span></div>
+      <input id="ped-nome" placeholder="Teu nome (opcional)" autocomplete="name" />
+      <textarea id="ped-obs" rows="2" placeholder="Obs.: cidade pra envio, forma de pagamento…"></textarea>
+      <button class="btn btn-whats btn-bloco" id="finalizar">${icone("i-whats")} Fechar no WhatsApp</button>
+      <small style="color:var(--suave);text-align:center;font-family:var(--fonte-mono);font-size:11px">O pedido vai escrito pro nosso WhatsApp.</small>`;
   }
 
   // ----------------------------------------------------------- gavetas
@@ -475,51 +527,62 @@
 
   // ---------------------------------------------------- partes fixas
   function montarFixos() {
-    const partesNome = L.nome.split(" ");
-    $("#logo").innerHTML = partesNome.length > 1
-      ? `${esc(partesNome.slice(0, -1).join(" "))}<b>${esc(" " + partesNome.at(-1))}</b>`
-      : esc(L.nome);
+    const logo = `${esc(L.nome)}<span class="ponto" aria-hidden="true"></span>`;
+    $("#logo").innerHTML = logo;
+    $("#logo").setAttribute("aria-label", L.nome);
     document.querySelector('meta[name="description"]').content = L.descricao;
 
     const avisos = L.avisos.map((a) => `<span>${esc(a)}</span>`).join("");
-    $("#faixa").innerHTML = avisos.repeat(4) + avisos.repeat(4); // duas metades iguais = loop contínuo
+    $("#faixa").innerHTML = avisos.repeat(3) + avisos.repeat(3); // duas metades iguais = loop contínuo
 
-    const menuPrincipal = CATS.slice(0, 6);
-    $("#menu").innerHTML = menuPrincipal.map((c) => `<a href="#/categoria/${c.slug}">${esc(c.nome)}</a>`).join("") + `<a href="#/categorias">Ver todas</a>`;
+    $("#menu").innerHTML =
+      `<a href="#/novidades">Novidades</a>` +
+      CATS.slice(0, 5).map((c) => `<a href="#/categoria/${c.slug}">${esc(c.nome)}</a>`).join("") +
+      `<a href="#/promocoes">Promo</a><a href="#/categorias">+ Todas</a>`;
     $("#menu-mobile").innerHTML =
-      `<a href="#/">Início</a>` +
+      `<a href="#/novidades">${icone("c-star")} Novidades</a><a href="#/promocoes">${icone("i-pix")} Promoções</a>` +
       CATS.map((c) => `<a href="#/categoria/${c.slug}">${icone("c-" + c.icone)} ${esc(c.nome)}</a>`).join("") +
       `<a href="#/favoritos">${icone("i-heart")} Favoritos</a>`;
 
-    $("#whats-flutuante").href = linkWhats(`Olá, ${L.nome}! Vim pelo site.`);
+    $("#whats-flutuante").href = linkWhats(`Salve, ${L.nome}! Vim pelo site.`);
 
     const ano = new Date().getFullYear();
     $("#rodape").innerHTML = `<div class="container">
+      <div class="rodape-gigante" aria-hidden="true">${esc(L.nome)}</div>
       <div class="rodape-grade">
         <div>
-          <a class="logo" href="#/">${$("#logo").innerHTML}</a>
           <p>${esc(L.descricao)}</p>
           <a class="btn btn-linha" href="https://instagram.com/${esc(L.instagram)}" target="_blank" rel="noopener">${icone("i-insta")} @${esc(L.instagram)}</a>
         </div>
-        <nav aria-label="Categorias no rodapé"><h3>Categorias</h3><ul>
-          ${CATS.slice(0, 6).map((c) => `<li><a href="#/categoria/${c.slug}">${esc(c.nome)}</a></li>`).join("")}
-          <li><a href="#/categorias">Ver todas</a></li></ul></nav>
+        <nav aria-label="Categorias no rodapé"><h3>Loja</h3><ul>
+          <li><a href="#/novidades">Novidades</a></li><li><a href="#/promocoes">Promoções</a></li>
+          ${CATS.slice(0, 5).map((c) => `<li><a href="#/categoria/${c.slug}">${esc(c.nome)}</a></li>`).join("")}
+          <li><a href="#/categorias">Todas as categorias</a></li></ul></nav>
         <div><h3>Contato</h3><ul>
-          <li>${icone("i-whats")}<a href="${linkWhats(`Olá, ${L.nome}!`)}" target="_blank" rel="noopener">${esc(L.whatsappExibicao)}</a></li>
+          <li>${icone("i-whats")}<a href="${linkWhats(`Salve, ${L.nome}!`)}" target="_blank" rel="noopener">${esc(L.whatsappExibicao)}</a></li>
           <li>${icone("i-mail")}<a href="mailto:${esc(L.email)}">${esc(L.email)}</a></li>
           <li>${icone("i-pin")}<span>${esc(L.endereco)}</span></li></ul></div>
         <div><h3>Atendimento</h3><ul>
           <li>${icone("i-clock")}<span>${esc(L.horario.dias)}<br/>${esc(L.horario.horas)}</span></li>
           <li>${icone("i-truck")}<span>Envio imediato</span></li>
-          <li>${icone("i-whats")}<span>Compra finalizada pelo WhatsApp</span></li></ul></div>
+          <li>${icone("i-whats")}<span>Compra fechada no WhatsApp</span></li></ul></div>
       </div>
       <div class="rodape-base">
         <span>© ${ano} ${esc(L.nome)}. Todos os direitos reservados.</span>
-        <span><a href="#/termos">Termos de Uso</a> · <a href="#/privacidade">Privacidade</a></span>
+        <span><a href="#/termos">Termos</a> /// <a href="#/privacidade">Privacidade</a></span>
       </div></div>`;
   }
 
   // ------------------------------------------------- eventos globais
+  function trocarParam(chave, valor) {
+    const [cam, q] = location.hash.split("?");
+    const params = new URLSearchParams(q || "");
+    valor ? params.set(chave, valor) : params.delete(chave);
+    if (chave !== "ver") params.delete("ver");
+    const qs = params.toString();
+    location.hash = cam + (qs ? "?" + qs : "");
+  }
+
   function ligarEventos() {
     document.addEventListener("click", (e) => {
       const t = e.target.closest("button, a");
@@ -531,10 +594,11 @@
       if (t.dataset.fav) { e.preventDefault(); return alternarFav(t.dataset.fav); }
       if (t.dataset.comprar) {
         const p = prodPorSlug(t.dataset.comprar);
-        if (p.tamanhos.length) location.hash = `#/produto/${p.slug}`;
-        else { adicionar(p.slug, ""); abrir("#gaveta-carrinho"); }
+        if (p.tamanhos.length || (p.cores && p.cores.length > 1)) location.hash = `#/produto/${p.slug}`;
+        else { adicionar(p.slug, "", (p.cores && p.cores[0]) || ""); abrir("#gaveta-carrinho"); }
         return;
       }
+      if (t.dataset.mais) return trocarParam("ver", t.dataset.mais);
       if (t.dataset.rolar) {
         const tr = t.parentElement.querySelector(".trilho");
         return tr.scrollBy({ left: Number(t.dataset.rolar) * tr.clientWidth * 0.9, behavior: "smooth" });
@@ -550,24 +614,11 @@
         const msg = mensagemPedido(carrinho, { nome: $("#ped-nome").value.trim(), obs: $("#ped-obs").value.trim() });
         return window.open(linkWhats(msg), "_blank", "noopener");
       }
-      // âncora interna da página inicial (ex.: #novidades)
-      const href = t.getAttribute("href");
-      if (href && href.startsWith("#") && !href.startsWith("#/")) {
-        e.preventDefault();
-        const alvo = document.getElementById(href.slice(1));
-        if (alvo) alvo.scrollIntoView({ behavior: "smooth" });
-        else { location.hash = "#/"; setTimeout(() => document.getElementById(href.slice(1))?.scrollIntoView(), 50); }
-      }
     });
 
     document.addEventListener("change", (e) => {
       const s = e.target.closest("[data-filtro]");
-      if (!s) return;
-      const [cam, q] = location.hash.split("?");
-      const params = new URLSearchParams(q || "");
-      s.value ? params.set(s.dataset.filtro, s.value) : params.delete(s.dataset.filtro);
-      const qs = params.toString();
-      location.hash = cam + (qs ? "?" + qs : "");
+      if (s) trocarParam(s.dataset.filtro, s.value);
     });
 
     $("#btn-menu").addEventListener("click", () => abrir("#gaveta-menu"));
@@ -585,10 +636,7 @@
     });
     $("#btn-tema").addEventListener("click", () => {
       const raiz = document.documentElement;
-      const escuroAgora = raiz.dataset.theme
-        ? raiz.dataset.theme === "dark"
-        : matchMedia("(prefers-color-scheme: dark)").matches;
-      raiz.dataset.theme = escuroAgora ? "light" : "dark";
+      raiz.dataset.theme = raiz.dataset.theme === "dark" ? "light" : "dark";
       try { localStorage.setItem("tema", raiz.dataset.theme); } catch (e) {}
     });
     document.addEventListener("keydown", (e) => { if (e.key === "Escape") { fechar(); $("#barra-busca").hidden = true; } });

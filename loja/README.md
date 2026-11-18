@@ -1,6 +1,6 @@
-# Loja: catálogo com compra pelo WhatsApp
+# Volare: loja streetwear com compra pelo WhatsApp
 
-Site de loja de streetwear em **HTML, CSS e JavaScript puro**. Não tem build, servidor nem dependências.
+Loja de streetwear e skate com visual de rua (escuro, fita zebrada, adesivos), feita em **HTML, CSS e JavaScript puro**. Não tem build, servidor nem dependências.
 Abra `index.html` no navegador ou suba a pasta em qualquer hospedagem estática (GitHub Pages, Netlify, Vercel).
 
 ## O que tem
@@ -9,7 +9,10 @@ Abra `index.html` no navegador ou suba a pasta em qualquer hospedagem estática 
 - Banner, faixa de benefícios e atalhos de categorias
 - Vitrines em carrossel (Novidades + categorias escolhidas)
 - Página de categoria com filtro por marca e ordenação por preço/nome
-- Busca (ignora acentos), favoritos e tema claro/escuro
+- Catálogo com 358 produtos em 10 categorias, com rotas de Novidades e Promoções
+- Busca (ignora acentos), favoritos, tema escuro (padrão) e claro
+- Listas com "Carregar mais" (24 por vez), filtro por marca e ordenação
+- Escolha de cor e tamanho; o pedido no WhatsApp leva os dois
 - Página de produto: tamanhos com estoque, quantidade, parcelamento, preço no Pix, produtos relacionados
 - Carrinho salvo no navegador, finalizado **pelo WhatsApp** com o pedido já escrito
 - Perguntas frequentes, rodapé com contato e horário, botão flutuante do WhatsApp
