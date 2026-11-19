@@ -22,6 +22,7 @@
   }
   *{box-sizing:border-box;margin:0;padding:0}
   html{scroll-behavior:smooth}
+  section{scroll-margin-top:70px}
   body{font-family:Montserrat,sans-serif;font-weight:300;color:var(--ink);background:var(--rose-light);line-height:1.7;overflow-x:hidden}
   h1,h2,h3{font-family:"Cormorant Garamond",serif;font-weight:500;letter-spacing:.02em}
   a{color:inherit;text-decoration:none}
@@ -30,9 +31,13 @@
 
   /* Header */
   header{position:fixed;inset:0 0 auto 0;z-index:50;display:flex;align-items:center;justify-content:space-between;padding:18px 5vw;transition:.4s}
-  header.scrolled{background:rgba(243,233,234,.92);backdrop-filter:blur(10px);padding:10px 5vw;box-shadow:0 2px 20px rgba(0,0,0,.06)}
+  header::before{content:"";position:absolute;inset:0;z-index:-1;background:rgba(243,233,234,.92);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);box-shadow:0 2px 20px rgba(0,0,0,.06);opacity:0;transition:.4s}
+  header.scrolled{padding:10px 5vw}
+  header.scrolled::before{opacity:1}
   .brand{display:flex;align-items:center;gap:12px;font-family:"Cormorant Garamond",serif;font-size:1.6rem;letter-spacing:.25em}
-  .brand img{width:44px;height:44px;border-radius:50%}
+  .brand img{height:46px;width:auto;display:block;transition:height .4s}
+  header.scrolled .brand img{height:38px}
+  footer .brand img{height:56px}
   nav ul{display:flex;gap:34px;list-style:none;font-size:.78rem;letter-spacing:.2em;text-transform:uppercase}
   nav a{position:relative;padding:4px 0}
   nav a::after{content:"";position:absolute;left:0;bottom:0;width:0;height:1px;background:var(--gold);transition:.3s}
@@ -49,7 +54,7 @@
   .hero::after{width:360px;height:360px;background:#c98f8f;bottom:-120px;right:-80px;animation:float 11s ease-in-out infinite reverse}
   @keyframes float{50%{transform:translate(40px,30px)}}
   .hero-inner{position:relative;z-index:1}
-  .hero-logo{width:min(300px,62vw);border-radius:50%;box-shadow:0 30px 60px rgba(90,40,40,.25);animation:pop 1.2s cubic-bezier(.2,.8,.2,1) both}
+  .hero-logo{width:min(300px,62vw);border-radius:50%;display:block;margin:0 auto;box-shadow:0 30px 60px rgba(90,40,40,.25);animation:pop 1.2s cubic-bezier(.2,.8,.2,1) both}
   @keyframes pop{from{opacity:0;transform:scale(.85)}}
   .hero h1{font-size:clamp(2.2rem,6vw,4.2rem);margin-top:28px;line-height:1.1;animation:up 1s .3s both}
   .hero h1 em{background-image:linear-gradient(120deg,#6b4f1f,#a8843e,#6b4f1f,#b8914a,#6b4f1f)}
@@ -88,10 +93,11 @@
   .about{background:var(--rose);display:grid;grid-template-columns:1fr 1fr;gap:70px;align-items:center}
   .about-visual{position:relative;aspect-ratio:4/5;background:linear-gradient(160deg,#e9a395,#d98c7f);display:grid;place-items:center;overflow:hidden}
   .about-visual::after{content:"";position:absolute;inset:18px;border:1px solid rgba(255,255,255,.55)}
-  .about-visual img{width:55%;border-radius:50%;box-shadow:0 20px 40px rgba(0,0,0,.2)}
+  .about-visual img{position:relative;z-index:1;width:55%;border-radius:50%;box-shadow:0 20px 40px rgba(0,0,0,.2)}
   .about p{margin-bottom:16px;color:#4a3a3d}
   .stats{display:flex;gap:40px;margin-top:30px}
-  .stats b{display:block;font-family:"Cormorant Garamond",serif;font-size:2.6rem;font-weight:500}
+  .stats b{display:block;font-family:"Cormorant Garamond",serif;font-size:2.6rem;font-weight:600;line-height:1.2}
+  .stats b.gold-text{background-image:linear-gradient(120deg,#6b4f1f,#a8843e,#6b4f1f,#b8914a,#6b4f1f)}
   .stats span{font-size:.7rem;letter-spacing:.2em;text-transform:uppercase;color:var(--muted)}
 
   /* Why buy */
@@ -117,8 +123,8 @@
   form{display:grid;gap:16px}
   input,textarea,select{width:100%;padding:14px 16px;border:1px solid rgba(127,97,40,.3);background:#fff;font-family:inherit;font-size:.9rem;outline:none;transition:.3s}
   input:focus,textarea:focus,select:focus{border-color:var(--gold)}
-  .toast{position:fixed;bottom:30px;left:50%;transform:translate(-50%,120px);background:var(--ink);color:#fff;padding:14px 26px;font-size:.85rem;transition:.5s;z-index:99}
-  .toast.show{transform:translate(-50%,0)}
+  .toast{position:fixed;bottom:100px;left:50%;transform:translate(-50%,30px);opacity:0;visibility:hidden;pointer-events:none;background:var(--ink);color:#fff;padding:14px 26px;font-size:.85rem;text-align:center;width:max-content;max-width:calc(100vw - 32px);transition:.5s;z-index:99}
+  .toast.show{transform:translate(-50%,0);opacity:1;visibility:visible}
 
   footer{background:var(--night);color:#bfb3b5;text-align:center;padding:50px 20px;font-size:.8rem}
   footer .brand{justify-content:center;margin-bottom:12px;color:#fff}
@@ -143,7 +149,7 @@
 <body>
 
 <header id="top">
-  <a href="#inicio" class="brand"><img src="img/logo-circle.jpg" alt="Glamour"><span class="gold-text">GLAMOUR</span></a>
+  <a href="#inicio" class="brand"><img src="img/logo-mark.png" alt="Glamour"></a>
   <nav id="nav">
     <button class="burger" aria-label="Menu" onclick="document.getElementById('nav').classList.toggle('open')"><span></span><span></span><span></span></button>
     <ul onclick="document.getElementById('nav').classList.remove('open')">
@@ -157,7 +163,7 @@
 
 <section class="hero" id="inicio">
   <div class="hero-inner">
-    <img class="hero-logo" src="img/logo-circle.jpg" alt="Logo Glamour">
+    <img class="hero-logo" src="img/logo-circle.png" alt="Logo Glamour">
     <h1>Vestidos que contam<br><em class="gold-text">a sua história</em></h1>
     <p>Moda festa para madrinhas, mães, formandas e convidadas. Peças exclusivas para você levar para casa — e para a vida.</p>
     <a href="#colecoes" class="btn">Ver coleção</a>
@@ -180,7 +186,7 @@
 </section>
 
 <section class="about" id="sobre">
-  <div class="about-visual reveal"><img src="img/logo-circle.jpg" alt=""></div>
+  <div class="about-visual reveal"><img src="img/logo-circle.png" alt=""></div>
   <div class="reveal">
     <span class="eyebrow">A Loja</span>
     <h2 class="title">Um espaço pensado<br>para você brilhar</h2>
@@ -232,7 +238,7 @@
 </section>
 
 <footer>
-  <div class="brand"><img src="img/logo-circle.jpg" alt=""><span class="gold-text">GLAMOUR</span></div>
+  <div class="brand"><img src="img/logo-mark.png" alt="Glamour"></div>
   © <span id="y"></span> Glamour Fronteira · Site de demonstração
 </footer>
 
