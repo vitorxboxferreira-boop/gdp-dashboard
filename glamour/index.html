@@ -1,0 +1,309 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Glamour — Boutique de moda feminina</title>
+  <meta name="description" content="Glamour: boutique de moda feminina especializada em vestidos para ocasiões especiais. Elegância que transforma momentos em memórias.">
+  <meta name="theme-color" content="#E9D7D8">
+  <meta property="og:title" content="Glamour — Boutique de moda feminina">
+  <meta property="og:description" content="Elegância que transforma momentos em memórias.">
+  <meta property="og:type" content="website">
+  <meta property="og:image" content="assets/img/logo-glamour.webp">
+  <link rel="icon" type="image/png" href="assets/img/favicon.png">
+  <link rel="apple-touch-icon" href="assets/img/apple-touch-icon.png">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Jost:wght@300;400;500&display=swap">
+
+  <link rel="preload" as="image" href="assets/img/hero-vestido.webp" fetchpriority="high">
+  <link rel="stylesheet" href="css/style.css">
+  <script>document.documentElement.classList.add('js');</script>
+</head>
+<body>
+  <a class="skip-link" href="#conteudo">Pular para o conteúdo</a>
+
+  <!-- ========== CABEÇALHO ========== -->
+  <header class="site-header" id="topo">
+    <div class="container header-inner">
+      <a class="brand" href="#inicio" aria-label="Glamour — voltar ao início">
+        <img src="assets/img/logo-glamour-640.webp" width="640" height="307" alt="Glamour">
+      </a>
+
+      <nav class="main-nav" id="menu" aria-label="Menu principal">
+        <ul>
+          <li><a href="#inicio">Início</a></li>
+          <li><a href="#colecao">Coleção</a></li>
+          <li><a href="#vestidos">Vestidos</a></li>
+          <li><a href="#sobre">Sobre nós</a></li>
+          <li><a href="#contato">Contato</a></li>
+        </ul>
+        <a class="nav-instagram" href="https://www.instagram.com/glamourfronteira/" target="_blank" rel="noopener" aria-label="Instagram da Glamour (abre em nova aba)">
+          <svg class="icon" aria-hidden="true"><use href="#i-instagram"/></svg>
+          <span class="nav-instagram-label">@glamourfronteira</span>
+        </a>
+      </nav>
+
+      <button class="menu-toggle" type="button" aria-controls="menu" aria-expanded="false" aria-label="Abrir menu">
+        <span class="menu-toggle-bar"></span>
+        <span class="menu-toggle-bar"></span>
+      </button>
+    </div>
+  </header>
+
+  <main id="conteudo">
+
+    <!-- ========== BANNER PRINCIPAL ========== -->
+    <section class="hero" id="inicio" aria-labelledby="hero-title">
+      <div class="container hero-inner">
+        <div class="hero-copy">
+          <p class="eyebrow hero-anim" style="--d:0">Boutique de moda feminina</p>
+          <h1 class="hero-logo hero-anim" id="hero-title" style="--d:1">
+            <img src="assets/img/logo-glamour.webp" width="1520" height="728" alt="Glamour">
+          </h1>
+          <p class="hero-tagline hero-anim" style="--d:2">Elegância que transforma momentos em&nbsp;memórias.</p>
+          <div class="hero-actions hero-anim" style="--d:3">
+            <a class="btn btn-primary" href="#colecao">Conheça nossa coleção</a>
+          </div>
+        </div>
+
+        <figure class="hero-media hero-anim" style="--d:1">
+          <div class="arch">
+            <img src="assets/img/hero-vestido.webp" width="1100" height="1526" alt="Modelo com vestido longo de festa bordo, com saia ampla de tule" fetchpriority="high">
+          </div>
+          <span class="hero-ornament" aria-hidden="true"></span>
+        </figure>
+      </div>
+      <a class="scroll-cue" href="#colecao" aria-label="Rolar para a coleção">
+        <span aria-hidden="true"></span>
+      </a>
+    </section>
+
+    <!-- ========== COLEÇÃO EM DESTAQUE ========== -->
+    <section class="section collection" id="colecao" aria-labelledby="colecao-title">
+      <div class="container">
+        <header class="section-head reveal">
+          <p class="eyebrow">Coleção em destaque</p>
+          <h2 class="section-title" id="colecao-title">Vestidos para brilhar em cada&nbsp;ocasião</h2>
+          <span class="divider" aria-hidden="true"></span>
+          <p class="section-lead">Peças selecionadas para festas, cerimônias e celebrações. Fale com a gente para conferir modelos, cores e disponibilidade.</p>
+        </header>
+
+        <ul class="product-grid">
+          <li class="product-card reveal">
+            <figure class="product-media">
+              <img src="assets/img/dress-ameixa.webp" width="720" height="1025" loading="lazy" decoding="async" alt="Vestido longo ombro a ombro na cor ameixa" style="--pos:50% 20%">
+            </figure>
+            <div class="product-body">
+              <h3 class="product-name">Vestido Ombro a Ombro Ameixa</h3>
+              <p class="product-desc">Decote ombro a ombro e caimento acinturado, em tom profundo e sofisticado.</p>
+              <a class="btn btn-outline js-contact" data-model="Vestido Ombro a Ombro Ameixa" href="https://ig.me/m/glamourfronteira" target="_blank" rel="noopener">Consultar disponibilidade</a>
+            </div>
+          </li>
+          <li class="product-card reveal">
+            <figure class="product-media">
+              <img src="assets/img/dress-vermelho.webp" width="720" height="865" loading="lazy" decoding="async" alt="Vestido longo vermelho de saia fluida em movimento" style="--pos:50% 40%">
+            </figure>
+            <div class="product-body">
+              <h3 class="product-name">Vestido Fluido Vermelho</h3>
+              <p class="product-desc">Saia ampla e leve, que ganha movimento a cada passo. Presença marcante.</p>
+              <a class="btn btn-outline js-contact" data-model="Vestido Fluido Vermelho" href="https://ig.me/m/glamourfronteira" target="_blank" rel="noopener">Consultar disponibilidade</a>
+            </div>
+          </li>
+          <li class="product-card reveal">
+            <figure class="product-media">
+              <img src="assets/img/dress-renda.webp" width="720" height="960" loading="lazy" decoding="async" alt="Vestido de renda azul-noite com mangas longas" style="--pos:50% 25%">
+            </figure>
+            <div class="product-body">
+              <h3 class="product-name">Vestido Renda Azul-Noite</h3>
+              <p class="product-desc">Renda delicada com mangas longas, para uma elegância clássica e atemporal.</p>
+              <a class="btn btn-outline js-contact" data-model="Vestido Renda Azul-Noite" href="https://ig.me/m/glamourfronteira" target="_blank" rel="noopener">Consultar disponibilidade</a>
+            </div>
+          </li>
+          <li class="product-card reveal">
+            <figure class="product-media">
+              <img src="assets/img/dress-serenity.webp" width="720" height="1080" loading="lazy" decoding="async" alt="Vestido longo azul-claro transpassado com fenda" style="--pos:50% 30%">
+            </figure>
+            <div class="product-body">
+              <h3 class="product-name">Vestido Transpassado Serenity</h3>
+              <p class="product-desc">Decote transpassado e fenda lateral em tom suave, leve e romântico.</p>
+              <a class="btn btn-outline js-contact" data-model="Vestido Transpassado Serenity" href="https://ig.me/m/glamourfronteira" target="_blank" rel="noopener">Consultar disponibilidade</a>
+            </div>
+          </li>
+          <li class="product-card reveal">
+            <figure class="product-media">
+              <img src="assets/img/dress-marfim.webp" width="720" height="900" loading="lazy" decoding="async" alt="Vestido longo marfim bordado com saia rodada" style="--pos:50% 35%">
+            </figure>
+            <div class="product-body">
+              <h3 class="product-name">Vestido Bordado Marfim</h3>
+              <p class="product-desc">Bordados delicados e saia rodada em tom marfim, para momentos inesquecíveis.</p>
+              <a class="btn btn-outline js-contact" data-model="Vestido Bordado Marfim" href="https://ig.me/m/glamourfronteira" target="_blank" rel="noopener">Consultar disponibilidade</a>
+            </div>
+          </li>
+          <li class="product-card reveal">
+            <figure class="product-media">
+              <img src="assets/img/dress-rubi.webp" width="720" height="1080" loading="lazy" decoding="async" alt="Modelo com vestido vermelho rubi com cauda longa" style="--pos:50% 30%">
+            </figure>
+            <div class="product-body">
+              <h3 class="product-name">Vestido Rubi com Cauda</h3>
+              <p class="product-desc">Modelagem marcante com cauda esvoaçante. Para quem quer ser lembrada.</p>
+              <a class="btn btn-outline js-contact" data-model="Vestido Rubi com Cauda" href="https://ig.me/m/glamourfronteira" target="_blank" rel="noopener">Consultar disponibilidade</a>
+            </div>
+          </li>
+        </ul>
+        <p class="note reveal">Imagens ilustrativas. Consulte modelos, cores e tamanhos disponíveis na loja.</p>
+      </div>
+    </section>
+
+    <!-- ========== VESTIDOS POR OCASIÃO ========== -->
+    <section class="section occasions" id="vestidos" aria-labelledby="vestidos-title">
+      <div class="container">
+        <header class="section-head reveal">
+          <p class="eyebrow">Vestidos</p>
+          <h2 class="section-title" id="vestidos-title">O vestido certo para o seu&nbsp;momento</h2>
+          <span class="divider" aria-hidden="true"></span>
+        </header>
+
+        <ul class="occasion-grid">
+          <li class="occasion reveal">
+            <span class="occasion-num" aria-hidden="true">01</span>
+            <h3>Vestidos longos</h3>
+            <p>Silhuetas alongadas e tecidos com caimento impecável para eventos noturnos.</p>
+            <a class="link-arrow js-contact" data-model="vestidos longos" href="https://ig.me/m/glamourfronteira" target="_blank" rel="noopener">Consultar modelos</a>
+          </li>
+          <li class="occasion reveal">
+            <span class="occasion-num" aria-hidden="true">02</span>
+            <h3>Vestidos de festa</h3>
+            <p>Brilho, cor e personalidade para casamentos, formaturas e celebrações.</p>
+            <a class="link-arrow js-contact" data-model="vestidos de festa" href="https://ig.me/m/glamourfronteira" target="_blank" rel="noopener">Consultar modelos</a>
+          </li>
+          <li class="occasion reveal">
+            <span class="occasion-num" aria-hidden="true">03</span>
+            <h3>Madrinhas &amp; convidadas</h3>
+            <p>Opções em diversas cores para compor a paleta da cerimônia com harmonia.</p>
+            <a class="link-arrow js-contact" data-model="vestidos para madrinhas e convidadas" href="https://ig.me/m/glamourfronteira" target="_blank" rel="noopener">Consultar modelos</a>
+          </li>
+          <li class="occasion reveal">
+            <span class="occasion-num" aria-hidden="true">04</span>
+            <h3>Acessórios</h3>
+            <p>Bolsas e detalhes que completam o visual com o mesmo cuidado.</p>
+            <a class="link-arrow js-contact" data-model="acessórios" href="https://ig.me/m/glamourfronteira" target="_blank" rel="noopener">Consultar opções</a>
+          </li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- ========== SOBRE ========== -->
+    <section class="section about" id="sobre" aria-labelledby="sobre-title">
+      <div class="container about-inner">
+        <div class="about-media reveal">
+          <div class="arch arch-soft">
+            <img src="assets/img/sobre-boutique.webp" width="1000" height="666" loading="lazy" decoding="async" alt="Araras com roupas femininas em tons claros em uma boutique">
+          </div>
+          <figure class="about-inset">
+            <img src="assets/img/insta-4.webp" width="398" height="454" loading="lazy" decoding="async" alt="Interior da Glamour, com parede rosa, logotipo dourado e vestidos expostos">
+          </figure>
+        </div>
+
+        <div class="about-copy reveal">
+          <p class="eyebrow">Sobre nós</p>
+          <h2 class="section-title" id="sobre-title">Uma boutique dedicada aos seus momentos especiais</h2>
+          <span class="divider divider-left" aria-hidden="true"></span>
+          <p>A Glamour é uma boutique de moda feminina especializada em vestidos para ocasiões especiais. Cada peça é escolhida com atenção ao caimento, ao tecido e aos detalhes que fazem a diferença.</p>
+          <p>Aqui, você é recebida com atendimento próximo e cuidadoso para encontrar o vestido que combina com você e com a ocasião — do primeiro olhar até a prova final.</p>
+          <ul class="about-points">
+            <li><svg class="icon" aria-hidden="true"><use href="#i-spark"/></svg>Atendimento personalizado</li>
+            <li><svg class="icon" aria-hidden="true"><use href="#i-spark"/></svg>Vestidos para ocasiões especiais</li>
+            <li><svg class="icon" aria-hidden="true"><use href="#i-spark"/></svg>Moda feminina com sofisticação</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========== INSTAGRAM ========== -->
+    <section class="section instagram" id="instagram" aria-labelledby="instagram-title">
+      <div class="container">
+        <header class="section-head reveal">
+          <p class="eyebrow">Instagram</p>
+          <h2 class="section-title" id="instagram-title">@glamourfronteira</h2>
+          <span class="divider" aria-hidden="true"></span>
+          <p class="section-lead">Novidades, provadores e looks reais das nossas clientes. Acompanhe o dia a dia da boutique.</p>
+        </header>
+
+        <ul class="insta-grid reveal">
+          <li><a href="https://www.instagram.com/glamourfronteira/" target="_blank" rel="noopener"><img src="assets/img/insta-1.webp" width="398" height="454" loading="lazy" decoding="async" alt="Publicação da Glamour: vestido bordado em tom vinho"></a></li>
+          <li><a href="https://www.instagram.com/glamourfronteira/" target="_blank" rel="noopener"><img src="assets/img/insta-2.webp" width="398" height="454" loading="lazy" decoding="async" alt="Publicação da Glamour: vestido longo azul-marinho plissado"></a></li>
+          <li><a href="https://www.instagram.com/glamourfronteira/" target="_blank" rel="noopener"><img src="assets/img/insta-3.webp" width="398" height="454" loading="lazy" decoding="async" alt="Publicação da Glamour: vestido de cetim marsala na arara de cores"></a></li>
+          <li><a href="https://www.instagram.com/glamourfronteira/" target="_blank" rel="noopener"><img src="assets/img/insta-4.webp" width="398" height="454" loading="lazy" decoding="async" alt="Publicação da Glamour: vestido lilás de um ombro só"></a></li>
+          <li><a href="https://www.instagram.com/glamourfronteira/" target="_blank" rel="noopener"><img src="assets/img/insta-5.webp" width="398" height="454" loading="lazy" decoding="async" alt="Publicação da Glamour: vestido pink com fenda"></a></li>
+          <li><a href="https://www.instagram.com/glamourfronteira/" target="_blank" rel="noopener"><img src="assets/img/insta-6.webp" width="398" height="454" loading="lazy" decoding="async" alt="Publicação da Glamour: vestido pink de cetim estruturado"></a></li>
+        </ul>
+
+        <div class="center reveal">
+          <a class="btn btn-primary" href="https://www.instagram.com/glamourfronteira/" target="_blank" rel="noopener">
+            <svg class="icon" aria-hidden="true"><use href="#i-instagram"/></svg>
+            Acompanhe nosso Instagram
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========== CONTATO ========== -->
+    <section class="section contact" id="contato" aria-labelledby="contato-title">
+      <div class="container contact-inner reveal">
+        <img class="contact-mark" src="assets/img/logo-g.png" width="512" height="512" loading="lazy" decoding="async" alt="" aria-hidden="true">
+        <p class="eyebrow">Contato</p>
+        <h2 class="section-title" id="contato-title">Vamos encontrar o seu&nbsp;vestido?</h2>
+        <span class="divider" aria-hidden="true"></span>
+        <p class="section-lead">Fale com a nossa equipe para consultar modelos, cores e disponibilidade.</p>
+
+        <div class="contact-actions">
+          <a class="btn btn-gold js-contact js-whatsapp" data-model="" href="https://ig.me/m/glamourfronteira" target="_blank" rel="noopener">
+            <svg class="icon" aria-hidden="true"><use class="js-whatsapp-icon" href="#i-direct"/></svg>
+            <span class="js-whatsapp-label">Fale conosco pelo Direct</span>
+          </a>
+          <a class="btn btn-light" href="https://www.instagram.com/glamourfronteira/" target="_blank" rel="noopener">
+            <svg class="icon" aria-hidden="true"><use href="#i-instagram"/></svg>
+            @glamourfronteira
+          </a>
+        </div>
+        <!-- Endereço: será exibido aqui quando for informado. -->
+      </div>
+    </section>
+  </main>
+
+  <!-- ========== RODAPÉ ========== -->
+  <footer class="site-footer">
+    <div class="container footer-inner">
+      <a class="footer-brand" href="#inicio" aria-label="Glamour — voltar ao início">
+        <img src="assets/img/logo-glamour-640.webp" width="640" height="307" loading="lazy" decoding="async" alt="Glamour">
+      </a>
+      <nav aria-label="Rodapé">
+        <ul class="footer-nav">
+          <li><a href="#inicio">Início</a></li>
+          <li><a href="#colecao">Coleção</a></li>
+          <li><a href="#vestidos">Vestidos</a></li>
+          <li><a href="#sobre">Sobre nós</a></li>
+          <li><a href="#contato">Contato</a></li>
+        </ul>
+      </nav>
+      <a class="footer-instagram" href="https://www.instagram.com/glamourfronteira/" target="_blank" rel="noopener">
+        <svg class="icon" aria-hidden="true"><use href="#i-instagram"/></svg>
+        @glamourfronteira
+      </a>
+      <p class="copyright">© <span class="js-year">2026</span> Glamour. Todos os direitos reservados.</p>
+    </div>
+  </footer>
+
+  <!-- Ícones (SVG sprite) -->
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+    <symbol id="i-instagram" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="5" fill="none" stroke="currentColor" stroke-width="1.6"/><circle cx="12" cy="12" r="4.2" fill="none" stroke="currentColor" stroke-width="1.6"/><circle cx="17.4" cy="6.6" r="1.1" fill="currentColor"/></symbol>
+    <symbol id="i-whatsapp" viewBox="0 0 24 24"><path fill="currentColor" d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38a9.9 9.9 0 0 0 4.74 1.21h.01c5.46 0 9.91-4.45 9.91-9.91A9.85 9.85 0 0 0 12.04 2Zm0 18.15h-.01a8.23 8.23 0 0 1-4.19-1.15l-.3-.18-3.12.82.83-3.04-.2-.31a8.2 8.2 0 0 1-1.26-4.38c0-4.54 3.7-8.24 8.25-8.24a8.2 8.2 0 0 1 8.24 8.25c0 4.54-3.7 8.23-8.24 8.23Zm4.52-6.16c-.25-.12-1.47-.72-1.69-.81-.23-.08-.39-.12-.56.13-.16.24-.64.8-.78.97-.14.17-.29.19-.54.06-.25-.12-1.05-.39-1.99-1.23-.74-.66-1.23-1.47-1.38-1.72-.14-.25-.01-.38.11-.5.11-.11.25-.29.37-.43.13-.15.17-.25.25-.42.08-.17.04-.31-.02-.43-.06-.12-.56-1.34-.76-1.84-.2-.48-.41-.42-.56-.42h-.48c-.17 0-.43.06-.66.31-.22.25-.86.85-.86 2.07 0 1.22.89 2.4 1.01 2.56.12.17 1.75 2.67 4.23 3.74.59.26 1.05.41 1.41.52.59.19 1.13.16 1.56.1.48-.07 1.47-.6 1.67-1.18.21-.58.21-1.07.14-1.18-.06-.1-.22-.16-.47-.28Z"/></symbol>
+    <symbol id="i-direct" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" d="M21 3 10.2 13.8M21 3l-6.8 18-4-7.2L3 9.8 21 3Z"/></symbol>
+    <symbol id="i-spark" viewBox="0 0 24 24"><path fill="currentColor" d="M12 2.5c.5 4.8 2.7 7 9.5 9.5-6.8 2.5-9 4.7-9.5 9.5-.5-4.8-2.7-7-9.5-9.5 6.8-2.5 9-4.7 9.5-9.5Z"/></symbol>
+  </svg>
+
+  <script src="js/main.js" defer></script>
+</body>
+</html>
