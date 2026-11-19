@@ -1,0 +1,285 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Glamour Fronteira</title>
+<meta name="description" content="Glamour — vestidos de festa, madrinhas e acessórios. Venda, não aluguel.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Montserrat:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --rose:#ddc7ca;        /* rosa do logo */
+    --rose-light:#f3e9ea;
+    --blush:#e3a596;       /* parede salmão da loja */
+    --gold:#b8914a;
+    --gold-light:#dcc17f;
+    --gold-dark:#7f6128;
+    --ink:#2a2224;
+    --night:#1b1a20;
+    --muted:#6f6266;
+    --gold-grad:linear-gradient(120deg,#8a6a2e 0%,#d9bd7a 35%,#b8914a 55%,#f0dca4 75%,#8a6a2e 100%);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{font-family:Montserrat,sans-serif;font-weight:300;color:var(--ink);background:var(--rose-light);line-height:1.7;overflow-x:hidden}
+  h1,h2,h3{font-family:"Cormorant Garamond",serif;font-weight:500;letter-spacing:.02em}
+  a{color:inherit;text-decoration:none}
+  .gold-text{background:var(--gold-grad);background-size:200% auto;-webkit-background-clip:text;background-clip:text;color:transparent;animation:shine 6s linear infinite}
+  @keyframes shine{to{background-position:200% center}}
+
+  /* Header */
+  header{position:fixed;inset:0 0 auto 0;z-index:50;display:flex;align-items:center;justify-content:space-between;padding:18px 5vw;transition:.4s}
+  header.scrolled{background:rgba(243,233,234,.92);backdrop-filter:blur(10px);padding:10px 5vw;box-shadow:0 2px 20px rgba(0,0,0,.06)}
+  .brand{display:flex;align-items:center;gap:12px;font-family:"Cormorant Garamond",serif;font-size:1.6rem;letter-spacing:.25em}
+  .brand img{width:44px;height:44px;border-radius:50%}
+  nav ul{display:flex;gap:34px;list-style:none;font-size:.78rem;letter-spacing:.2em;text-transform:uppercase}
+  nav a{position:relative;padding:4px 0}
+  nav a::after{content:"";position:absolute;left:0;bottom:0;width:0;height:1px;background:var(--gold);transition:.3s}
+  nav a:hover::after{width:100%}
+  .burger{display:none;background:none;border:0;cursor:pointer;width:30px;height:20px;position:relative}
+  .burger span{position:absolute;left:0;width:100%;height:1.5px;background:var(--ink);transition:.3s}
+  .burger span:nth-child(1){top:0}.burger span:nth-child(2){top:9px}.burger span:nth-child(3){top:18px}
+
+  /* Hero */
+  .hero{min-height:100vh;display:grid;place-items:center;text-align:center;position:relative;overflow:hidden;
+    background:radial-gradient(circle at 50% 40%,var(--rose) 0%,#e8b1a4 55%,var(--blush) 100%);padding:120px 20px 60px}
+  .hero::before,.hero::after{content:"";position:absolute;border-radius:50%;filter:blur(60px);opacity:.5}
+  .hero::before{width:420px;height:420px;background:#f6e3c4;top:-120px;left:-100px;animation:float 9s ease-in-out infinite}
+  .hero::after{width:360px;height:360px;background:#c98f8f;bottom:-120px;right:-80px;animation:float 11s ease-in-out infinite reverse}
+  @keyframes float{50%{transform:translate(40px,30px)}}
+  .hero-inner{position:relative;z-index:1}
+  .hero-logo{width:min(300px,62vw);border-radius:50%;box-shadow:0 30px 60px rgba(90,40,40,.25);animation:pop 1.2s cubic-bezier(.2,.8,.2,1) both}
+  @keyframes pop{from{opacity:0;transform:scale(.85)}}
+  .hero h1{font-size:clamp(2.2rem,6vw,4.2rem);margin-top:28px;line-height:1.1;animation:up 1s .3s both}
+  .hero h1 em{background-image:linear-gradient(120deg,#6b4f1f,#a8843e,#6b4f1f,#b8914a,#6b4f1f)}
+  .hero p{max-width:520px;margin:16px auto 34px;color:#4a3a3d;animation:up 1s .5s both}
+  @keyframes up{from{opacity:0;transform:translateY(25px)}}
+  .btn{display:inline-block;padding:14px 38px;border:1px solid var(--gold-dark);font-size:.75rem;letter-spacing:.25em;text-transform:uppercase;position:relative;overflow:hidden;transition:color .4s;animation:up 1s .7s both;cursor:pointer;background:none;font-family:inherit}
+  .btn::before{content:"";position:absolute;inset:0;background:var(--gold-grad);transform:translateX(-101%);transition:transform .45s ease;z-index:-1}
+  .btn:hover{color:#fff}.btn:hover::before{transform:none}
+  .btn.solid{background:var(--ink);color:#fff;border-color:var(--ink)}
+  .scroll-hint{position:absolute;bottom:28px;left:50%;width:1px;height:50px;background:linear-gradient(var(--gold-dark),transparent);animation:drip 2s infinite}
+  @keyframes drip{0%{transform:scaleY(0);transform-origin:top}50%{transform:scaleY(1);transform-origin:top}51%{transform-origin:bottom}100%{transform:scaleY(0);transform-origin:bottom}}
+
+  section{padding:110px 6vw}
+  .eyebrow{font-size:.72rem;letter-spacing:.35em;text-transform:uppercase;color:var(--gold-dark);display:block;margin-bottom:10px}
+  .title{font-size:clamp(2rem,4.5vw,3.2rem);line-height:1.15;margin-bottom:18px}
+  .center{text-align:center}
+  .divider{width:70px;height:1px;background:var(--gold-grad);margin:0 auto 50px}
+
+  /* Reveal */
+  .reveal{opacity:0;transform:translateY(40px);transition:opacity .9s ease,transform .9s ease}
+  .reveal.in{opacity:1;transform:none}
+
+  /* Collections */
+  .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(300px,100%),1fr));gap:26px;max-width:1200px;margin:0 auto}
+  .card{position:relative;aspect-ratio:3/4;overflow:hidden;cursor:pointer;background:var(--c)}
+  .card .dress{position:absolute;inset:0;display:grid;place-items:end center}
+  .card svg{width:62%;height:auto;margin-bottom:-2px;transition:transform .8s cubic-bezier(.2,.8,.2,1);filter:drop-shadow(0 10px 18px rgba(0,0,0,.25))}
+  .card:hover svg{transform:scale(1.07) translateY(-8px)}
+  .card .label{position:absolute;left:0;right:0;bottom:0;padding:26px 22px;color:#fff;background:linear-gradient(transparent,rgba(20,10,15,.65));transform:translateY(40%);transition:.5s}
+  .card:hover .label{transform:none}
+  .card h3{font-size:1.7rem}
+  .card .label p{font-size:.8rem;opacity:0;transition:.5s .1s}
+  .card:hover .label p{opacity:.9}
+
+  /* About */
+  .about{background:var(--rose);display:grid;grid-template-columns:1fr 1fr;gap:70px;align-items:center}
+  .about-visual{position:relative;aspect-ratio:4/5;background:linear-gradient(160deg,#e9a395,#d98c7f);display:grid;place-items:center;overflow:hidden}
+  .about-visual::after{content:"";position:absolute;inset:18px;border:1px solid rgba(255,255,255,.55)}
+  .about-visual img{width:55%;border-radius:50%;box-shadow:0 20px 40px rgba(0,0,0,.2)}
+  .about p{margin-bottom:16px;color:#4a3a3d}
+  .stats{display:flex;gap:40px;margin-top:30px}
+  .stats b{display:block;font-family:"Cormorant Garamond",serif;font-size:2.6rem;font-weight:500}
+  .stats span{font-size:.7rem;letter-spacing:.2em;text-transform:uppercase;color:var(--muted)}
+
+  /* Why buy */
+  .why{background:var(--night);color:#f3e9ea}
+  .why .eyebrow{color:var(--gold-light)}
+  .features{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:30px;max-width:1100px;margin:0 auto}
+  .feature{padding:38px 30px;border:1px solid rgba(220,193,127,.25);transition:.4s}
+  .feature:hover{border-color:var(--gold-light);transform:translateY(-6px);background:rgba(220,193,127,.05)}
+  .feature .ico{font-family:"Cormorant Garamond",serif;font-size:2.4rem;line-height:1;margin-bottom:14px}
+  .feature h3{font-size:1.45rem;margin-bottom:8px}
+  .feature p{font-size:.88rem;opacity:.75}
+
+  /* Palette strip */
+  .marquee{background:var(--ink);overflow:hidden;padding:18px 0;white-space:nowrap}
+  .marquee div{display:inline-block;animation:marq 28s linear infinite;font-family:"Cormorant Garamond",serif;font-size:1.5rem;letter-spacing:.3em;color:var(--gold-light)}
+  .marquee span{margin:0 28px}
+  @keyframes marq{to{transform:translateX(-50%)}}
+
+  /* Contact */
+  .contact{display:grid;grid-template-columns:1fr 1fr;gap:60px;max-width:1100px;margin:0 auto}
+  .info li{list-style:none;padding:18px 0;border-bottom:1px solid rgba(127,97,40,.2)}
+  .info small{display:block;font-size:.68rem;letter-spacing:.25em;text-transform:uppercase;color:var(--gold-dark)}
+  form{display:grid;gap:16px}
+  input,textarea,select{width:100%;padding:14px 16px;border:1px solid rgba(127,97,40,.3);background:#fff;font-family:inherit;font-size:.9rem;outline:none;transition:.3s}
+  input:focus,textarea:focus,select:focus{border-color:var(--gold)}
+  .toast{position:fixed;bottom:30px;left:50%;transform:translate(-50%,120px);background:var(--ink);color:#fff;padding:14px 26px;font-size:.85rem;transition:.5s;z-index:99}
+  .toast.show{transform:translate(-50%,0)}
+
+  footer{background:var(--night);color:#bfb3b5;text-align:center;padding:50px 20px;font-size:.8rem}
+  footer .brand{justify-content:center;margin-bottom:12px;color:#fff}
+
+  .wpp{position:fixed;right:22px;bottom:22px;width:58px;height:58px;border-radius:50%;background:#25d366;display:grid;place-items:center;box-shadow:0 8px 24px rgba(0,0,0,.25);z-index:60;animation:pulse 2.4s infinite}
+  @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(37,211,102,.5)}70%{box-shadow:0 0 0 18px rgba(37,211,102,0)}100%{box-shadow:0 0 0 0 rgba(37,211,102,0)}}
+
+  @media (max-width:860px){
+    nav ul{position:fixed;inset:0;background:var(--rose-light);flex-direction:column;align-items:center;justify-content:center;font-size:1rem;gap:30px;transform:translateX(100%);transition:.5s}
+    nav.open ul{transform:none}
+    .burger{display:block;z-index:51}
+    nav.open .burger span:nth-child(1){top:9px;transform:rotate(45deg)}
+    nav.open .burger span:nth-child(2){opacity:0}
+    nav.open .burger span:nth-child(3){top:9px;transform:rotate(-45deg)}
+    .about,.contact{grid-template-columns:1fr;gap:40px}
+    section{padding:80px 16px}
+    .stats{gap:24px}
+  }
+  @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}.reveal{opacity:1;transform:none}}
+</style>
+</head>
+<body>
+
+<header id="top">
+  <a href="#inicio" class="brand"><img src="img/logo-circle.jpg" alt="Glamour"><span class="gold-text">GLAMOUR</span></a>
+  <nav id="nav">
+    <button class="burger" aria-label="Menu" onclick="document.getElementById('nav').classList.toggle('open')"><span></span><span></span><span></span></button>
+    <ul onclick="document.getElementById('nav').classList.remove('open')">
+      <li><a href="#colecoes">Coleções</a></li>
+      <li><a href="#sobre">A Loja</a></li>
+      <li><a href="#porque">Por que comprar</a></li>
+      <li><a href="#contato">Contato</a></li>
+    </ul>
+  </nav>
+</header>
+
+<section class="hero" id="inicio">
+  <div class="hero-inner">
+    <img class="hero-logo" src="img/logo-circle.jpg" alt="Logo Glamour">
+    <h1>Vestidos que contam<br><em class="gold-text">a sua história</em></h1>
+    <p>Moda festa para madrinhas, mães, formandas e convidadas. Peças exclusivas para você levar para casa — e para a vida.</p>
+    <a href="#colecoes" class="btn">Ver coleção</a>
+  </div>
+  <span class="scroll-hint"></span>
+</section>
+
+<div class="marquee"><div>
+  <span>MADRINHAS</span>✦<span>MÃE DOS NOIVOS</span>✦<span>FORMATURA</span>✦<span>PRIMAVERA-VERÃO</span>✦<span>ACESSÓRIOS</span>✦<span>PROVADORES</span>✦
+  <span>MADRINHAS</span>✦<span>MÃE DOS NOIVOS</span>✦<span>FORMATURA</span>✦<span>PRIMAVERA-VERÃO</span>✦<span>ACESSÓRIOS</span>✦<span>PROVADORES</span>✦
+</div></div>
+
+<section id="colecoes">
+  <div class="center reveal">
+    <span class="eyebrow">Coleções</span>
+    <h2 class="title">Elas vestem Glamour</h2>
+    <div class="divider"></div>
+  </div>
+  <div class="cards" id="cards"></div>
+</section>
+
+<section class="about" id="sobre">
+  <div class="about-visual reveal"><img src="img/logo-circle.jpg" alt=""></div>
+  <div class="reveal">
+    <span class="eyebrow">A Loja</span>
+    <h2 class="title">Um espaço pensado<br>para você brilhar</h2>
+    <p>A Glamour nasceu para que cada mulher encontre o vestido perfeito para o seu grande momento. Nossos provadores e consultoras ajudam você a escolher o modelo, a cor e os acessórios ideais.</p>
+    <p>Cetim, crepe, plissados e brilhos — em uma cartela de cores que vai do champanhe ao marsala.</p>
+    <div class="stats">
+      <div><b class="gold-text" data-count="500">0</b><span>Modelos</span></div>
+      <div><b class="gold-text" data-count="40">0</b><span>Cores</span></div>
+      <div><b class="gold-text" data-count="100" data-suffix="%">0</b><span>Venda</span></div>
+    </div>
+  </div>
+</section>
+
+<section class="why" id="porque">
+  <div class="center reveal">
+    <span class="eyebrow">Por que a Glamour não trabalha com aluguel?</span>
+    <h2 class="title">Porque o seu vestido<br>merece ser só seu</h2>
+    <div class="divider"></div>
+  </div>
+  <div class="features">
+    <div class="feature reveal"><div class="ico gold-text">I</div><h3>Peça nova</h3><p>Você estreia o vestido. Nada de peças já usadas por outras pessoas.</p></div>
+    <div class="feature reveal"><div class="ico gold-text">II</div><h3>Ajuste perfeito</h3><p>Ajustes feitos para o seu corpo, sem limitações de devolução.</p></div>
+    <div class="feature reveal"><div class="ico gold-text">III</div><h3>Preço justo</h3><p>Valores que muitas vezes se aproximam de um aluguel — e a peça fica com você.</p></div>
+    <div class="feature reveal"><div class="ico gold-text">IV</div><h3>Memória</h3><p>Guarde, reutilize, transforme. O vestido do seu momento é para sempre.</p></div>
+  </div>
+</section>
+
+<section id="contato">
+  <div class="center reveal">
+    <span class="eyebrow">Contato</span>
+    <h2 class="title">Agende sua visita</h2>
+    <div class="divider"></div>
+  </div>
+  <div class="contact">
+    <ul class="info reveal">
+      <li><small>Instagram</small><a href="https://instagram.com/glamourfronteira" target="_blank" rel="noopener">@glamourfronteira</a></li>
+      <li><small>Endereço</small>Rua Exemplo, 000 — Centro (editar)</li>
+      <li><small>Horário</small>Seg a Sex 9h–19h · Sáb 9h–14h</li>
+      <li><small>WhatsApp</small>(00) 00000-0000 (editar)</li>
+    </ul>
+    <form class="reveal" onsubmit="event.preventDefault();toast();this.reset()">
+      <input required placeholder="Seu nome">
+      <input required type="tel" placeholder="WhatsApp">
+      <select><option>Madrinha</option><option>Mãe dos noivos</option><option>Formatura</option><option>Convidada</option></select>
+      <textarea rows="4" placeholder="Data do evento e o que procura"></textarea>
+      <button class="btn solid" style="animation:none">Quero agendar</button>
+    </form>
+  </div>
+</section>
+
+<footer>
+  <div class="brand"><img src="img/logo-circle.jpg" alt=""><span class="gold-text">GLAMOUR</span></div>
+  © <span id="y"></span> Glamour Fronteira · Site de demonstração
+</footer>
+
+<a class="wpp" href="#contato" aria-label="WhatsApp">
+  <svg width="30" height="30" viewBox="0 0 24 24" fill="#fff"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm5.3 14.1c-.2.6-1.3 1.2-1.8 1.2-.5.1-1 .2-3.3-.7-2.8-1.1-4.5-3.9-4.7-4.1-.1-.2-1.1-1.5-1.1-2.8 0-1.3.7-2 1-2.3.2-.3.5-.3.7-.3h.5c.2 0 .4 0 .6.5l.8 2c.1.2.1.4 0 .5l-.4.6-.3.3c-.1.2-.3.3-.1.6.2.3.8 1.3 1.7 2.1 1.2 1 2.1 1.3 2.4 1.5.3.1.5.1.6-.1l.9-1c.2-.3.4-.2.6-.1l1.9.9c.3.1.5.2.5.3.1.2.1.7-.1 1.3z"/></svg>
+</a>
+<div class="toast" id="toast">Obrigada! Entraremos em contato pelo WhatsApp ✨</div>
+
+<script>
+  // Coleções — cores inspiradas nos vestidos do Instagram
+  const items=[
+    {n:"Madrinhas",d:"Cetim drapeado em marsala, vinho e esmeralda",bg:"#e9b3a6",c1:"#8e1f45",c2:"#5f1230"},
+    {n:"Mãe dos Noivos",d:"Plissados e mangas fluidas em azul-marinho",bg:"#d9c2c6",c1:"#1f2c63",c2:"#121b42"},
+    {n:"Formatura",d:"Ombro único com laço em lilás e fúcsia",bg:"#ebc9c4",c1:"#9b86e0",c2:"#6e58bf"},
+    {n:"Primavera-Verão",d:"Cores vibrantes: vermelho, laranja e pink",bg:"#e3a596",c1:"#d8287f",c2:"#a3155b"},
+    {n:"Tomara que caia",d:"Azul serenity e prata acetinado",bg:"#dcc6c9",c1:"#8fb0e3",c2:"#5f81bd"},
+    {n:"Acessórios",d:"Clutches, brincos e detalhes dourados",bg:"#f0dfd9",c1:"#d9bd7a",c2:"#8a6a2e"},
+  ];
+  const dress=(c1,c2,i)=>`<svg viewBox="0 0 200 320"><defs><linearGradient id="g${i}" x1="0" x2="1"><stop offset="0" stop-color="${c2}"/><stop offset=".45" stop-color="${c1}"/><stop offset="1" stop-color="${c2}"/></linearGradient></defs>
+    <path d="M78 20 Q100 34 122 20 L126 70 Q118 92 120 110 L170 320 L30 320 L80 110 Q82 92 74 70 Z" fill="url(#g${i})"/>
+    <path d="M80 110 Q100 120 120 110" stroke="rgba(255,255,255,.35)" fill="none" stroke-width="2"/>
+    <path d="M100 120 L92 320 M100 120 L120 320" stroke="rgba(0,0,0,.12)" stroke-width="2"/></svg>`;
+  document.getElementById('cards').innerHTML=items.map((it,i)=>`
+    <article class="card reveal" style="--c:${it.bg};transition-delay:${(i%3)*.12}s">
+      <div class="dress">${dress(it.c1,it.c2,i)}</div>
+      <div class="label"><h3>${it.n}</h3><p>${it.d}</p></div>
+    </article>`).join('');
+
+  // Header ao rolar
+  const h=document.getElementById('top');
+  addEventListener('scroll',()=>h.classList.toggle('scrolled',scrollY>40),{passive:true});
+
+  // Reveal + contadores
+  const io=new IntersectionObserver(es=>es.forEach(e=>{
+    if(!e.isIntersecting)return;
+    e.target.classList.add('in');
+    e.target.querySelectorAll('[data-count]').forEach(el=>{
+      const end=+el.dataset.count,suf=el.dataset.suffix||'+';let t0;
+      const step=t=>{t0??=t;const p=Math.min((t-t0)/1600,1);el.textContent=Math.round(end*(1-Math.pow(1-p,3)))+(p===1?suf:'');if(p<1)requestAnimationFrame(step)};
+      requestAnimationFrame(step);
+    });
+    io.unobserve(e.target);
+  }),{threshold:.15});
+  document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+
+  function toast(){const t=document.getElementById('toast');t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3200)}
+  document.getElementById('y').textContent=new Date().getFullYear();
+</script>
+</body>
+</html>
