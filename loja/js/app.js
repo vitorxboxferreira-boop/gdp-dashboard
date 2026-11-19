@@ -164,7 +164,7 @@
   function card(p, i = 0) {
     const selos = [];
     if (p.selo) selos.push(`<span class="selo ${classeSelo(p.selo)}">${esc(p.selo)}</span>`);
-    if (p.novidade) selos.push(`<span class="selo novo">novo!</span>`);
+    if (p.novidade && !p.selo) selos.push(`<span class="selo novo">novo!</span>`);
     const tams = p.tamanhos.filter((t) => t.estoque > 0);
     const tamTxt = !p.tamanhos.length ? "Tam. único" : tams.length > 4 ? `${tams.length} tamanhos` : tams.map((t) => esc(t.t)).join(" · ");
     const pc = parcelas(p.preco);
