@@ -77,6 +77,8 @@
     }
   }
 
+  window.GLAMOUR = { lenis: lenis, scrollToTarget: scrollToTarget, reduceMotion: reduceMotion, finePointer: finePointer };
+
   doc.addEventListener('click', function (e) {
     var a = e.target.closest('a[href^="#"]');
     if (!a) return;
@@ -100,10 +102,17 @@
   var aboutInset = $('.about-inset');
   var ticking = false;
 
+  var lastY = window.scrollY;
   function onFrame() {
     ticking = false;
     var y = window.scrollY;
     header.classList.toggle('is-scrolled', y > 24);
+    if (!root.classList.contains('menu-open')) {
+      if (y > 480 && y > lastY + 4) header.classList.add('is-hidden');
+      else if (y < lastY - 4 || y <= 480) header.classList.remove('is-hidden');
+    }
+    lastY = y;
+    root.style.setProperty('--scroll-progress', (y / Math.max(1, doc.documentElement.scrollHeight - window.innerHeight)).toFixed(4));
     if (reduceMotion) return;
     var vh = window.innerHeight;
     if (heroMedia && y < vh * 1.2) {
@@ -201,6 +210,39 @@
   var countEl = doc.getElementById('filter-count');
   var emptyEl = doc.getElementById('product-empty');
   var productById = {};
+  var FAV_KEY = 'glamour-favoritos';
+  var favs = [];
+  try { favs = JSON.parse(localStorage.getItem(FAV_KEY) || '[]') || []; } catch (err) { favs = []; }
+  var currentRange = 'todos';
+  function isFav(id) { return favs.indexOf(id) >= 0; }
+  function saveFavs() {
+    try { localStorage.setItem(FAV_KEY, JSON.stringify(favs)); } catch (err) { /* armazenamento indisponível */ }
+  }
+  function syncFavUI() {
+    $$('[data-fav]').forEach(function (b) {
+      var id = b.getAttribute('data-fav');
+      var on = isFav(id);
+      b.setAttribute('aria-pressed', String(on));
+      var name = (productById[id] || {}).name || 'vestido';
+      b.setAttribute('aria-label', (on ? 'Remover dos favoritos: ' : 'Adicionar aos favoritos: ') + name);
+    });
+    var chip = filterBox && filterBox.querySelector('[data-range="favoritos"] .chip-count');
+    if (chip) chip.textContent = favs.length ? ' (' + favs.length + ')' : '';
+  }
+  function toggleFav(id, btn) {
+    if (isFav(id)) favs = favs.filter(function (f) { return f !== id; });
+    else {
+      favs.push(id);
+      if (btn && !reduceMotion) {
+        btn.classList.remove('is-popping');
+        void btn.offsetWidth;
+        btn.classList.add('is-popping');
+      }
+    }
+    saveFavs();
+    syncFavUI();
+    if (currentRange === 'favoritos') applyFilter('favoritos');
+  }
 
   function colorList(p) {
     return p.colors.map(function (c) { return c.name; }).join(', ');
@@ -215,6 +257,7 @@
       }).join('');
       return '' +
         '<li class="product-card reveal" data-id="' + p.id + '" data-price="' + p.price + '" style="--stagger:' + (i % 3) * 90 + 'ms">' +
+          '<button class="fav-btn" type="button" data-fav="' + p.id + '" aria-pressed="false"><svg class="icon" aria-hidden="true"><use href="#i-heart"/></svg></button>' +
           '<button class="product-media" type="button" data-open="' + p.id + '" aria-label="Ver detalhes do ' + esc(p.name) + '">' +
             '<img class="fade-img" src="' + p.image + '" width="' + p.w + '" height="' + p.h + '" loading="lazy" decoding="async" alt="' + esc(p.alt) + '" style="--pos:' + p.pos + '">' +
             '<span class="product-quick" aria-hidden="true">Ver detalhes</span>' +
@@ -240,16 +283,24 @@
 
   function updateCount(n) {
     if (countEl) countEl.textContent = n === 1 ? '1 vestido' : n + ' vestidos';
-    if (emptyEl) emptyEl.hidden = n !== 0;
+    if (emptyEl) {
+      emptyEl.hidden = n !== 0;
+      emptyEl.textContent = currentRange === 'favoritos'
+        ? 'Você ainda não tem favoritos. Toque no coração de um vestido para salvá-lo aqui.'
+        : 'Nenhum vestido nesta faixa de valor. Experimente outra opção acima.';
+    }
   }
 
   function applyFilter(rangeId) {
+    currentRange = rangeId;
     var range = catalog.priceRanges.filter(function (r) { return r.id === rangeId; })[0] || {};
     var cards = $$('.product-card', grid);
     var swap = function () {
       var n = 0;
       cards.forEach(function (card) {
-        var show = inRange(Number(card.getAttribute('data-price')), range);
+        var show = rangeId === 'favoritos'
+          ? isFav(card.getAttribute('data-id'))
+          : inRange(Number(card.getAttribute('data-price')), range);
         card.hidden = !show;
         if (show) {
           n++;
@@ -269,7 +320,9 @@
     if (!filterBox) return;
     filterBox.innerHTML = catalog.priceRanges.map(function (r, i) {
       return '<button type="button" class="chip" data-range="' + r.id + '" aria-pressed="' + (i === 0) + '">' + esc(r.label) + '</button>';
-    }).join('');
+    }).join('') +
+      '<button type="button" class="chip chip-fav" data-range="favoritos" aria-pressed="false">' +
+        '<svg class="icon" aria-hidden="true"><use href="#i-heart"/></svg>Favoritos<span class="chip-count"></span></button>';
     filterBox.addEventListener('click', function (e) {
       var btn = e.target.closest('.chip');
       if (!btn || btn.getAttribute('aria-pressed') === 'true') return;
@@ -281,6 +334,7 @@
 
   renderCards();
   renderFilter();
+  syncFavUI();
   $$('.reveal').forEach(function (el) { if (!grid || !grid.contains(el)) observeReveal(el); });
   $$('.occasion-grid > li').forEach(function (el, i) { el.style.setProperty('--stagger', (i % 4) * 90 + 'ms'); });
   $$('.fade-img, .arch img, .about-inset img, .insta-grid img').forEach(fadeImage);
@@ -339,6 +393,9 @@
     fadeImage(img);
 
     $('#pd-name').textContent = p.name;
+    var pdFav = $('#pd-fav');
+    if (pdFav) pdFav.setAttribute('data-fav', p.id);
+    syncFavUI();
     $('#pd-price').textContent = brl(p.price);
     $('#pd-details').textContent = p.details;
     $('#pd-fabric').textContent = p.fabric;
@@ -445,6 +502,8 @@
   }
 
   doc.addEventListener('click', function (e) {
+    var fav = e.target.closest('[data-fav]');
+    if (fav) { toggleFav(fav.getAttribute('data-fav'), fav); return; }
     var opener = e.target.closest('[data-open]');
     if (opener) openProduct(opener.getAttribute('data-open'), opener);
   });

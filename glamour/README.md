@@ -58,3 +58,11 @@ Na aba de cada vestido a cliente escolhe cor e tamanho; o botão monta a
 mensagem com modelo, cor, tamanho e valor. Com o WhatsApp configurado, a
 mensagem já vai preenchida. Sem ele, o botão abre o Direct e copia a mensagem
 para a cliente colar.
+
+## Efeitos (js/effects.js)
+Abertura com a logo (uma vez por sessão), brilho dourado na logo, palavras que
+surgem nos títulos, faixa em movimento, cartões com abertura em arco, inclinação
+3D e reflexo, cursor dourado e botões magnéticos (somente mouse), cabeçalho que
+se esconde ao rolar para baixo, botão de voltar ao topo com progresso de leitura
+e linha do "Como funciona" que acompanha a rolagem. Favoritos ficam salvos no
+navegador da cliente. Tudo é desligado para quem ativa "reduzir movimento".

@@ -19,10 +19,42 @@
 
   <link rel="preload" as="image" href="assets/img/hero-vestido.webp" fetchpriority="high">
   <link rel="stylesheet" href="css/style.css">
-  <script>document.documentElement.classList.add('js');</script>
+  <script>
+    (function (r) {
+      r.classList.add('js');
+      var skip = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      try { if (sessionStorage.getItem('glamour-intro')) skip = true; else sessionStorage.setItem('glamour-intro', '1'); } catch (e) {}
+      r.classList.add(skip ? 'no-intro' : 'intro-active');
+      setTimeout(function () { r.classList.remove('intro-active'); }, 5000);
+    })(document.documentElement);
+  </script>
 </head>
 <body>
   <a class="skip-link" href="#conteudo">Pular para o conteúdo</a>
+
+  <!-- Abertura animada -->
+  <div class="intro" aria-hidden="true">
+    <div class="intro-inner">
+      <img class="intro-mark" src="assets/img/logo-g.png" width="512" height="512" alt="">
+      <span class="intro-line"></span>
+      <span class="intro-word">Boutique de moda feminina</span>
+    </div>
+  </div>
+
+  <!-- Cursor dourado (apenas desktop) -->
+  <div class="cursor" aria-hidden="true">
+    <span class="cursor-ring"><em>Ver</em></span>
+    <span class="cursor-dot"></span>
+  </div>
+
+  <!-- Voltar ao topo com progresso de leitura -->
+  <a class="to-top" href="#inicio" aria-label="Voltar ao topo">
+    <svg viewBox="0 0 48 48" aria-hidden="true">
+      <circle class="to-top-track" cx="24" cy="24" r="22"/>
+      <circle class="to-top-progress" cx="24" cy="24" r="22" pathLength="100"/>
+    </svg>
+    <span class="to-top-arrow" aria-hidden="true"></span>
+  </a>
 
   <!-- ========== CABEÇALHO ========== -->
   <header class="site-header" id="topo">
@@ -68,7 +100,7 @@
           <h1 class="hero-logo hero-anim" id="hero-title" style="--d:1">
             <img src="assets/img/logo-glamour.webp" width="1520" height="728" alt="Glamour">
           </h1>
-          <p class="hero-tagline hero-anim" style="--d:2">Elegância que transforma momentos em&nbsp;memórias.</p>
+          <p class="hero-tagline hero-anim js-split-words" style="--d:2">Elegância que transforma momentos em&nbsp;memórias.</p>
           <div class="hero-actions hero-anim" style="--d:3">
             <a class="btn btn-primary" href="#colecao">Conheça nossa coleção</a>
           </div>
@@ -85,6 +117,28 @@
         <span aria-hidden="true"></span>
       </a>
     </section>
+
+    <!-- ========== FAIXA EM MOVIMENTO ========== -->
+    <div class="marquee" aria-hidden="true">
+      <div class="marquee-track">
+        <div class="marquee-group">
+          <span>Vestidos de festa</span><svg class="icon"><use href="#i-spark"/></svg>
+          <span>Madrinhas</span><svg class="icon"><use href="#i-spark"/></svg>
+          <span>Formaturas</span><svg class="icon"><use href="#i-spark"/></svg>
+          <span>Casamentos</span><svg class="icon"><use href="#i-spark"/></svg>
+          <span>Convidadas</span><svg class="icon"><use href="#i-spark"/></svg>
+          <span>Acessórios</span><svg class="icon"><use href="#i-spark"/></svg>
+        </div>
+        <div class="marquee-group">
+          <span>Vestidos de festa</span><svg class="icon"><use href="#i-spark"/></svg>
+          <span>Madrinhas</span><svg class="icon"><use href="#i-spark"/></svg>
+          <span>Formaturas</span><svg class="icon"><use href="#i-spark"/></svg>
+          <span>Casamentos</span><svg class="icon"><use href="#i-spark"/></svg>
+          <span>Convidadas</span><svg class="icon"><use href="#i-spark"/></svg>
+          <span>Acessórios</span><svg class="icon"><use href="#i-spark"/></svg>
+        </div>
+      </div>
+    </div>
 
     <!-- ========== COLEÇÃO EM DESTAQUE ========== -->
     <section class="section collection" id="colecao" aria-labelledby="colecao-title">
@@ -106,6 +160,40 @@
         <p class="empty-state" id="product-empty" hidden>Nenhum vestido nesta faixa de valor. Experimente outra opção acima.</p>
         <noscript><p class="empty-state">Ative o JavaScript para ver a coleção, ou visite nosso Instagram @glamourfronteira.</p></noscript>
         <p class="note reveal">Imagens ilustrativas. Valores de referência, sujeitos à confirmação de cor, tamanho e disponibilidade na loja.</p>
+      </div>
+    </section>
+
+    <!-- ========== COMO FUNCIONA ========== -->
+    <section class="section steps" id="como-funciona" aria-labelledby="steps-title">
+      <div class="container">
+        <header class="section-head reveal">
+          <p class="eyebrow">Como funciona</p>
+          <h2 class="section-title" id="steps-title">Do primeiro olhar à prova&nbsp;final</h2>
+          <span class="divider" aria-hidden="true"></span>
+        </header>
+
+        <ol class="steps-list reveal">
+          <li class="step">
+            <span class="step-num" aria-hidden="true">1</span>
+            <h3>Escolha o modelo</h3>
+            <p>Navegue pela coleção e filtre os vestidos pela faixa de valor.</p>
+          </li>
+          <li class="step">
+            <span class="step-num" aria-hidden="true">2</span>
+            <h3>Defina cor e tamanho</h3>
+            <p>Na aba de cada vestido, selecione a cor e confira o guia de medidas.</p>
+          </li>
+          <li class="step">
+            <span class="step-num" aria-hidden="true">3</span>
+            <h3>Consulte a disponibilidade</h3>
+            <p>Envie a mensagem pronta e nossa equipe confirma cor, tamanho e valor.</p>
+          </li>
+          <li class="step">
+            <span class="step-num" aria-hidden="true">4</span>
+            <h3>Venha provar</h3>
+            <p>Experimente o seu vestido com calma no provador da boutique.</p>
+          </li>
+        </ol>
       </div>
     </section>
 
@@ -266,7 +354,13 @@
       <div class="pd-body">
         <p class="eyebrow">Coleção em destaque</p>
         <h2 class="pd-name" id="pd-name"></h2>
-        <p class="pd-price" id="pd-price"></p>
+        <div class="pd-price-row">
+          <p class="pd-price" id="pd-price"></p>
+          <button class="fav-btn fav-inline" id="pd-fav" type="button" data-fav="" aria-pressed="false">
+            <svg class="icon" aria-hidden="true"><use href="#i-heart"/></svg>
+            <span class="fav-inline-label">Favorito</span>
+          </button>
+        </div>
         <p class="pd-details" id="pd-details"></p>
         <p class="pd-fabric"><span>Tecido</span> <strong id="pd-fabric"></strong></p>
 
@@ -309,11 +403,13 @@
     <symbol id="i-instagram" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="5" fill="none" stroke="currentColor" stroke-width="1.6"/><circle cx="12" cy="12" r="4.2" fill="none" stroke="currentColor" stroke-width="1.6"/><circle cx="17.4" cy="6.6" r="1.1" fill="currentColor"/></symbol>
     <symbol id="i-whatsapp" viewBox="0 0 24 24"><path fill="currentColor" d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38a9.9 9.9 0 0 0 4.74 1.21h.01c5.46 0 9.91-4.45 9.91-9.91A9.85 9.85 0 0 0 12.04 2Zm0 18.15h-.01a8.23 8.23 0 0 1-4.19-1.15l-.3-.18-3.12.82.83-3.04-.2-.31a8.2 8.2 0 0 1-1.26-4.38c0-4.54 3.7-8.24 8.25-8.24a8.2 8.2 0 0 1 8.24 8.25c0 4.54-3.7 8.23-8.24 8.23Zm4.52-6.16c-.25-.12-1.47-.72-1.69-.81-.23-.08-.39-.12-.56.13-.16.24-.64.8-.78.97-.14.17-.29.19-.54.06-.25-.12-1.05-.39-1.99-1.23-.74-.66-1.23-1.47-1.38-1.72-.14-.25-.01-.38.11-.5.11-.11.25-.29.37-.43.13-.15.17-.25.25-.42.08-.17.04-.31-.02-.43-.06-.12-.56-1.34-.76-1.84-.2-.48-.41-.42-.56-.42h-.48c-.17 0-.43.06-.66.31-.22.25-.86.85-.86 2.07 0 1.22.89 2.4 1.01 2.56.12.17 1.75 2.67 4.23 3.74.59.26 1.05.41 1.41.52.59.19 1.13.16 1.56.1.48-.07 1.47-.6 1.67-1.18.21-.58.21-1.07.14-1.18-.06-.1-.22-.16-.47-.28Z"/></symbol>
     <symbol id="i-direct" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" d="M21 3 10.2 13.8M21 3l-6.8 18-4-7.2L3 9.8 21 3Z"/></symbol>
+    <symbol id="i-heart" viewBox="0 0 24 24"><path d="M12 20.3s-7.6-4.6-9.3-9.4C1.6 7.6 3.7 4.3 7 4.3c2 0 3.6 1.1 5 3 1.4-1.9 3-3 5-3 3.3 0 5.4 3.3 4.3 6.6-1.7 4.8-9.3 9.4-9.3 9.4Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></symbol>
     <symbol id="i-spark" viewBox="0 0 24 24"><path fill="currentColor" d="M12 2.5c.5 4.8 2.7 7 9.5 9.5-6.8 2.5-9 4.7-9.5 9.5-.5-4.8-2.7-7-9.5-9.5 6.8-2.5 9-4.7 9.5-9.5Z"/></symbol>
   </svg>
 
   <script src="vendor/lenis.min.js" defer></script>
   <script src="js/products.js" defer></script>
   <script src="js/main.js" defer></script>
+  <script src="js/effects.js" defer></script>
 </body>
 </html>
