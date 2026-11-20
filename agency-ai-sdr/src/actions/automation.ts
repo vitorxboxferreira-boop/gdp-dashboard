@@ -117,7 +117,6 @@ export async function diagnosePlaces(_prev: ActionResult | null, _fd: FormData):
         return `${label}: falha de rede (${(err as Error).message})`;
       }
     };
-    const info = `Chave: ${key.length} caracteres, prefixo ${key.slice(0, 4)}…`;
     const a = await call("Teste 1 (campos mínimos)", "places.id,places.displayName");
     const b = await call("Teste 2 (campos completos)", PLACES_FIELD_MASK);
     // Teste 3: API antiga (legacy) — só para diagnóstico, pois costuma explicar melhor a recusa.
@@ -133,7 +132,7 @@ export async function diagnosePlaces(_prev: ActionResult | null, _fd: FormData):
       c = `Teste 3 (API antiga): falha de rede (${(err as Error).message})`;
     }
     const okAll = a.includes("(OK)") && b.includes("(OK)");
-    return { ok: okAll, message: [info, a, b, c].join("\n\n") };
+    return { ok: okAll, message: [a, b, c].join("\n\n") };
   } catch (e) {
     return toResult(e);
   }
