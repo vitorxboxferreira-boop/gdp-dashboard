@@ -23,3 +23,12 @@ describe("limpeza das variáveis públicas", () => {
     expect(cleanUrl("https://abc.supabase.co/rest/v1/")).toBe("https://abc.supabase.co");
   });
 });
+
+describe("segurança do /api/health", () => {
+  it("resposta pública não expõe projeto, chave ou estado da conexão", async () => {
+    const src = (await import("node:fs")).readFileSync(new URL("../../src/app/api/health/route.ts", import.meta.url), "utf8");
+    const publicBranch = src.slice(src.indexOf('if (url.searchParams.get("deep") !== "1")'), src.indexOf("const token = process.env.HEALTHCHECK_TOKEN"));
+    expect(publicBranch).not.toMatch(/supabase|projeto|autenticacao|Key/i);
+    expect(publicBranch).toMatch(/status: "ok"/);
+  });
+});

@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { timingSafeEqualStr } from "@core/security.ts";
-import { isSupabaseConfigured, publicEnv, publicEnvHadWhitespace } from "@/lib/public-env";
+import { isSupabaseConfigured, publicEnv } from "@/lib/public-env";
 
 export const dynamic = "force-dynamic";
 
@@ -31,30 +31,14 @@ function keyKind(k: string): string {
 }
 
 /**
- * GET /api/health            → básico + diagnóstico da conexão com o Supabase (sem dados sensíveis).
- * GET /api/health?deep=1     → com "Authorization: Bearer <HEALTHCHECK_TOKEN>": banco, fila, rotinas e falhas.
+ * GET /api/health → público, só "ok" (sem nome de projeto, chave ou estado da conexão).
+ * GET /api/health?deep=1 → com "Authorization: Bearer <HEALTHCHECK_TOKEN>": diagnóstico do Supabase,
+ *                          banco, fila, rotinas e falhas. 200 = ok, 503 = degradado/indisponível.
  */
 export async function GET(req: Request) {
   const url = new URL(req.url);
   if (url.searchParams.get("deep") !== "1") {
-    const auth = await checkSupabaseAuth();
-    let host = "";
-    try {
-      host = new URL(publicEnv.supabaseUrl).host;
-    } catch {
-      host = publicEnv.supabaseUrl ? "URL inválida" : "";
-    }
-    return NextResponse.json({
-      status: "ok",
-      supabaseConfigured: isSupabaseConfigured,
-      supabase: {
-        projeto: host,
-        tipoDaChavePublica: keyKind(publicEnv.supabasePublishableKey),
-        variaveisTinhamEspacos: publicEnvHadWhitespace,
-        autenticacao: auth,
-      },
-      time: new Date().toISOString(),
-    });
+    return NextResponse.json({ status: "ok", time: new Date().toISOString() });
   }
   const token = process.env.HEALTHCHECK_TOKEN ?? "";
   const provided = (req.headers.get("authorization") ?? "").replace(/^Bearer\s+/i, "");
@@ -62,15 +46,31 @@ export async function GET(req: Request) {
     return NextResponse.json({ error: "unauthorized" }, { status: 401 });
   }
   try {
+    const auth = await checkSupabaseAuth();
+    let host = "";
+    try {
+      host = new URL(publicEnv.supabaseUrl).host;
+    } catch {
+      /* URL ausente ou inválida */
+    }
     const { createSupabaseAdminClient } = await import("@/lib/supabase/admin");
     const { data, error } = await createSupabaseAdminClient().rpc("system_health");
     if (error) throw error;
     const h = data as { status: string; issues: string[]; queue: unknown; heartbeats: unknown; automation_paused: boolean };
+    const degraded = h.status !== "ok" || auth.status !== "ok";
     return NextResponse.json(
-      { status: h.status, issues: h.issues, queue: h.queue, heartbeats: h.heartbeats, automationPaused: h.automation_paused, time: new Date().toISOString() },
-      { status: h.status === "ok" ? 200 : 503 },
+      {
+        status: degraded ? "degraded" : "ok",
+        issues: h.issues,
+        queue: h.queue,
+        heartbeats: h.heartbeats,
+        automationPaused: h.automation_paused,
+        supabase: { projeto: host, tipoDaChavePublica: keyKind(publicEnv.supabasePublishableKey), autenticacao: auth },
+        time: new Date().toISOString(),
+      },
+      { status: degraded ? 503 : 200, headers: { "Cache-Control": "no-store" } },
     );
   } catch {
-    return NextResponse.json({ status: "down", issues: ["Banco de dados indisponível ou não configurado"] }, { status: 503 });
+    return NextResponse.json({ status: "down", issues: ["Banco de dados indisponível ou não configurado"] }, { status: 503, headers: { "Cache-Control": "no-store" } });
   }
 }
