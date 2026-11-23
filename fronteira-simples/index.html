@@ -24,6 +24,7 @@
         <a href="#contato">Contato</a>
       </nav>
       <a class="btn btn-wa sm hide-m" href="https://bit.ly/ContatoFronteiraVeiculos" target="_blank" rel="noopener">WhatsApp</a>
+      <button class="cart-btn" id="cart-open" aria-label="Abrir carrinho"><svg viewBox="0 0 24 24"><path d="M3 4h2l2.4 11h11l2-8H6.2"/><circle cx="9" cy="19.5" r="1.5"/><circle cx="17" cy="19.5" r="1.5"/></svg><span id="cart-count">0</span></button>
       <button class="burger" id="burger" aria-label="Abrir menu" aria-expanded="false"><span></span><span></span></button>
     </div>
   </header>
@@ -89,19 +90,41 @@
     </section>
 
     <section class="sec" id="simulador">
-      <div class="wrap sim">
-        <div>
-          <p class="eyebrow">Simulador</p>
-          <h2>Quanto fica a parcela?</h2>
-          <p class="muted">Simulação ilustrativa. O vendedor confirma a taxa e as condições do seu perfil.</p>
+      <div class="wrap">
+        <p class="eyebrow">Simulador</p>
+        <h2>Monte o seu orçamento</h2>
+        <p class="muted">Veja a parcela, quanto vai ser financiado e quanto você precisa para sair com o carro. Simulação ilustrativa: o vendedor confirma a taxa e as condições do seu perfil.</p>
+        <div class="sim">
+          <form class="sim-box" id="sim" onsubmit="return false">
+            <label>Veículo<select id="s-car"></select></label>
+            <label>Seu usado na troca (opcional)
+              <div class="money"><span>R$</span><input type="text" inputmode="numeric" id="s-trade" placeholder="0"></div>
+            </label>
+            <label>Entrada em dinheiro <output id="s-down-out"></output><input type="range" id="s-down" min="0" max="80" step="5" value="20"></label>
+            <label>Prazo <output id="s-n-out"></output><input type="range" id="s-n" min="12" max="72" step="12" value="48"></label>
+          </form>
+          <div class="budget" id="budget">
+            <div class="b-pmt"><span>Parcela estimada</span><strong id="r-pmt"></strong><small id="r-pmt-sub"></small></div>
+            <h3>Orçamento</h3>
+            <dl class="rows">
+              <div><dt>Valor do veículo</dt><dd id="r-price"></dd></div>
+              <div><dt>Usado na troca</dt><dd id="r-trade"></dd></div>
+              <div><dt>Entrada em dinheiro</dt><dd id="r-down"></dd></div>
+              <div class="total"><dt>Valor financiado</dt><dd id="r-fin"></dd></div>
+              <div><dt>Total pago nas parcelas</dt><dd id="r-paid"></dd></div>
+            </dl>
+            <h3>Custo de entrada <small>(para sair com o carro)</small></h3>
+            <dl class="rows">
+              <div><dt>Entrada em dinheiro</dt><dd id="c-down"></dd></div>
+              <div><dt id="c-ipva-l">IPVA proporcional (estimado)</dt><dd id="c-ipva"></dd></div>
+              <div><dt>Transferência e documentação</dt><dd class="free">Grátis</dd></div>
+              <div><dt>Tanque cheio</dt><dd class="free">Grátis</dd></div>
+              <div><dt>1ª parcela</dt><dd class="free">Só em 2027</dd></div>
+              <div class="total"><dt>Você precisa hoje</dt><dd id="c-total"></dd></div>
+            </dl>
+            <button class="btn btn-wa full" id="send-sim">Enviar orçamento no WhatsApp</button>
+          </div>
         </div>
-        <form class="sim-box" id="sim" onsubmit="return false">
-          <label>Veículo<select id="s-car"></select></label>
-          <label>Entrada <output id="s-down-out"></output><input type="range" id="s-down" min="0" max="80" step="5" value="30"></label>
-          <label>Prazo <output id="s-n-out"></output><input type="range" id="s-n" min="12" max="60" step="12" value="48"></label>
-          <div class="sim-res"><span>Parcela estimada</span><strong id="s-pmt"></strong></div>
-          <a class="btn btn-wa full" href="https://bit.ly/ContatoFronteiraVeiculos" target="_blank" rel="noopener">Simular com um vendedor</a>
-        </form>
       </div>
     </section>
 
@@ -144,6 +167,36 @@
   <a class="wa-float" href="https://bit.ly/ContatoFronteiraVeiculos" target="_blank" rel="noopener" aria-label="Falar no WhatsApp">
     <svg viewBox="0 0 32 32"><path d="M16 3a13 13 0 00-11.2 19.6L3 29l6.6-1.7A13 13 0 1016 3zm0 23.6a10.6 10.6 0 01-5.4-1.5l-.4-.2-3.9 1 1-3.8-.3-.4A10.6 10.6 0 1116 26.6zm5.8-7.9c-.3-.2-1.9-.9-2.2-1s-.5-.2-.7.2-.8 1-1 1.2-.4.2-.7 0a8.7 8.7 0 01-2.6-1.6 9.6 9.6 0 01-1.8-2.2c-.2-.3 0-.5.1-.6l.5-.6.3-.5a.6.6 0 000-.6l-1-2.4c-.3-.6-.5-.5-.7-.5h-.6a1.2 1.2 0 00-.9.4 3.6 3.6 0 00-1.1 2.7 6.3 6.3 0 001.3 3.3 14.4 14.4 0 005.5 4.9c2 .9 2.8.9 3.8.8a3.2 3.2 0 002.1-1.5 2.6 2.6 0 00.2-1.5c-.1-.1-.3-.2-.6-.4z"/></svg>
   </a>
+
+  <div class="overlay" id="overlay" hidden></div>
+
+  <div class="modal" id="modal" role="dialog" aria-modal="true" aria-labelledby="m-title" hidden>
+    <button class="x" data-close aria-label="Fechar">×</button>
+    <div class="m-img"><span class="badge" id="m-badge"></span><img id="m-img" alt=""></div>
+    <div class="m-body">
+      <small id="m-brand"></small>
+      <h3 id="m-title"></h3>
+      <p id="m-desc" class="muted"></p>
+      <ul id="m-specs" class="specs"></ul>
+      <div class="price"><strong id="m-price"></strong><span id="m-pmt"></span></div>
+      <div class="m-cta">
+        <button class="btn btn-primary" id="m-add">Adicionar ao carrinho</button>
+        <button class="btn btn-line" id="m-sim">Simular</button>
+      </div>
+    </div>
+  </div>
+
+  <aside class="drawer" id="drawer" aria-label="Carrinho" hidden>
+    <div class="d-head"><h3>Seu carrinho</h3><button class="x" data-close aria-label="Fechar">×</button></div>
+    <div id="d-items" class="d-items"></div>
+    <div class="d-foot" id="d-foot">
+      <div class="d-total"><span>Total</span><strong id="d-total"></strong></div>
+      <button class="btn btn-line full" id="d-sim">Simular financiamento do carrinho</button>
+      <button class="btn btn-wa full" id="d-send">Enviar pedido no WhatsApp</button>
+    </div>
+  </aside>
+
+  <div class="toast" id="toast" role="status"></div>
 
   <script src="app.js"></script>
 </body>
