@@ -16,7 +16,7 @@
 * { box-sizing: border-box; }
 html { scroll-behavior: smooth; scroll-padding-top: 76px; }
 body { margin: 0; font: 400 16px/1.6 Manrope, system-ui, sans-serif; color: var(--ink); background: var(--bg); -webkit-font-smoothing: antialiased; }
-img { max-width: 100%; display: block; }
+img { max-width: 100%; height: auto; display: block; }
 a { color: inherit; }
 h1, h2, h3 { font-family: var(--display); font-style: italic; font-weight: 800; text-transform: uppercase; line-height: 1.05; margin: 0 0 14px; letter-spacing: -0.01em; }
 h2 { font-size: clamp(1.8rem, 4vw, 2.6rem); }
@@ -159,7 +159,7 @@ input[type=range] { width: 100%; accent-color: var(--blue); }
   .menu-open .menu { transform: none; }
   .hero { padding-top: 96px; }
   .hero-in { grid-template-columns: 1fr; }
-  .hero-car { order: -1; margin: 0 -8px; }
+  .hero-car { order: 2; width: min(100%, 420px); margin: 8px auto 0; }
   .cta .btn { flex: 1; }
   .sec { padding: 60px 0; }
   .cars, .conds { grid-template-columns: 1fr; }
