@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Fronteira Veículos</title>
+  <meta name="description" content="Fronteira Veículos, Santana do Livramento (RS): 0KM Ford, Jeep, RAM, Hyundai e BYD, seminovos e carros premium. Financiamento facilitado.">
+  <meta name="theme-color" content="#0a1638">
+  <link rel="icon" href="assets/logo-fronteira.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Exo+2:ital,wght@1,700;1,800;1,900&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="top">
+    <div class="wrap top-in">
+      <a href="#inicio" class="logo"><img src="assets/logo-fronteira-white.svg" alt="Fronteira Veículos" width="150" height="68"></a>
+      <nav class="menu" id="menu">
+        <a href="#estoque">Estoque</a>
+        <a href="#condicoes">Condições</a>
+        <a href="#simulador">Simulador</a>
+        <a href="#sobre">A loja</a>
+        <a href="#contato">Contato</a>
+      </nav>
+      <a class="btn btn-wa sm hide-m" href="https://bit.ly/ContatoFronteiraVeiculos" target="_blank" rel="noopener">WhatsApp</a>
+      <button class="burger" id="burger" aria-label="Abrir menu" aria-expanded="false"><span></span><span></span></button>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero" id="inicio">
+      <div class="wrap hero-in">
+        <div class="hero-copy">
+          <span class="pill">Black November · Só aqui na Fronteira</span>
+          <h1>Seu próximo carro <em>começa aqui.</em></h1>
+          <p>0KM Ford, Jeep, RAM, Hyundai e BYD, seminovos revisados e carros premium. Financiamento facilitado e atendimento de quem está há mais de 25 anos no mercado.</p>
+          <div class="cta">
+            <a class="btn btn-primary" href="#estoque">Ver estoque</a>
+            <a class="btn btn-ghost" href="https://bit.ly/ContatoFronteiraVeiculos" target="_blank" rel="noopener">Falar com um vendedor</a>
+          </div>
+        </div>
+        <div class="hero-car">
+          <img src="assets/compass-cut.webp" alt="Jeep Compass S" width="1034" height="674" fetchpriority="high">
+        </div>
+      </div>
+      <div class="wrap stats">
+        <div><strong>+25</strong><span>anos no mercado</span></div>
+        <div><strong>5</strong><span>marcas 0KM</span></div>
+        <div><strong>27 mil</strong><span>seguidores</span></div>
+      </div>
+    </section>
+
+    <section class="sec" id="estoque">
+      <div class="wrap">
+        <div class="head">
+          <div>
+            <p class="eyebrow">Estoque</p>
+            <h2>Escolha o seu</h2>
+          </div>
+          <div class="chips" role="tablist" aria-label="Filtrar estoque">
+            <button class="chip on" data-f="all">Todos</button>
+            <button class="chip" data-f="0KM">0KM</button>
+            <button class="chip" data-f="Seminovo">Seminovos</button>
+            <button class="chip" data-f="Carros Premium">Premium</button>
+          </div>
+        </div>
+        <div class="grid cars" id="cars"></div>
+        <p class="note">Valores de referência, sujeitos a alteração. Consulte disponibilidade.</p>
+      </div>
+    </section>
+
+    <section class="sec alt" id="condicoes">
+      <div class="wrap">
+        <p class="eyebrow">Condições especiais</p>
+        <h2>Facilitamos o seu pagamento</h2>
+        <div class="grid conds">
+          <div class="cond"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8 12.5l2.7 2.7L16.5 9"/></svg><div><small>Aprovação</small><b>Rápida e sem burocracia</b></div></div>
+          <div class="cond"><svg viewBox="0 0 24 24"><path d="M3 12l4-4 4 3 3-3 7 5M3 12l5 5 3-2 3 3 7-6"/></svg><div><small>Entrada</small><b>Parcelada</b></div></div>
+          <div class="cond"><svg viewBox="0 0 24 24"><path d="M6 3h9l4 4v14H6zM14 3v5h5M9 13h7M9 17h5"/></svg><div><small>Financiamento</small><b>100%</b></div></div>
+          <div class="cond"><svg viewBox="0 0 24 24"><path d="M3 15l2-6h14l2 6v4H3zM5 15h14M7 19v2M17 19v2"/></svg><div><small>Sem entrada</small><b>Consulte condições</b></div></div>
+          <div class="cond"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg><div><small>1ª parcela</small><b>Só em 2027</b></div></div>
+          <div class="cond"><svg viewBox="0 0 24 24"><path d="M20 12l-8 8-9-9V3h8z"/><circle cx="7.5" cy="7.5" r="1.5"/></svg><div><small>Veículos</small><b>Abaixo da FIPE</b></div></div>
+          <div class="cond"><svg viewBox="0 0 24 24"><path d="M20 8a8 8 0 00-14.5-3M4 4v4h4M4 16a8 8 0 0014.5 3M20 20v-4h-4"/></svg><div><small>Bônus no usado</small><b>Na troca</b></div></div>
+          <div class="cond"><svg viewBox="0 0 24 24"><path d="M4 21V5a2 2 0 012-2h6a2 2 0 012 2v16M3 21h12M6 9h6M14 10h2a2 2 0 012 2v4a1.5 1.5 0 003 0V8l-3-3"/></svg><div><small>Tanque cheio</small><b>E transferência grátis</b></div></div>
+          <div class="cond"><svg viewBox="0 0 24 24"><path d="M19 5L5 19"/><circle cx="7" cy="7" r="2.5"/><circle cx="17" cy="17" r="2.5"/></svg><div><small>Taxa de juros</small><b>Reduzida</b></div></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="sec" id="simulador">
+      <div class="wrap sim">
+        <div>
+          <p class="eyebrow">Simulador</p>
+          <h2>Quanto fica a parcela?</h2>
+          <p class="muted">Simulação ilustrativa. O vendedor confirma a taxa e as condições do seu perfil.</p>
+        </div>
+        <form class="sim-box" id="sim" onsubmit="return false">
+          <label>Veículo<select id="s-car"></select></label>
+          <label>Entrada <output id="s-down-out"></output><input type="range" id="s-down" min="0" max="80" step="5" value="30"></label>
+          <label>Prazo <output id="s-n-out"></output><input type="range" id="s-n" min="12" max="60" step="12" value="48"></label>
+          <div class="sim-res"><span>Parcela estimada</span><strong id="s-pmt"></strong></div>
+          <a class="btn btn-wa full" href="https://bit.ly/ContatoFronteiraVeiculos" target="_blank" rel="noopener">Simular com um vendedor</a>
+        </form>
+      </div>
+    </section>
+
+    <section class="sec alt" id="sobre">
+      <div class="wrap about">
+        <div>
+          <p class="eyebrow">A loja</p>
+          <h2>Mais de 25 anos na fronteira</h2>
+          <p>A Fronteira Veículos é referência em Santana do Livramento. Trabalhamos com 0KM das marcas Ford, Jeep, RAM, Hyundai e BYD, seminovos revisados e carros premium, sempre com atendimento próximo e condições que cabem no seu bolso.</p>
+        </div>
+        <ul class="brands"><li>Ford</li><li>Jeep</li><li>RAM</li><li>Hyundai</li><li>BYD</li></ul>
+      </div>
+    </section>
+
+    <section class="sec contact" id="contato">
+      <div class="wrap contact-in">
+        <div>
+          <p class="eyebrow">Contato</p>
+          <h2>Venha tomar um café com a gente</h2>
+          <ul class="info">
+            <li><svg viewBox="0 0 24 24"><path d="M12 21s-7-6.2-7-11a7 7 0 0114 0c0 4.8-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg><a href="https://www.google.com/maps/search/?api=1&query=Av.+Jo%C3%A3o+B.+Goulart,+1650,+Santana+do+Livramento,+RS" target="_blank" rel="noopener">Av. João B. Goulart, 1650 · Santana do Livramento, RS</a></li>
+            <li><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/></svg><a href="https://www.instagram.com/fronteira_veiculos/" target="_blank" rel="noopener">@fronteira_veiculos</a></li>
+          </ul>
+        </div>
+        <div class="contact-cta">
+          <p>Fale direto com um vendedor e receba uma proposta hoje.</p>
+          <a class="btn btn-wa full lg" href="https://bit.ly/ContatoFronteiraVeiculos" target="_blank" rel="noopener">Chamar no WhatsApp</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="foot">
+    <div class="wrap foot-in">
+      <img src="assets/logo-fronteira-white.svg" alt="Fronteira Veículos" width="120" height="54" loading="lazy">
+      <p>© 2026 Fronteira Veículos · Santana do Livramento, RS. Imagens e valores ilustrativos.</p>
+    </div>
+  </footer>
+
+  <a class="wa-float" href="https://bit.ly/ContatoFronteiraVeiculos" target="_blank" rel="noopener" aria-label="Falar no WhatsApp">
+    <svg viewBox="0 0 32 32"><path d="M16 3a13 13 0 00-11.2 19.6L3 29l6.6-1.7A13 13 0 1016 3zm0 23.6a10.6 10.6 0 01-5.4-1.5l-.4-.2-3.9 1 1-3.8-.3-.4A10.6 10.6 0 1116 26.6zm5.8-7.9c-.3-.2-1.9-.9-2.2-1s-.5-.2-.7.2-.8 1-1 1.2-.4.2-.7 0a8.7 8.7 0 01-2.6-1.6 9.6 9.6 0 01-1.8-2.2c-.2-.3 0-.5.1-.6l.5-.6.3-.5a.6.6 0 000-.6l-1-2.4c-.3-.6-.5-.5-.7-.5h-.6a1.2 1.2 0 00-.9.4 3.6 3.6 0 00-1.1 2.7 6.3 6.3 0 001.3 3.3 14.4 14.4 0 005.5 4.9c2 .9 2.8.9 3.8.8a3.2 3.2 0 002.1-1.5 2.6 2.6 0 00.2-1.5c-.1-.1-.3-.2-.6-.4z"/></svg>
+  </a>
+
+  <script src="app.js"></script>
+</body>
+</html>
