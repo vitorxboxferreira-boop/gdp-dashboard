@@ -27,6 +27,9 @@ window.FOTOS = {
   "bone-nike-2": [
     "img/produtos/bone-nike-2.jpg"
   ],
+  "bone-trucker-grafite": [
+    "img/produtos/bone-trucker-grafite.jpg"
+  ],
   "bone-wats-company-bomb": [
     "img/produtos/bone-wats-company-bomb.jpg"
   ],
@@ -41,6 +44,9 @@ window.FOTOS = {
   ],
   "calca-jeans-wats-company-zat-baggy": [
     "img/produtos/calca-jeans-wats-company-zat-baggy.jpg"
+  ],
+  "calca-jogger-moletom-preta": [
+    "img/produtos/calca-jogger-moletom-preta.jpg"
   ],
   "calca-moletom-nike-jogger": [
     "img/produtos/calca-moletom-nike-jogger.jpg"
@@ -108,6 +114,9 @@ window.FOTOS = {
   "relogio-casio-digital-analogico-feminino-bege": [
     "img/produtos/relogio-casio-digital-analogico-feminino-bege.jpg"
   ],
+  "relogio-casio-duro-azul": [
+    "img/produtos/relogio-casio-duro-azul.jpg"
+  ],
   "relogio-casio-vintage-aq-230el-1a": [
     "img/produtos/relogio-casio-vintage-aq-230el-1a.jpg"
   ],
@@ -152,6 +161,12 @@ window.FOTOS = {
   ],
   "touca-nike": [
     "img/produtos/touca-nike.jpg"
+  ],
+  "truck-anodizado-dourado-139": [
+    "img/produtos/truck-anodizado-dourado-139.jpg"
+  ],
+  "truck-anodizado-roxo-139": [
+    "img/produtos/truck-anodizado-roxo-139.jpg"
   ],
   "truck-lyons-vazado-importado": [
     "img/produtos/truck-lyons-vazado-importado.jpg"

@@ -9,7 +9,8 @@ Abra `index.html` no navegador ou suba a pasta em qualquer hospedagem estática 
 - Banner, faixa de benefícios e atalhos de categorias
 - Vitrines em carrossel (Novidades + categorias escolhidas)
 - Página de categoria com filtro por marca e ordenação por preço/nome
-- Catálogo de exemplo com 50 produtos (5 por categoria), cada um com foto ilustrativa de estúdio em `img/produtos/`; rotas de Novidades e Promoções
+- Catálogo de demonstração com 55 produtos e foto para todos em `img/produtos/`: 26 fotos reais de licença livre
+  (créditos em `js/creditos.js` e na página "Créditos das fotos") e as demais ilustrativas; rotas de Novidades e Promoções
 - Busca (ignora acentos), favoritos, tema escuro (padrão) e claro
 - Listas com "Carregar mais" (24 por vez), filtro por marca e ordenação
 - Escolha de cor e tamanho; o pedido no WhatsApp leva os dois

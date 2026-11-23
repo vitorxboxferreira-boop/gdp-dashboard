@@ -86,6 +86,12 @@
     return (cacheImg[p.slug] = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svg));
   }
   const FOTOS = window.FOTOS || {};
+  const CREDITOS = window.CREDITOS || {};
+  const creditoHtml = (slug) => {
+    const c = CREDITOS[slug];
+    if (!c) return "";
+    return `<p class="credito">Foto: <a href="${esc(c.origem)}" target="_blank" rel="noopener">${esc(c.autor)}</a> · <a href="${esc(c.licencaUrl)}" target="_blank" rel="noopener">${esc(c.licenca)}</a> · imagem ilustrativa</p>`;
+  };
   const imagens = (p) => (p.imagens.length ? p.imagens : FOTOS[p.slug] && FOTOS[p.slug].length ? FOTOS[p.slug] : [imagemAuto(p)]);
 
   // ------------------------------------------------------------- estado
@@ -349,6 +355,7 @@
             <button class="fav${fav}" data-fav="${esc(p.slug)}" aria-label="Favoritar">${icone("i-heart")}</button>
             <img id="img-principal" src="${esc(imgs[0])}" alt="${esc(p.nome)}" />
           </div>
+          ${creditoHtml(p.slug)}
           ${imgs.length > 1 ? `<div class="miniaturas">${imgs.map((src, i) => `<button class="${i ? "" : "on"}" data-img="${esc(src)}" aria-label="Foto ${i + 1}"><img src="${esc(src)}" alt="" /></button>`).join("")}</div>` : ""}
         </div>
         <div class="info-prod">
@@ -612,6 +619,11 @@
         `A ${L.nome} usa o armazenamento do seu navegador só pra lembrar carrinho, favoritos e tema. Nada disso vai pros nossos servidores.`,
         "Os dados do pedido (produtos, nome e observações) só são compartilhados quando você envia a mensagem pelo WhatsApp.",
       ]);
+    } else if (partes[0] === "creditos") {
+      const lista = Object.entries(CREDITOS).filter(([slug]) => prodPorSlug(slug));
+      html = `<div class="container pagina-txt"><h1>Créditos das fotos</h1>
+        <p>As fotos abaixo são imagens ilustrativas de licença livre (Creative Commons ou domínio público), encontradas pelo Openverse e recortadas para a vitrine.</p>
+        <ul class="lista-creditos">${lista.map(([slug, c]) => `<li><a href="#/produto/${esc(slug)}">${esc(prodPorSlug(slug).nome)}</a><span>“${esc(c.titulo)}”, por <a href="${esc(c.origem)}" target="_blank" rel="noopener">${esc(c.autor)}</a>, <a href="${esc(c.licencaUrl)}" target="_blank" rel="noopener">${esc(c.licenca)}</a></span></li>`).join("")}</ul></div>`;
     } else if (partes[0] === "termos") {
       html = paginaTexto("Termos de uso", [
         "Preços e disponibilidade podem mudar sem aviso. O pedido só é confirmado depois do atendimento pelo WhatsApp.",
@@ -734,7 +746,7 @@
       </div>
       <div class="rodape-base">
         <span>© ${ano} ${esc(L.nome)}. Todos os direitos reservados.</span>
-        <span><a href="#/termos">Termos</a> /// <a href="#/privacidade">Privacidade</a></span>
+        <span><a href="#/termos">Termos</a> /// <a href="#/privacidade">Privacidade</a> /// <a href="#/creditos">Créditos das fotos</a></span>
       </div></div>`;
   }
 

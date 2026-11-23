@@ -450,3 +450,12 @@ main.entrando { animation: entra .5s var(--suave-curva) both; }
 /* seções fora da tela só são desenhadas quando chegam perto */
 .secao, .marcas, .faq, .manifesto { content-visibility: auto; contain-intrinsic-size: auto 640px; }
 .card { contain: layout style; transition: transform .2s var(--suave-curva); }
+
+/* ---------- créditos das fotos ---------- */
+.credito { margin: 8px 0 0; font: 400 11px var(--fonte-mono); color: var(--suave); }
+.credito a { text-decoration: underline; text-underline-offset: 2px; }
+.lista-creditos { list-style: none; padding: 0; margin: 24px 0 0; display: grid; gap: 12px; }
+.lista-creditos li { display: grid; gap: 2px; padding: 12px 0; border-bottom: 1px solid var(--linha); }
+.lista-creditos li > a { font-weight: 700; }
+.lista-creditos span { font: 400 12px var(--fonte-mono); color: var(--suave); }
+.lista-creditos span a { text-decoration: underline; }

@@ -1,5 +1,5 @@
 // =====================================================================
-//  CATÁLOGO: categorias e produtos (5 exemplos por categoria).
+//  CATÁLOGO: categorias e produtos (exemplos para demonstração).
 //
 //  Produto:
 //    slug        identificador da URL (sem espaço nem acento, único)
@@ -41,11 +41,13 @@ window.PRODUTOS = [
   {"slug": "bone-chronic-five-panel", "nome": "Boné Chronic Five Panel", "marca": "Chronic", "categoria": "bones", "preco": 135, "tamanhos": [], "selo": "Últimas unidades"},
   {"slug": "bone-nike-2", "nome": "Boné Nike", "marca": "Nike", "categoria": "bones", "preco": 189.9, "tamanhos": [{"t": "P", "estoque": 3}, {"t": "M", "estoque": 3}, {"t": "G", "estoque": 3}], "selo": "Últimas unidades"},
   {"slug": "chapeu-volcom-stone", "nome": "Chapéu Volcom - Stone", "marca": "Volcom", "categoria": "bones", "preco": 209.9, "tamanhos": []},
+  {"slug": "bone-trucker-grafite", "nome": "Boné Trucker Grafite", "marca": "", "categoria": "bones", "preco": 129.9, "tamanhos": [], "selo": "Exclusivo", "novidade": true},
   {"slug": "calca-jeans-plano-c-light-blue", "nome": "Calça Jeans Plano C - Light Blue", "marca": "Plano C", "categoria": "calcas", "preco": 365, "tamanhos": [{"t": "38", "estoque": 3}, {"t": "40", "estoque": 3}, {"t": "42", "estoque": 3}, {"t": "44", "estoque": 3}, {"t": "46", "estoque": 3}], "cores": ["Azul"], "novidade": true},
   {"slug": "calca-jeans-wats-company-zat-baggy", "nome": "Calça Jeans Wats Company - Zat Baggy", "marca": "Wats Company", "categoria": "calcas", "preco": 275, "precoAntigo": 320, "tamanhos": [{"t": "P", "estoque": 2}, {"t": "M", "estoque": 2}, {"t": "G", "estoque": 3}, {"t": "GG", "estoque": 0}], "selo": "Promo", "novidade": true},
   {"slug": "calca-jeans-chocolate-baggy", "nome": "Calça Jeans Chocolate Baggy", "marca": "Chocolate", "categoria": "calcas", "preco": 285, "precoAntigo": 345, "tamanhos": [{"t": "42", "estoque": 2}, {"t": "44", "estoque": 3}], "selo": "Promo"},
   {"slug": "calca-moletom-nike-jogger", "nome": "Calça Moletom Nike Jogger", "marca": "Nike", "categoria": "calcas", "preco": 179.9, "precoAntigo": 320, "tamanhos": [{"t": "P", "estoque": 1}], "cores": ["Cinza"], "selo": "Promo"},
   {"slug": "calca-drop-dead-classic-90s-marbled-jeans-azul", "nome": "Calça Drop Dead Classic 90S Marbled Jeans Azul", "marca": "Drop Dead", "categoria": "calcas", "preco": 199.9, "precoAntigo": 275, "tamanhos": [{"t": "44", "estoque": 1}, {"t": "46", "estoque": 1}], "selo": "Promo"},
+  {"slug": "calca-jogger-moletom-preta", "nome": "Calça Jogger Moletom Preta", "marca": "", "categoria": "calcas", "preco": 169.9, "tamanhos": [{"t": "P", "estoque": 3}, {"t": "M", "estoque": 3}, {"t": "G", "estoque": 3}, {"t": "GG", "estoque": 3}], "novidade": true},
   {"slug": "moletom-santa-cruz-screaming-slime", "nome": "Moletom Santa Cruz - Screaming Slime", "marca": "Santa Cruz", "categoria": "moletons", "preco": 209.9, "precoAntigo": 420, "tamanhos": [{"t": "P", "estoque": 0}, {"t": "G", "estoque": 2}], "selo": "Mais vendido"},
   {"slug": "moletom-volcom-circlestoned", "nome": "Moletom Volcom - Circlestoned", "marca": "Volcom", "categoria": "moletons", "preco": 195, "precoAntigo": 389.9, "tamanhos": [{"t": "M", "estoque": 2}, {"t": "P", "estoque": 1}, {"t": "GG", "estoque": 1}, {"t": "G", "estoque": 1}], "selo": "Promo"},
   {"slug": "moletom-chocolate", "nome": "Moletom Chocolate", "marca": "Chocolate", "categoria": "moletons", "preco": 150, "precoAntigo": 289.9, "tamanhos": [{"t": "P", "estoque": 1}, {"t": "M", "estoque": 2}, {"t": "G", "estoque": 1}], "selo": "Promo"},
@@ -56,11 +58,14 @@ window.PRODUTOS = [
   {"slug": "shape-milk-maple-8-5", "nome": "Shape Milk Maple 8.5", "marca": "Milk", "categoria": "skate", "preco": 345, "tamanhos": []},
   {"slug": "truck-lyons-vazado-importado", "nome": "Truck Lyons vazado importado", "marca": "Lyons", "categoria": "skate", "preco": 299.9, "tamanhos": [{"t": "139", "estoque": 3}, {"t": "149", "estoque": 3}]},
   {"slug": "roda-lyons-lisa", "nome": "Roda Lyons Lisa", "marca": "Lyons", "categoria": "skate", "preco": 75, "tamanhos": [{"t": "52", "estoque": 3}]},
+  {"slug": "truck-anodizado-roxo-139", "nome": "Truck Anodizado Roxo 139mm (par)", "marca": "", "categoria": "skate", "preco": 289.9, "tamanhos": [], "selo": "Destaque", "novidade": true},
+  {"slug": "truck-anodizado-dourado-139", "nome": "Truck Anodizado Dourado 139mm (par)", "marca": "", "categoria": "skate", "preco": 289.9, "tamanhos": [], "novidade": true},
   {"slug": "relogio-casio-digital-analogico-feminino-bege", "nome": "Relógio Casio / Digital - Analógico - Feminino / Bege", "marca": "Casio", "categoria": "relogios", "preco": 565, "tamanhos": [], "selo": "Últimas unidades"},
   {"slug": "relogio-casio-analogico-mdv-10-1a1v", "nome": "Relógio Casio Analógico - MDV-10-1A1V", "marca": "Casio", "categoria": "relogios", "preco": 589.9, "tamanhos": []},
   {"slug": "relogio-g-shock-digital-analogico-ga-2100-1a1dr", "nome": "Relógio G-SHOCK / Digital - Analógico GA-2100-1A1DR", "marca": "Casio", "categoria": "relogios", "preco": 549.9, "tamanhos": [], "selo": "Mais vendido"},
   {"slug": "relogio-g-shock-digital-analogico", "nome": "Relógio G-SHOCK / Digital - Analógico", "marca": "Casio", "categoria": "relogios", "preco": 699.9, "tamanhos": [], "selo": "Exclusivo"},
   {"slug": "relogio-casio-vintage-aq-230el-1a", "nome": "Relógio Casio Vintage - AQ-230EL-1A", "marca": "Casio", "categoria": "relogios", "preco": 525, "tamanhos": [], "selo": "Últimas unidades"},
+  {"slug": "relogio-casio-duro-azul", "nome": "Relógio Casio Duro MDV-106 Azul", "marca": "Casio", "categoria": "relogios", "preco": 599.9, "tamanhos": [], "novidade": true},
   {"slug": "bermuda-wats-company-nylon-faixa", "nome": "Bermuda Wats Company - Nylon Faixa", "marca": "Wats Company", "categoria": "bermudas", "preco": 235, "tamanhos": [{"t": "P", "estoque": 2}, {"t": "M", "estoque": 3}, {"t": "G", "estoque": 3}, {"t": "GG", "estoque": 3}], "novidade": true},
   {"slug": "short-nylon-plano-c", "nome": "Short Nylon Plano C", "marca": "Plano C", "categoria": "bermudas", "preco": 189.9, "tamanhos": [{"t": "G1", "estoque": 2}], "selo": "Últimas unidades"},
   {"slug": "bermuda-hocks-sint-c-elastano", "nome": "Bermuda Hocks - Sint C/Elastano", "marca": "Hocks", "categoria": "bermudas", "preco": 185, "precoAntigo": 239.9, "tamanhos": [{"t": "P", "estoque": 1}, {"t": "M", "estoque": 1}, {"t": "G", "estoque": 2}, {"t": "GG", "estoque": 1}, {"t": "XG", "estoque": 2}], "selo": "Promo"},
