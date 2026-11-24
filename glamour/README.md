@@ -10,8 +10,29 @@ glamour/
 ├── js/main.js        menu, filtro por valor, aba de detalhes, animações, contato
 ├── vendor/lenis.min.js  rolagem suave no desktop (MIT)
 ├── assets/img/       logo, fotos (WebP) e ícones
+├── assets/fonts/     Cormorant Garamond e Jost (WOFF2, licença OFL)
+├── tools/build-single.cjs  gera o arquivo único em dist/
+├── dist/glamour-boutique.html  site completo em um só arquivo
 └── preview/          capturas de tela de referência
 ```
+
+## Arquivo único para enviar (recomendado)
+
+`dist/glamour-boutique.html` é o site inteiro em **um só arquivo**: estilos,
+scripts, imagens e fontes ficam embutidos. Não precisa descompactar nem manter
+pastas: basta abrir no navegador (computador ou celular), enviar por
+WhatsApp/e-mail ou publicar numa hospedagem (renomeie para `index.html`).
+Funciona até sem internet.
+
+Depois de alterar o site, gere o arquivo de novo:
+
+```
+cd glamour
+node tools/build-single.cjs
+```
+
+(Com o Playwright instalado, os cartões da coleção já saem prontos no HTML e
+aparecem mesmo em visualizadores que não executam JavaScript.)
 
 ## Rodar localmente
 

@@ -250,6 +250,14 @@
 
   function renderCards() {
     if (!grid) return;
+    /* Versão em arquivo único: os cartões já vêm prontos no HTML
+       (funcionam até sem JavaScript); aqui só são ativados. */
+    if (grid.querySelector('.product-card')) {
+      catalog.products.forEach(function (p) { productById[p.id] = p; });
+      $$('.product-card', grid).forEach(observeReveal);
+      $$('img', grid).forEach(fadeImage);
+      return;
+    }
     grid.innerHTML = catalog.products.map(function (p, i) {
       productById[p.id] = p;
       var dots = p.colors.map(function (c) {
@@ -318,7 +326,7 @@
 
   function renderFilter() {
     if (!filterBox) return;
-    filterBox.innerHTML = catalog.priceRanges.map(function (r, i) {
+    if (!filterBox.querySelector('.chip')) filterBox.innerHTML = catalog.priceRanges.map(function (r, i) {
       return '<button type="button" class="chip" data-range="' + r.id + '" aria-pressed="' + (i === 0) + '">' + esc(r.label) + '</button>';
     }).join('') +
       '<button type="button" class="chip chip-fav" data-range="favoritos" aria-pressed="false">' +
@@ -385,7 +393,9 @@
   function pdRender(p) {
     var img = $('#pd-image');
     img.classList.remove('is-loaded');
-    img.src = p.image;
+    /* usa a mesma imagem do cartão (no arquivo único ela já está embutida) */
+    var cardImg = grid && grid.querySelector('.product-card[data-id="' + p.id + '"] img');
+    img.src = cardImg ? cardImg.getAttribute('src') : p.image;
     img.width = p.w;
     img.height = p.h;
     img.alt = p.alt;
