@@ -1940,3 +1940,25 @@ button.product-media {
   .js .reveal .divider::after { transform: translate(-50%, -50%) rotate(45deg); }
   .site-header.is-hidden { transform: none; }
 }
+
+/* ---------- Telefone / WhatsApp ---------- */
+.contact-phone {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: .5em;
+  margin: 1.6rem 0 0;
+  font-size: .95rem;
+  letter-spacing: .04em;
+  color: rgba(252, 249, 248, .78);
+}
+.contact-phone .icon { color: var(--gold-light); }
+.contact-phone a {
+  color: var(--white);
+  font-weight: 400;
+  border-bottom: 1px solid rgba(220, 194, 147, .45);
+  user-select: all;
+  transition: color .3s, border-color .3s;
+}
+.contact-phone a:hover { color: var(--gold-light); border-color: var(--gold-light); }
+.site-footer .footer-instagram + .footer-instagram { margin-top: -18px; }

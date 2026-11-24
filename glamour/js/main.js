@@ -9,7 +9,7 @@
    * Enquanto estiver vazio, os botões de contato abrem o
    * Direct do Instagram (@glamourfronteira).
    * ------------------------------------------------------------ */
-  var WHATSAPP_NUMBER = '';
+  var WHATSAPP_NUMBER = '555536213626'; // (55) 3621-3626
   var INSTAGRAM_DIRECT = 'https://ig.me/m/glamourfronteira';
 
   var doc = document;

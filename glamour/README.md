@@ -28,7 +28,8 @@ fundo rosa removido (transparência real), sem redesenhar a letra G nem o nome.
 `logo-g.png` é o símbolo, usado no favicon.
 
 ## WhatsApp
-Defina o número em `js/main.js`:
+Número configurado: (55) 3621-3626 (`555536213626` = país 55 + DDD 55 + número).
+Para trocar, edite `js/main.js` e os links `wa.me` do contato e do rodapé no `index.html`:
 
 ```js
 var WHATSAPP_NUMBER = '55DDDNUMERO';
