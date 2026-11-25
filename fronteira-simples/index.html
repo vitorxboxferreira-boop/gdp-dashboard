@@ -48,7 +48,7 @@
       <div class="wrap stats">
         <div><strong>+25</strong><span>anos no mercado</span></div>
         <div><strong>5</strong><span>marcas 0KM</span></div>
-        <div><strong>27 mil</strong><span>seguidores</span></div>
+        <div><strong id="hero-n">20</strong><span>carros no estoque</span></div>
       </div>
     </section>
 
@@ -59,15 +59,37 @@
             <p class="eyebrow">Estoque</p>
             <h2>Escolha o seu</h2>
           </div>
-          <div class="chips" role="tablist" aria-label="Filtrar estoque">
-            <button class="chip on" data-f="all">Todos</button>
-            <button class="chip" data-f="0KM">0KM</button>
-            <button class="chip" data-f="Seminovo">Seminovos</button>
-            <button class="chip" data-f="Carros Premium">Premium</button>
+          <div class="chips" role="group" aria-label="Categoria">
+            <button class="chip on" data-f="all">Todos <i></i></button>
+            <button class="chip" data-f="0KM">0KM <i></i></button>
+            <button class="chip" data-f="Seminovo">Seminovos <i></i></button>
+            <button class="chip" data-f="Premium">Premium <i></i></button>
           </div>
         </div>
+        <div class="toolbar">
+          <label class="search"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg><input type="search" id="f-q" placeholder="Buscar marca, modelo, cor…" aria-label="Buscar"></label>
+          <select id="f-marca" aria-label="Marca"></select>
+          <select id="f-tipo" aria-label="Tipo"></select>
+          <select id="f-max" aria-label="Preço até">
+            <option value="0">Qualquer preço</option>
+            <option value="100000">Até R$ 100 mil</option>
+            <option value="150000">Até R$ 150 mil</option>
+            <option value="200000">Até R$ 200 mil</option>
+            <option value="300000">Até R$ 300 mil</option>
+            <option value="500000">Até R$ 500 mil</option>
+          </select>
+          <select id="f-ordem" aria-label="Ordenar">
+            <option value="destaque">Destaques</option>
+            <option value="menor">Menor preço</option>
+            <option value="maior">Maior preço</option>
+            <option value="km">Menor km</option>
+            <option value="novo">Mais novos</option>
+          </select>
+        </div>
+        <div class="result-bar"><span id="count"></span><button class="link" id="limpar" hidden>Limpar filtros</button></div>
         <div class="grid cars" id="cars"></div>
-        <p class="note">Valores de referência, sujeitos a alteração. Consulte disponibilidade.</p>
+        <div class="more"><button class="btn btn-line" id="mais" hidden>Ver mais</button></div>
+        <p class="note">*Parcela com 20% de entrada e taxa ilustrativa. Valores de referência, sujeitos a alteração e à disponibilidade em estoque.</p>
       </div>
     </section>
 
@@ -135,7 +157,7 @@
           <h2>Mais de 25 anos na fronteira</h2>
           <p>A Fronteira Veículos é referência em Santana do Livramento. Trabalhamos com 0KM das marcas Ford, Jeep, RAM, Hyundai e BYD, seminovos revisados e carros premium, sempre com atendimento próximo e condições que cabem no seu bolso.</p>
         </div>
-        <ul class="brands"><li>Ford</li><li>Jeep</li><li>RAM</li><li>Hyundai</li><li>BYD</li></ul>
+        <div class="brands"><button data-marca="Ford">Ford</button><button data-marca="Jeep">Jeep</button><button data-marca="RAM">RAM</button><button data-marca="Hyundai">Hyundai</button><button data-marca="BYD">BYD</button><p>Toque numa marca para ver o estoque dela.</p></div>
       </div>
     </section>
 
@@ -172,17 +194,29 @@
 
   <div class="modal" id="modal" role="dialog" aria-modal="true" aria-labelledby="m-title" hidden>
     <button class="x" data-close aria-label="Fechar">×</button>
-    <div class="m-img"><span class="badge" id="m-badge"></span><img id="m-img" alt=""></div>
+    <div class="m-gal" id="m-gal">
+      <span class="badge" id="m-badge"></span>
+      <img id="m-img" alt="">
+      <button class="nav-f prev" id="m-prev" aria-label="Foto anterior">‹</button>
+      <button class="nav-f next" id="m-next" aria-label="Próxima foto">›</button>
+      <div class="thumbs" id="m-thumbs"></div>
+    </div>
     <div class="m-body">
       <small id="m-brand"></small>
       <h3 id="m-title"></h3>
-      <p id="m-desc" class="muted"></p>
-      <ul id="m-specs" class="specs"></ul>
-      <div class="price"><strong id="m-price"></strong><span id="m-pmt"></span></div>
+      <p class="versao" id="m-versao"></p>
+      <div class="m-price"><strong id="m-price"></strong><span id="m-pmt"></span></div>
       <div class="m-cta">
         <button class="btn btn-primary" id="m-add">Adicionar ao carrinho</button>
         <button class="btn btn-line" id="m-sim">Simular</button>
       </div>
+      <button class="btn btn-wa full" id="m-whats">Tenho interesse: falar no WhatsApp</button>
+      <p id="m-desc" class="muted"></p>
+      <h4>Ficha técnica</h4>
+      <dl class="ficha" id="m-ficha"></dl>
+      <h4>Itens e opcionais</h4>
+      <ul class="opc" id="m-opc"></ul>
+      <button class="link share" id="m-share"><svg viewBox="0 0 24 24"><circle cx="18" cy="5" r="2.5"/><circle cx="6" cy="12" r="2.5"/><circle cx="18" cy="19" r="2.5"/><path d="M8.2 10.8l7.6-4.4M8.2 13.2l7.6 4.4"/></svg>Compartilhar este carro</button>
     </div>
   </div>
 
@@ -198,6 +232,7 @@
 
   <div class="toast" id="toast" role="status"></div>
 
+  <script src="estoque.js"></script>
   <script src="app.js"></script>
 </body>
 </html>

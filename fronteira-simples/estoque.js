@@ -1,0 +1,208 @@
+// ============================================================
+//  ESTOQUE DA FRONTEIRA VEÍCULOS
+//  Para cadastrar um carro, copie um bloco { ... } e troque os dados.
+//  - cat: '0KM', 'Seminovo' ou 'Premium'
+//  - fotos: lista de imagens (a primeira é a capa). Coloque as fotos em assets/carros/
+//  - precoDe (opcional): preço antigo riscado, para promoções
+//  - selo (opcional): etiqueta curta no cartão, ex.: 'Black November', 'Único dono'
+//  Valores de referência: confira com a tabela da loja antes de publicar.
+// ============================================================
+window.ESTOQUE = [
+  // ---------------- 0KM ----------------
+  {
+    id: 'jeep-compass-s', cat: '0KM', marca: 'Jeep', modelo: 'Compass', versao: 'S T270 1.3 Turbo Flex AT6',
+    ano: '2025/2026', km: 0, preco: 249990, precoDe: 264990, selo: 'Black November',
+    cambio: 'Automático', combustivel: 'Flex', carroceria: 'SUV', cor: 'Cinza Sting', motor: '1.3 Turbo', potencia: '185 cv', portas: 4,
+    fotos: ['assets/carros/jeep-compass-s-1.webp', 'assets/carros/jeep-compass-s-2.webp'],
+    desc: 'O SUV mais desejado do Brasil na versão topo de linha: teto solar panorâmico, teto preto, rodas aro 19 e acabamento S exclusivo.',
+    opcionais: ['Teto solar panorâmico', 'Bancos em couro', 'Central 10,1" com Android Auto/Apple CarPlay', 'Painel digital 10,25"', 'Piloto automático adaptativo', 'Frenagem autônoma de emergência', 'Porta-malas elétrico', 'Carregador por indução'],
+  },
+  {
+    id: 'jeep-renegade', cat: '0KM', marca: 'Jeep', modelo: 'Renegade', versao: 'Longitude T270 1.3 Turbo Flex AT6',
+    ano: '2025/2026', km: 0, preco: 159990, selo: 'Mais vendido',
+    cambio: 'Automático', combustivel: 'Flex', carroceria: 'SUV', cor: 'Branco Polar', motor: '1.3 Turbo', potencia: '185 cv', portas: 4,
+    fotos: [],
+    desc: 'Robusto, compacto e com o motor turbo mais forte da categoria. Ideal para a cidade e para a estrada.',
+    opcionais: ['Central 8,4" com Android Auto/Apple CarPlay', 'Ar-condicionado digital', 'Faróis full LED', 'Câmera de ré', 'Sensor de estacionamento', 'Rodas aro 18', '6 airbags'],
+  },
+  {
+    id: 'jeep-commander', cat: '0KM', marca: 'Jeep', modelo: 'Commander', versao: 'Overland T270 1.3 Turbo Flex AT6 7 lugares',
+    ano: '2025/2026', km: 0, preco: 289990,
+    cambio: 'Automático', combustivel: 'Flex', carroceria: 'SUV', cor: 'Prata Billet', motor: '1.3 Turbo', potencia: '185 cv', portas: 4,
+    fotos: [],
+    desc: 'O SUV de 7 lugares da Jeep: espaço para toda a família, acabamento premium e tecnologia de série.',
+    opcionais: ['7 lugares', 'Teto solar panorâmico', 'Bancos em couro com ventilação', 'Som Harman Kardon', 'Piloto automático adaptativo', 'Assistente de faixa', 'Porta-malas elétrico', 'Câmera 360°'],
+  },
+  {
+    id: 'ford-ranger', cat: '0KM', marca: 'Ford', modelo: 'Ranger', versao: 'XLT 2.0 Turbo Diesel 4x4 AT10',
+    ano: '2025/2026', km: 0, preco: 289990, selo: 'Black November', precoDe: 299990,
+    cambio: 'Automático', combustivel: 'Diesel', carroceria: 'Picape', cor: 'Branco Ártico', motor: '2.0 Turbo Diesel', potencia: '170 cv', portas: 4,
+    fotos: [],
+    desc: 'A nova geração da Ranger: tração 4x4, câmbio de 10 marchas e muita tecnologia para o trabalho e o lazer.',
+    opcionais: ['Tração 4x4 com reduzida', 'Central 10" com SYNC 4', 'Painel digital', 'Câmera de ré', 'Faróis full LED', 'Controle de descida', 'Bancos em couro'],
+  },
+  {
+    id: 'ford-territory', cat: '0KM', marca: 'Ford', modelo: 'Territory', versao: 'Titanium 1.5 EcoBoost Turbo DCT',
+    ano: '2025/2026', km: 0, preco: 219990,
+    cambio: 'Automático', combustivel: 'Gasolina', carroceria: 'SUV', cor: 'Cinza', motor: '1.5 EcoBoost Turbo', potencia: '169 cv', portas: 4,
+    fotos: [],
+    desc: 'SUV médio com telas gigantes, muito espaço interno e um pacote completo de assistências ao motorista.',
+    opcionais: ['Tela dupla de 12,3"', 'Teto solar panorâmico', 'Bancos com ventilação', 'Piloto automático adaptativo', 'Câmera 360°', 'Carregador por indução'],
+  },
+  {
+    id: 'ram-rampage', cat: '0KM', marca: 'RAM', modelo: 'Rampage', versao: 'Rebel 2.0 Turbo 4x4 AT9',
+    ano: '2025/2026', km: 0, preco: 259990,
+    cambio: 'Automático', combustivel: 'Gasolina', carroceria: 'Picape', cor: 'Cinza Granite', motor: '2.0 Hurricane Turbo', potencia: '272 cv', portas: 4,
+    fotos: [],
+    desc: 'A picape intermediária mais potente do Brasil, com visual Rebel e tração 4x4 sob demanda.',
+    opcionais: ['Tração 4x4', 'Central 12,3"', 'Painel digital', 'Som Harman Kardon', 'Rodas aro 18', 'Bancos em couro', 'Partida remota'],
+  },
+  {
+    id: 'ram-1500', cat: '0KM', marca: 'RAM', modelo: '1500', versao: 'Laramie 3.0 Hurricane Biturbo 4x4 AT8',
+    ano: '2025/2026', km: 0, preco: 459990,
+    cambio: 'Automático', combustivel: 'Gasolina', carroceria: 'Picape', cor: 'Preto Diamond', motor: '3.0 Biturbo', potencia: '420 cv', portas: 4,
+    fotos: [],
+    desc: 'Picape full-size com motor biturbo de 420 cv, cabine de luxo e capacidade de reboque de sobra.',
+    opcionais: ['Suspensão a ar', 'Tela de 14,5"', 'Teto solar', 'Bancos com aquecimento e ventilação', 'Som Harman Kardon', 'Câmera 360°'],
+  },
+  {
+    id: 'hyundai-creta', cat: '0KM', marca: 'Hyundai', modelo: 'Creta', versao: 'Ultimate 2.0 Flex AT6',
+    ano: '2025/2026', km: 0, preco: 169990,
+    cambio: 'Automático', combustivel: 'Flex', carroceria: 'SUV', cor: 'Prata Titanium', motor: '2.0', potencia: '167 cv', portas: 4,
+    fotos: [],
+    desc: 'Um dos SUVs mais vendidos do país, com garantia de 5 anos, teto solar e pacote completo de segurança.',
+    opcionais: ['Teto solar', 'Bancos em couro', 'Central 10,25"', 'Ar-condicionado digital', 'Frenagem autônoma', 'Garantia de 5 anos'],
+  },
+  {
+    id: 'hyundai-hb20', cat: '0KM', marca: 'Hyundai', modelo: 'HB20', versao: 'Platinum Plus 1.0 TGDI AT6',
+    ano: '2025/2026', km: 0, preco: 117990,
+    cambio: 'Automático', combustivel: 'Flex', carroceria: 'Hatch', cor: 'Azul', motor: '1.0 Turbo', potencia: '120 cv', portas: 4,
+    fotos: [],
+    desc: 'O hatch turbo completo: econômico, gostoso de dirigir e com a garantia de 5 anos da Hyundai.',
+    opcionais: ['Central 8" com Android Auto/Apple CarPlay', 'Ar-condicionado digital', 'Chave presencial', 'Frenagem autônoma', 'Rodas aro 16', 'Garantia de 5 anos'],
+  },
+  {
+    id: 'hyundai-tucson', cat: '0KM', marca: 'Hyundai', modelo: 'Tucson', versao: 'Limited 1.6 TGDI Híbrido AT6',
+    ano: '2025/2026', km: 0, preco: 299990,
+    cambio: 'Automático', combustivel: 'Híbrido', carroceria: 'SUV', cor: 'Branco', motor: '1.6 Turbo Híbrido', potencia: '230 cv', portas: 4,
+    fotos: [],
+    desc: 'Design marcante, motor híbrido de 230 cv e um interior de primeira linha.',
+    opcionais: ['Motorização híbrida', 'Teto solar panorâmico', 'Painel digital 10,25"', 'Bancos com ventilação', 'Câmera 360°', 'Piloto automático adaptativo'],
+  },
+  {
+    id: 'byd-dolphin', cat: '0KM', marca: 'BYD', modelo: 'Dolphin', versao: 'GS 100% elétrico',
+    ano: '2025/2026', km: 0, preco: 149800, selo: 'Elétrico',
+    cambio: 'Automático', combustivel: 'Elétrico', carroceria: 'Hatch', cor: 'Azul', motor: 'Elétrico', potencia: '95 cv', portas: 4,
+    fotos: [],
+    desc: 'Elétrico de verdade para o dia a dia: autonomia de até 291 km (Inmetro) e custo de rodagem muito baixo.',
+    opcionais: ['Autonomia de 291 km (Inmetro)', 'Tela giratória de 12,8"', 'Recarga rápida', 'Teto solar', 'Câmera 360°', 'Isenção de IPVA no RS'],
+  },
+  {
+    id: 'byd-song', cat: '0KM', marca: 'BYD', modelo: 'Song Plus', versao: 'DM-i Híbrido Plug-in',
+    ano: '2025/2026', km: 0, preco: 239800, selo: 'Híbrido',
+    cambio: 'Automático', combustivel: 'Híbrido', carroceria: 'SUV', cor: 'Cinza', motor: '1.5 Híbrido Plug-in', potencia: '235 cv', portas: 4,
+    fotos: [],
+    desc: 'SUV híbrido plug-in que roda boa parte do dia só na eletricidade, com mais de 1.000 km de autonomia combinada.',
+    opcionais: ['Híbrido plug-in', 'Tela giratória de 15,6"', 'Teto solar panorâmico', 'Bancos com ventilação', 'Câmera 360°', 'Carregador por indução'],
+  },
+  {
+    id: 'byd-seal', cat: '0KM', marca: 'BYD', modelo: 'Seal', versao: 'AWD Performance 100% elétrico',
+    ano: '2025/2026', km: 0, preco: 296800, selo: 'Elétrico',
+    cambio: 'Automático', combustivel: 'Elétrico', carroceria: 'Sedã', cor: 'Branco', motor: 'Elétrico (2 motores)', potencia: '531 cv', portas: 4,
+    fotos: [],
+    desc: 'Sedã elétrico esportivo: 531 cv, tração integral e 0 a 100 km/h em 3,8 segundos.',
+    opcionais: ['Tração integral', '0 a 100 km/h em 3,8 s', 'Teto de vidro', 'Som Dynaudio', 'Head-up display', 'Câmera 360°'],
+  },
+
+  // ---------------- SEMINOVOS ----------------
+  {
+    id: 'toyota-corolla-cross', cat: 'Seminovo', marca: 'Toyota', modelo: 'Corolla Cross', versao: 'XRE 2.0 Flex CVT',
+    ano: '2022/2023', km: 38500, preco: 149900, selo: 'Único dono', placa: '7',
+    cambio: 'Automático', combustivel: 'Flex', carroceria: 'SUV', cor: 'Branco', motor: '2.0', potencia: '177 cv', portas: 4,
+    fotos: [],
+    desc: 'Revisões feitas na concessionária, manual e chave reserva. Excelente estado.',
+    opcionais: ['Bancos em couro', 'Central multimídia', 'Câmera de ré', 'Toyota Safety Sense', 'Ar digital'],
+  },
+  {
+    id: 'toyota-hilux', cat: 'Seminovo', marca: 'Toyota', modelo: 'Hilux', versao: 'SRV 2.8 Turbo Diesel 4x4 AT6',
+    ano: '2021/2021', km: 86000, preco: 229900, placa: '3',
+    cambio: 'Automático', combustivel: 'Diesel', carroceria: 'Picape', cor: 'Prata', motor: '2.8 Turbo Diesel', potencia: '204 cv', portas: 4,
+    fotos: [],
+    desc: 'A picape mais confiável do mercado, pronta para o campo e para a cidade. Laudo cautelar aprovado.',
+    opcionais: ['Tração 4x4 com reduzida', 'Bancos em couro', 'Central multimídia', 'Câmera de ré', 'Controle de estabilidade'],
+  },
+  {
+    id: 'vw-t-cross', cat: 'Seminovo', marca: 'Volkswagen', modelo: 'T-Cross', versao: 'Highline 250 TSI AT6',
+    ano: '2021/2022', km: 52000, preco: 119900, placa: '5',
+    cambio: 'Automático', combustivel: 'Flex', carroceria: 'SUV', cor: 'Cinza', motor: '1.4 TSI', potencia: '150 cv', portas: 4,
+    fotos: [],
+    desc: 'SUV compacto com motor 1.4 turbo e painel digital. Pneus novos.',
+    opcionais: ['Painel digital Active Info Display', 'Central multimídia', 'Teto solar', 'Bancos em couro', 'Sensor de estacionamento'],
+  },
+  {
+    id: 'chevrolet-onix', cat: 'Seminovo', marca: 'Chevrolet', modelo: 'Onix Plus', versao: 'Premier 1.0 Turbo AT6',
+    ano: '2021/2022', km: 61000, preco: 82900, placa: '9', selo: 'Baixou o preço', precoDe: 87900,
+    cambio: 'Automático', combustivel: 'Flex', carroceria: 'Sedã', cor: 'Cinza Satin Steel', motor: '1.0 Turbo', potencia: '116 cv', portas: 4,
+    fotos: [],
+    desc: 'Sedã econômico e completo, com Wi-Fi nativo e porta-malas de 469 litros.',
+    opcionais: ['Wi-Fi nativo', 'Central MyLink', 'Partida por botão', 'Câmera de ré', 'Rodas aro 16'],
+  },
+  {
+    id: 'fiat-mobi', cat: 'Seminovo', marca: 'Fiat', modelo: 'Mobi', versao: 'Trekking 1.0 Fire Flex',
+    ano: '2024/2025', km: 12000, preco: 72990, placa: '1',
+    cambio: 'Manual', combustivel: 'Flex', carroceria: 'Hatch', cor: 'Vermelho Montecarlo', motor: '1.0', potencia: '75 cv', portas: 4,
+    fotos: ['assets/carros/fiat-mobi-1.webp', 'assets/carros/fiat-mobi-2.webp'],
+    desc: 'Compacto, econômico e com visual aventureiro: suspensão elevada, rack de teto e rodas escurecidas.',
+    opcionais: ['Rack de teto', 'Central multimídia', 'Ar-condicionado', 'Direção elétrica', 'Vidros elétricos'],
+  },
+  {
+    id: 'fiat-strada', cat: 'Seminovo', marca: 'Fiat', modelo: 'Strada', versao: 'Volcano 1.3 Flex Cabine Dupla',
+    ano: '2022/2022', km: 47000, preco: 99900, placa: '4',
+    cambio: 'Manual', combustivel: 'Flex', carroceria: 'Picape', cor: 'Branco Banchisa', motor: '1.3', potencia: '109 cv', portas: 4,
+    fotos: [],
+    desc: 'A picape mais vendida do Brasil, cabine dupla e caçamba com capota marítima.',
+    opcionais: ['Cabine dupla', 'Capota marítima', 'Central multimídia', 'Câmera de ré', 'Rodas aro 16'],
+  },
+  {
+    id: 'honda-hr-v', cat: 'Seminovo', marca: 'Honda', modelo: 'HR-V', versao: 'EXL 1.5 Turbo CVT',
+    ano: '2023/2023', km: 29000, preco: 159900, placa: '6', selo: 'Baixa km',
+    cambio: 'Automático', combustivel: 'Gasolina', carroceria: 'SUV', cor: 'Cinza', motor: '1.5 Turbo', potencia: '177 cv', portas: 4,
+    fotos: [],
+    desc: 'Nova geração do HR-V com motor turbo, Honda Sensing e garantia de fábrica.',
+    opcionais: ['Honda Sensing', 'Bancos em couro', 'Ar digital dual zone', 'Carregador por indução', 'Câmera de ré'],
+  },
+  {
+    id: 'chevrolet-s10', cat: 'Seminovo', marca: 'Chevrolet', modelo: 'S10', versao: 'LTZ 2.8 Turbo Diesel 4x4 AT6',
+    ano: '2021/2022', km: 74000, preco: 189900, placa: '2',
+    cambio: 'Automático', combustivel: 'Diesel', carroceria: 'Picape', cor: 'Branco Summit', motor: '2.8 Turbo Diesel', potencia: '200 cv', portas: 4,
+    fotos: [],
+    desc: 'Picape forte e completa, com tração 4x4 e revisões em dia.',
+    opcionais: ['Tração 4x4', 'Bancos em couro', 'Central MyLink', 'Câmera de ré', 'Partida remota'],
+  },
+
+  // ---------------- PREMIUM ----------------
+  {
+    id: 'porsche-911', cat: 'Premium', marca: 'Porsche', modelo: '911', versao: 'Carrera S 3.0 Biturbo PDK',
+    ano: '2021/2021', km: 18000, preco: 989900, placa: '8',
+    cambio: 'Automático', combustivel: 'Gasolina', carroceria: 'Esportivo', cor: 'Cinza', motor: '3.0 Biturbo', potencia: '450 cv', portas: 2,
+    fotos: [],
+    desc: 'O esportivo mais icônico do mundo, com histórico completo de revisões.',
+    opcionais: ['Sport Chrono', 'Escapamento esportivo', 'Bancos esportivos', 'Som Bose', 'Faróis LED Matrix'],
+  },
+  {
+    id: 'bmw-x5', cat: 'Premium', marca: 'BMW', modelo: 'X5', versao: 'xDrive45e M Sport Híbrido',
+    ano: '2022/2022', km: 41000, preco: 489900, placa: '0',
+    cambio: 'Automático', combustivel: 'Híbrido', carroceria: 'SUV', cor: 'Branco', motor: '3.0 Turbo Híbrido', potencia: '394 cv', portas: 4,
+    fotos: [],
+    desc: 'SUV de luxo híbrido plug-in, pacote M Sport e manutenção em dia na rede autorizada.',
+    opcionais: ['Teto solar panorâmico', 'Bancos com massagem', 'Som Harman Kardon', 'Head-up display', 'Suspensão a ar'],
+  },
+  {
+    id: 'mclaren-720s', cat: 'Premium', marca: 'McLaren', modelo: '720S Spider', versao: 'V8 4.0 Biturbo',
+    ano: '2023/2023', km: 6000, preco: 3490000, placa: '7', selo: 'Raridade',
+    cambio: 'Automático', combustivel: 'Gasolina', carroceria: 'Esportivo', cor: 'Azul Belize', motor: 'V8 4.0 Biturbo', potencia: '720 cv', portas: 2,
+    fotos: ['assets/carros/mclaren-720s-1.webp', 'assets/carros/mclaren-720s-2.webp'],
+    desc: 'V8 biturbo de 720 cv, monocoque em fibra de carbono e teto retrátil em 11 segundos.',
+    opcionais: ['Teto rígido retrátil', 'Freios de carbono-cerâmica', 'Som Bowers & Wilkins', 'Câmera 360°', 'Lift dianteiro'],
+  },
+];
