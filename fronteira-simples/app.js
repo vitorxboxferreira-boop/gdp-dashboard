@@ -83,7 +83,7 @@ function cardHTML(c) {
   <article class="car" data-id="${c.id}" data-cat="${c.cat}" tabindex="0" aria-label="Ver detalhes do ${esc(nome(c))}">
     <div class="car-img">
       <div class="tags">${tags.map((t, i) => `<span class="badge ${i ? 'selo' : 'cat-' + c.cat}">${esc(t)}</span>`).join('')}</div>
-      <img src="${c.fotos[0]}" alt="${esc(nome(c))}" loading="lazy" width="800" height="500">
+      <img src="${c.fotos[0]}" alt="${esc(nome(c))}" loading="lazy" width="1200" height="800">
       ${c.fotos.length > 1 ? `<span class="nfotos"><svg viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="14" rx="2"/><circle cx="12" cy="13" r="3.5"/><path d="M8 6l2-2h4l2 2"/></svg>${c.fotos.length}</span>` : ''}
     </div>
     <div class="car-body">
@@ -404,6 +404,10 @@ $('#hero-n').textContent = CARROS.length;
 // link direto para um carro (ex.: ...#carro=compass-s)
 const deep = location.hash.match(/^#carro=(.+)$/);
 if (deep && byId(deep[1])) setTimeout(() => abrirModal(deep[1]), 300);
+addEventListener('hashchange', () => {
+  const m = location.hash.match(/^#carro=(.+)$/);
+  if (m && byId(m[1]) && modalId !== m[1]) abrirModal(m[1]);
+});
 
 // ================= MENU DO CELULAR =================
 const burger = $('#burger');
